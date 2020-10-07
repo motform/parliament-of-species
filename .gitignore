@@ -1,0 +1,10 @@
+*.log
+.clj-kondo
+.shadow-cljs/
+.nrepl-port
+.cpcache/
+node_modules/
+!resources/public
+resources/public/js/
+package-lock.json
+TODO.org
