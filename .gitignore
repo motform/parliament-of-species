@@ -3,6 +3,8 @@
 .shadow-cljs/
 .nrepl-port
 .cpcache/
+datomic/
+resources/edn/config.edn
 node_modules/
 !resources/public
 resources/public/js/

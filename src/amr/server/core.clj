@@ -1,5 +1,6 @@
 (ns amr.server.core
   (:require [amr.server.routes :as routes]
+            [amr.config :refer [config]]
             [reitit.dev.pretty :as pretty]
             [reitit.ring :as ring]
             [reitit.ring.middleware.muuntaja :as muuntaja]
@@ -27,7 +28,7 @@
    (ring/create-default-handler)))
 
 (defn start! []
-  (let [port 3000]
+  (let [port (or (get-in config [:server :port]) 3000)]
     (jetty/run-jetty #'server {:port port :join? false})
     (println "Server running at " port)))
 
@@ -36,5 +37,4 @@
   (server {:request-method :get
            :uri "/api/ping" :query-params {:e "pong"}})
   )
-
 
