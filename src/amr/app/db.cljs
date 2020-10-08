@@ -3,8 +3,19 @@
             [cljs.spec.alpha :as s]
             [re-frame.core :as rf]))
 
+(s/def ::db (s/keys :req-un [::state]))
+(s/def ::state (s/keys :req-un [::active-page]))
+(s/def ::active-page #{:home :game})
+
 (def default-db
-  {:state {:active-page :home}})
+  {:state {:active-page :home}
+   :game  {:screen :intro
+           :previous-screen nil ;; TODO should be a queue
+           :entity nil
+           :entities {:aqua 8
+                      :flora 2
+                      :fauna 7
+                      :homo-sapiens 5}}})
 
 ;;; local-storage
 

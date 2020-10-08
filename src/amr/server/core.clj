@@ -3,10 +3,11 @@
             [amr.config :refer [config]]
             [reitit.dev.pretty :as pretty]
             [reitit.ring :as ring]
+            [reitit.ring.middleware.dev :as dev]
             [reitit.ring.middleware.muuntaja :as muuntaja]
             [reitit.ring.middleware.exception :as exception]
             [reitit.ring.middleware.parameters :as parameters]
-            [reitit.spec :as rs]
+            [reitit.spec :as spec]
             [ring.adapter.jetty :as jetty]
             [muuntaja.core :as m]))
 
@@ -17,7 +18,8 @@
     [["/api" routes/ping]]
 
     {:exception pretty/exception
-     :validate rs/validate
+     :validate spec/validate
+     :reitit.middleware/transform dev/print-request-diffs
      :data {:muuntaja m/instance
             :middleware [parameters/parameters-middleware
                          muuntaja/format-negotiate-middleware
@@ -37,4 +39,3 @@
   (server {:request-method :get
            :uri "/api/ping" :query-params {:e "pong"}})
   )
-

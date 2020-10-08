@@ -1,0 +1,126 @@
+/* Variables */
+
+:root {
+    --bg: whitesmoke;
+    --fg: black;
+    --ia: gray;
+}
+
+/* @media (prefers-color-scheme: dark) { */
+/*     :root { */
+/*         --bg: #1e1e1e; */
+/*         --fg: whitesmoke; */
+/*         --ia: gray; */
+/*     } */
+/* } */
+
+/* Global */
+
+* {
+    box-sizing: border-box;
+}
+
+html {
+    font-size: 5px;
+    font-family: sans-serif;
+}
+
+body {
+    font-size: 4rem;
+    background: var(--bg);
+    Color: var(--fg);
+}
+
+p {
+    white-space: pre;
+}
+
+#mount {
+    display: flex;
+}
+
+main {
+    margin: 5rem;
+}
+
+.error {
+    margin: 5rem;
+    color: red;
+    font-family: monospace;
+}
+
+button {
+    margin: 5rem 0;
+    font-size: 4rem;
+    color: var(--fg);
+    background: var(--bg);
+    border: 1px solid var(--fg);
+    padding: 2rem;
+}
+
+button:hover {
+    color: var(--bg);
+    background: var(--fg);
+    border-color: var(--bg);
+    cursor: pointer;
+}
+
+h1 {
+    font-size: 7rem;
+    margin-bottom: 5rem;
+}
+
+h2 {
+    font-size: 5rem;
+}
+
+/* HOME */
+
+.home {
+}
+
+
+/* Game */
+
+nav {
+    display: flex;
+    justify-content: space-between;
+}
+
+.status-bar {
+    display: flex;
+    flex-direction: column;
+    margin: 2.5rem 0;
+}
+
+.entities {
+    display: flex;
+    flex-direction: column;
+    grid-template-columns: repeat(2, 1fr);
+}
+
+.entities > .entity {
+    margin: 2.5rem 0;
+}
+
+.select-entity {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    grid-gap: 10rem;
+    margin: 10rem 0;
+}
+
+.select-entity > .entity {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    width: 25rem;
+    height: 25rem;
+    text-align: center;
+    color: var(--fg);
+}
+
+.entity:hover {
+    cursor: pointer;
+}

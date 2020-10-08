@@ -38,3 +38,16 @@
  :initialize-db
  (fn [_ [_ default-db]]
    {:db default-db}))
+
+(reg-event-db
+ :active-page
+ (fn [db [_ page]]
+   (assoc-in db [:state :active-page] page)))
+
+(reg-event-db
+ :game/screen
+ (fn [db [_ screen]]
+   (let [current-screen (get-in db [:game :screen])]
+     (-> db
+         (assoc-in [:game :previous-screen] current-screen)
+         (assoc-in [:game :screen] screen)))))
