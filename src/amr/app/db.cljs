@@ -8,21 +8,24 @@
 (s/def ::active-page #{:home :game})
 
 (def default-db
-  {:state {:active-page :home}
-   :game  {:screen :intro
-           :previous-screen nil ;; TODO should be a queue
-           :entity nil
-           :entities {:aqua 8
-                      :flora 2
-                      :fauna 7
-                      :homo-sapiens 5}}})
+  {:app  {:active-page :home}
+   :game {:session-id (random-uuid)
+          :ui? false
+          :screen :intro
+          :previous-screen nil ;; TODO should be a re-undo
+          :entity nil
+          :entities {:aqua 8
+                     :flora 2
+                     :fauna 7
+                     :homo-sapiens 5
+                     :bacterica 2}}})
 
 ;;; local-storage
 
 (def ls-key "amr.dsi")
 
 (defn collections->local-storage [db]
-  (.setItem js/localStorage ls-key (str (:stories db))))
+  (.setItem js/localStorage ls-key (str db)))
 
 (rf/reg-cofx ; source: re-frame docs
  :local-store-collections

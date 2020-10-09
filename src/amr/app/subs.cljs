@@ -2,9 +2,9 @@
   (:require [re-frame.core :refer [reg-sub subscribe]]))
 
 (reg-sub
- :active-page
+ ::active-page
  (fn [db _]
-   (get-in db [:state :active-page])))
+   (get-in db [:app :active-page])))
 
 (reg-sub
  :game/screen
@@ -20,3 +20,14 @@
  :game/entities
  (fn [db _]
    (get-in db [:game :entities])))
+
+(reg-sub
+ :game/ui?
+ (fn [db _]
+   (get-in db [:game :ui?])))
+
+;; TODO optimize
+(reg-sub
+ :game/state
+ (fn [db _]
+   (get-in db [:game])))

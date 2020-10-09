@@ -1,6 +1,6 @@
 (ns amr.app.core
   (:require [amr.app.db :as db]
-            [amr.app.events :as events]
+            [amr.app.events :as event]
             [amr.app.subs :as subs]
             [amr.app.views.app :refer [app]]
             [goog.dom :as gdom]
@@ -18,5 +18,5 @@
   (render))
 
 (defn ^:export mount []
-  (rf/dispatch-sync [:initialize-db db/default-db])
+  (rf/dispatch-sync [:app/initialize-db db/default-db])
   (render))

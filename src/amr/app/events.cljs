@@ -35,14 +35,19 @@
 ;;    {:db (utils/?assoc default-db :stories local-store-collections)}))
 
 (reg-event-fx
- :initialize-db
+ :app/initialize-db
  (fn [_ [_ default-db]]
    {:db default-db}))
 
 (reg-event-db
- :active-page
+ :app/active-page
  (fn [db [_ page]]
-   (assoc-in db [:state :active-page] page)))
+   (assoc-in db [:app :active-page] page)))
+
+(reg-event-db
+ :game/ui?
+ (fn [db [_ bool]]
+   (assoc-in db [:game :ui?] bool)))
 
 (reg-event-db
  :game/screen
@@ -51,3 +56,14 @@
      (-> db
          (assoc-in [:game :previous-screen] current-screen)
          (assoc-in [:game :screen] screen)))))
+
+(reg-event-db
+ :game/select-entity
+ (fn [db [_ entity]]
+   (assoc-in db [:game :entity] entity)))
+
+;; TODO make into ajax-fx
+(reg-event-db
+ :game/submit-reflection
+ (fn [db [_ reflection id]]
+   (assoc-in db [:temp id] reflection)))

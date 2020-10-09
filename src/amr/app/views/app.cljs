@@ -11,7 +11,7 @@
     [:div.error "Error, no page found!"]))
 
 (defn app []
-  (let [page @(rf/subscribe [:active-page])]
+  (let [page @(rf/subscribe [::subs/active-page])]
     [:<>
      ;; [header]
      [active-page page]]))

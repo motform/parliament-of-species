@@ -1,7 +1,12 @@
+/* Parliment of Species
+ *
+ * Primary CSS.
+ */
+
 /* Variables */
 
 :root {
-    --bg: whitesmoke;
+    --bg: gray;
     --fg: black;
     --ia: gray;
 }
@@ -26,13 +31,10 @@ html {
 }
 
 body {
-    font-size: 4rem;
+    font-family: "Obviously";
+    font-size: 3rem;
     background: var(--bg);
-    Color: var(--fg);
-}
-
-p {
-    white-space: pre;
+    color: var(--fg);
 }
 
 #mount {
@@ -65,13 +67,58 @@ button:hover {
     cursor: pointer;
 }
 
+a {
+    color: var(--fg);
+}
+
 h1 {
     font-size: 7rem;
-    margin-bottom: 5rem;
 }
 
 h2 {
     font-size: 5rem;
+}
+
+h3 {
+    text-transform: uppercase;
+    font-size: 3rem;
+}
+
+nav {
+    margin-top: 5rem;
+}
+
+progress {
+    color: red;
+    background: white;
+    border-radius: 0;
+    width: 20rem;
+    height: 3rem;
+}
+
+textarea {
+    background: white;
+    padding: 3rem;
+    font-family: "Vulf Mono";
+    border: 0;
+    margin: 3rem 0;
+    resize: none;
+}
+
+/* Helpers */
+
+.col {
+    display: flex;
+    flex-direction: column;
+}
+
+.row {
+    display: flex;
+    flex-direction: row;
+}
+
+.padded {
+    padding: 5rem;
 }
 
 /* HOME */
@@ -87,10 +134,19 @@ nav {
     justify-content: space-between;
 }
 
-.status-bar {
+.status-bars {
     display: flex;
-    flex-direction: column;
-    margin: 2.5rem 0;
+    justify-content: space-between;
+}
+
+.status-bar {
+    margin-right: 2.5rem;
+    text-transform: uppercase;
+    font-size: 3rem;
+}
+
+.status-bar label {
+    color: black;
 }
 
 .entities {
@@ -111,16 +167,103 @@ nav {
 }
 
 .select-entity > .entity {
+    color: white;
     display: flex;
     justify-content: center;
     align-items: center;
-
-    width: 25rem;
-    height: 25rem;
+    height: 40rem;
     text-align: center;
     color: var(--fg);
 }
 
 .entity:hover {
     cursor: pointer;
+}
+
+.event-reaction {
+    display: flex;
+    flex-direction: column;
+}
+
+.card {
+    width: 100%;
+    margin: 5rem 0;
+    background: white;
+}
+
+.card footer {
+    background: white;
+    color: black;
+    text-align: center;
+    padding: 5rem;
+    justify-content: space-between;
+}
+
+.card h1 {
+    text-transform: uppercase;
+}
+
+.card label {
+    text-transform: uppercase;
+}
+
+.projection {
+    background: green;
+    color: lightgreen;
+}
+
+.policy {
+    color: lightcoral;
+    background: crimson;
+}
+
+.tags span {
+    text-transform: uppercase;
+    font-size: 3rem;
+    margin-left: 2rem;
+}
+
+.reflection section {
+    background: yellow;
+}
+
+.reflection form > * {
+    margin: 2rem 0;
+}
+
+.btn {
+    color: var(--fg);
+    background: white;
+    padding: 2rem;
+    font-family: "Obviously";
+    border-radius: 0;
+    border: 0;
+    transition: all 0.25s;
+}
+
+.btn:hover {
+    cursor: pointer;
+    color: var(--bg);
+    background: var(--fg);
+}
+
+.btns {
+    display: flex;
+    width: 25rem;
+    justify-content: space-between;
+}
+
+.btn-reaction {
+}
+
+.btn-reaction-active {
+    font-weight: bold;
+    color: var(--fg);
+}
+
+.effect {
+    background: yellow;
+}
+
+.new-policy {
 }
