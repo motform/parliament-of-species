@@ -4,7 +4,7 @@
                 :output-dir "resources/public/js/"
                 :asset-path "/js"
                 :modules {:main {:entries [amr.app.core]
-                                 :init-fn amr.app.core/mount}}
+                                 :init-fn amr.app.core/init}}
                 :compiler-options {:closure-defines {"re_frame.trace.trace_enabled_QMARK_"  true
                                                      "day8.re-frame.tracing.trace-enabled?" true
                                                      "goog.DEBUG" true}}

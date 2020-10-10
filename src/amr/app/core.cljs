@@ -1,35 +1,32 @@
 (ns amr.app.core
-  (:require [amr.app.db :as db]
+  (:require [amr.app.archive.core :refer [archive]]
+            [amr.app.db :as db]
             [amr.app.events :as event]
-            [amr.app.subs :as subs]
-            [amr.app.archive.core :refer [archive]]
-            [amr.app.home.core :refer [home]]
             [amr.app.game.core :refer [game]]
-            [goog.dom :as gdom]
+            [amr.app.home.core :refer [home]]
+            [amr.app.routes :as routes]
+            [amr.app.subs :as subs]
             [re-frame.core :as rf]
             [reagent.dom :as r]))
 
-(enable-console-print!) 
+(def debug? ^boolean goog.DEBUG)
 
-(defn active-page [page]
-  (case page
-    :home [home]
-    :game [game]
-    :archive [archive]
-    [:div.error "Error, no page found!"]))
+(defn dev-setup []
+  (when debug?
+    (enable-console-print!)))
 
-(defn app []
-  (let [page @(rf/subscribe [::subs/active-page])]
-    [active-page page]))
+;; (defn ^:dev/after-load clear-cache-and-render! []
+;;   (rf/clear-subscription-cache!)
+;;   (render))
 
-(defn render []
-  (r/render [app]
-            (gdom/getElement "mount")))
-
-(defn ^:dev/after-load clear-cache-and-render! []
+(defn ^:dev/after-load mount []
   (rf/clear-subscription-cache!)
-  (render))
+  (routes/init-routes!)
+  (r/render [routes/router-component routes/router]
+            (.getElementById js/document "app")))
 
-(defn ^:export mount []
+
+(defn ^:export init []
   (rf/dispatch-sync [::event/initialize-db db/default-db])
-  (render))
+  (dev-setup)
+  (mount))

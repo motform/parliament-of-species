@@ -2,6 +2,6 @@
   (:require [re-frame.core :refer [reg-sub subscribe]]))
 
 (reg-sub
- ::active-page
+ ::route
  (fn [db _]
-   (get-in db [:app :active-page])))
+   (get-in db [:app :route])))

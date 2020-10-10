@@ -10,11 +10,14 @@
                :value title
                :on-click #(rf/dispatch [::event/screen screen])}])
 
+;; (defn nav [next]
+;;   (let [previous @(rf/subscribe [::event/previous-screen])]
+;;     [:nav
+;;      (when previous [change-screen "Back" previous])
+;;      [change-screen "Next" next]]))
+
 (defn nav [next]
-  (let [previous @(rf/subscribe [::event/previous-screen])]
-    [:nav
-     (when previous [change-screen "Back" previous])
-     [change-screen "Next" next]]))
+  [:nav [change-screen "Next" next]])
 
 (defn status-bars [entities]
   (letfn [(status-bar [title id val]

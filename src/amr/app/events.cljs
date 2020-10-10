@@ -3,7 +3,9 @@
             [amr.utils :as utils]
             [ajax.core :as ajax]
             [clojure.spec.alpha :as s]
-            [re-frame.core :as rf :refer [reg-event-db reg-event-fx reg-fx inject-cofx path after debug]]))
+            [re-frame.core :as rf :refer [reg-event-db reg-event-fx reg-fx inject-cofx path after debug]]
+            [reitit.frontend.controllers :as reitit.contollers]
+            [reitit.frontend.easy :as reitit.easy]))
 
 ;;; HELPERS ;;;
 
@@ -26,7 +28,7 @@
 (def ->local-storage (after db/collections->local-storage))
 (def local-storage-interceptor [->local-storage])
 
-;;; STATE ;;;
+;;; EVENTS ;;;
 
 ;; (reg-event-fx
 ;;  :initialize-db
@@ -39,7 +41,24 @@
  (fn [_ [_ default-db]]
    {:db default-db}))
 
+;; (reg-event-db
+;;  ::active-page
+;;  (fn [db [_ page]]
+;;    (assoc-in db [:app :active-page] page)))
+
+(reg-fx
+ ::navigate!
+ (fn [route]
+   (apply reitit.easy/push-state route)))
+
+(reg-event-fx
+ ::navigate
+ (fn [_ [_ & route]]
+   {::navigate! route}))
+
 (reg-event-db
- ::active-page
- (fn [db [_ page]]
-   (assoc-in db [:app :active-page] page)))
+ ::navigated
+ (fn [db [_ new-match]]
+   (let [old-match (-> db :app :current-route)
+         controllers (reitit.contollers/apply-controllers (:contollers old-match) new-match)]
+     (assoc-in db [:app :route] (assoc new-match :contollers controllers)))))

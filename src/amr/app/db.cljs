@@ -8,7 +8,7 @@
 (s/def ::active-page #{:home :game})
 
 (def default-db
-  {:app  {:active-page :home}
+  {:app  {:route nil}
    :game {:cards #queue[] ;; TODO move from discreet screens to a queue of cards
           :session-id (random-uuid)
           :ui? false ;; TODO remove and nil pun :entites
