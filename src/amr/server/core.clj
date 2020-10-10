@@ -38,4 +38,6 @@
 
   (server {:request-method :get
            :uri "/api/ping" :query-params {:e "pong"}})
+
   )
+

@@ -9,8 +9,9 @@
 
 (def default-db
   {:app  {:active-page :home}
-   :game {:session-id (random-uuid)
-          :ui? false
+   :game {:cards #queue[] ;; TODO move from discreet screens to a queue of cards
+          :session-id (random-uuid)
+          :ui? false ;; TODO remove and nil pun :entites
           :screen :intro
           :previous-screen nil ;; TODO should be a re-undo
           :entity nil
@@ -22,7 +23,7 @@
 
 ;;; local-storage
 
-(def ls-key "amr.dsi")
+(def ls-key "parliment.of.species")
 
 (defn collections->local-storage [db]
   (.setItem js/localStorage ls-key (str db)))
