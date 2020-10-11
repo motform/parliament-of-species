@@ -9,9 +9,11 @@
 
 ;;; HELPERS ;;;
 
-(defn ->uri [route]
-  (let [host (.. js/window -location -host)]
-    (str "http://" host "/" route)))
+(defn set-title! [route]
+  (let [route-title (get-in route [:data :title])]
+    (set! (.-title js/document)
+          (cond->> "Parliament of Species"
+            route-title (str route-title " | " )))))
 
 ;;; INTERCEPTORS ;;;
 
@@ -28,13 +30,21 @@
 (def ->local-storage (after db/collections->local-storage))
 (def local-storage-interceptor [->local-storage])
 
-;;; EVENTS ;;;
-
 ;; (reg-event-fx
 ;;  :initialize-db
 ;;  [(inject-cofx :local-store-collections) spec-interceptor]
 ;;  (fn [{:keys [local-store-collections]} [_ default-db]]
 ;;    {:db (utils/?assoc default-db :stories local-store-collections)}))
+
+;;; EFFECTS ;;;
+
+(reg-fx
+ ::navigate!
+ (fn [route]
+   (set-title! route)
+   (apply reitit.easy/push-state route)))
+
+;;; EVENTS ;;;
 
 (reg-event-fx
  ::initialize-db
@@ -46,11 +56,6 @@
 ;;  (fn [db [_ page]]
 ;;    (assoc-in db [:app :active-page] page)))
 
-(reg-fx
- ::navigate!
- (fn [route]
-   (apply reitit.easy/push-state route)))
-
 (reg-event-fx
  ::navigate
  (fn [_ [_ & route]]
@@ -61,4 +66,5 @@
  (fn [db [_ new-match]]
    (let [old-match (-> db :app :current-route)
          controllers (reitit.contollers/apply-controllers (:contollers old-match) new-match)]
+     (set-title! new-match) ;; WARN This now does two things, which I dislike
      (assoc-in db [:app :route] (assoc new-match :contollers controllers)))))

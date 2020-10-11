@@ -27,10 +27,12 @@
    ["game"
     {:name :route/game
      :view game
+     :title "Collaborative Policy Making"
      :link-text "Game"}]
    ["archive"
     {:name :route/archive
      :view archive
+     :title "Archive of Futures"
      :link-text "Archive"}]])
 
 (def router
