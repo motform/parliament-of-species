@@ -6,7 +6,8 @@
 /* Variables */
 
 :root {
-    --bg: #40403e;
+    /* --bg: #40403e; from the reference, maybe a bit too dark */
+    --bg: gray;
     --fg: black;
     --ia: gray;
 }
@@ -97,12 +98,16 @@ progress {
 }
 
 textarea {
-    background: white;
-    padding: 3rem;
-    font-family: "Vulf Mono";
-    border: 0;
-    margin: 3rem 0;
+    background: crimson;
+    border: 2px solid lightcoral;
+    color: white;
+    border-width: 0 0 2px 0;
+    padding-bottom: 2rem;
+    font-family: "ISO v0.8";
+    margin: 4rem 0;
     resize: none;
+    font-size: 4rem;
+    outline: none;
 }
 
 /* Helpers */
@@ -121,17 +126,36 @@ textarea {
     padding: 5rem;
 }
 
+/* HEADER */
+
+header {
+    min-height: 20rem;
+    background: whitesmoke;
+}
+
+/* FOOTER */
+
+footer {
+    min-height: 30rem;
+    background: whitesmoke;
+}
+
 /* HOME */
 
 .home {
+    min-height: 70vh;
 }
 
 
-/* Game */
+/* GAME */
 
 nav {
     display: flex;
     justify-content: space-between;
+}
+
+.game {
+    min-height: 100vh;
 }
 
 .status-bars {
@@ -176,6 +200,17 @@ nav {
     color: var(--fg);
 }
 
+.entity {
+    transition: all 0.25s;
+}
+
+.entity:hover {
+    box-shadow: 10px 10px;
+}
+
+.entity img {
+    margin-right: 5rem;
+}
 .entity:hover {
     cursor: pointer;
 }
@@ -191,11 +226,10 @@ nav {
     background: white;
 }
 
-.card footer {
+.card-footer {
     background: white;
     color: black;
     text-align: center;
-    padding: 5rem;
     justify-content: space-between;
 }
 
@@ -205,6 +239,13 @@ nav {
 
 .card label {
     text-transform: uppercase;
+}
+
+.banner {
+    font-family: "Obviously";
+    text-align: center;
+    text-transform: uppercase;
+    background: yellow;
 }
 
 .projection {
