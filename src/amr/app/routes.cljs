@@ -5,19 +5,13 @@
             [amr.app.events :as event]
             [amr.app.subs :as sub]
             [reitit.core :as reitit]
+            [reitit.coercion.spec :as reitit.spec]
             [reitit.frontend :as reitit.frontend]
             [reitit.frontend.easy :as reitit.easy]
             [re-frame.core :as rf]))
 
 ;;; ROUTER ;;;
 
-(def titles
-  {:home ""
-   :archive "Archive of Futures"
-   :game "Game"})
-
-;; TODO add route coercion as per https://github.com/metosin/reitit/blob/master/examples/frontend-re-frame/src/cljs/frontend_re_frame/core.cljs
-;; TODO stop the href from linking to '/#/uri' 
 (def routes
   ["/"
    [""
@@ -36,7 +30,9 @@
      :link-text "Archive"}]])
 
 (def router
-  (reitit.frontend/router routes))
+  (reitit.frontend/router
+   routes
+   {:data {:coersion reitit.spec/coercion}}))
 
 ;;; FNS ;;;
 
@@ -48,21 +44,4 @@
   (reitit.easy/start!
    router
    on-navigate
-   {:use-fragment true}))
-
-;;; COMPONENTS ;;;
-
-;; (defn nav [router current-route]
-;;   [:ul
-;;    (for [route-name (reitit/route-names router)
-;;          :let [route (reitit/match-by-name router route-name)
-;;                text (-> route :data :link-text)]]
-;;      [:li {:key route-name}
-;;       [:a {:href (href route-name)} text]])])
-
-(defn router-component [router]
-  (let [current-route @(rf/subscribe [::sub/route])]
-    [:<>
-     ;; [nav router current-route]
-     (when current-route
-       [(-> current-route :data :view)])]))
+   {:use-fragment false})) ;; TODO is it preferable to us fragments?
