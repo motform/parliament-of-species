@@ -1,26 +1,28 @@
 (ns amr.app.game.events
   (:require [re-frame.core :as rf :refer [reg-event-db reg-event-fx reg-fx inject-cofx path after debug]]))
 
-(reg-event-db
- ::ui?
- (fn [db [_ bool]]
-   (assoc-in db [:game :ui?] bool)))
-
-(reg-event-db
- ::screen
- (fn [db [_ screen]]
-   (let [current-screen (get-in db [:game :screen])]
-     (-> db
-         (assoc-in [:game :previous-screen] current-screen)
-         (assoc-in [:game :screen] screen)))))
+(defn manipulate-cards [cards push pop]
+  (->> (apply conj cards push)
+       (remove (into #{} pop))
+       (into [])))
 
 (reg-event-db
  ::select-entity
- (fn [db [_ entity]]
-   (assoc-in db [:game :entity] entity)))
+ (fn [db [_ {:keys [entity add-cards remove-cards]}]]
+   (-> db
+       (assoc-in [:game :entity] entity)
+       (update-in [:game :cards] manipulate-cards add-cards remove-cards))))
 
-;; TODO make into ajax-fx
 (reg-event-db
  ::submit-reflection
- (fn [db [_ reflection id]]
-   (assoc-in db [:temp id] reflection)))
+ (fn [db [_ {:keys [reflection add-cards remove-cards]}]]
+   (-> db
+       (assoc-in [:game :reflection] reflection)
+       (update-in [:game :cards] manipulate-cards add-cards remove-cards))))
+
+(reg-event-db
+ ::submit-policy
+ (fn [db [_ {:keys [policy add-cards remove-cards]}]]
+   (-> db
+       (assoc-in [:game :policy] policy)
+       (update-in [:game :cards] manipulate-cards add-cards remove-cards))))

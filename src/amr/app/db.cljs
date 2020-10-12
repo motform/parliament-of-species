@@ -1,6 +1,8 @@
 (ns amr.app.db
   (:require [cljs.reader :as reader]
             [cljs.spec.alpha :as s]
+            [malli.core :as m]
+            [malli.provider :as mp]
             [re-frame.core :as rf]))
 
 (s/def ::db (s/keys :req-un [::state]))
@@ -9,17 +11,14 @@
 
 (def default-db
   {:app  {:route nil}
-   :game {:cards #queue[] ;; TODO move from discreet screens to a queue of cards
+   :game {:cards [:card/intro :card/select-entity]
           :session-id (random-uuid)
-          :ui? false ;; TODO remove and nil pun :entites
-          :screen :intro
-          :previous-screen nil ;; TODO should be a re-undo
           :entity nil
-          :entities {:aqua 8
-                     :flora 2
-                     :fauna 7
-                     :homo-sapiens 5
-                     :bacterica 2}}})
+          :entities #:entity{:aqua 8
+                             :flora 2
+                             :fauna 7
+                             :homo-sapiens 5
+                             :bacterica 2}}})
 
 ;;; local-storage
 

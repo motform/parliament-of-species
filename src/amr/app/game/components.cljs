@@ -1,23 +1,10 @@
 (ns amr.app.game.components
   (:require [amr.app.game.events :as event]
             [re-frame.core :as rf]
-            [reagent.core :as r]))
+            [reagent.core :as r]
+            [reitit.frontend.easy :refer [href]]))
 
 ;;; UI ;;;
-
-(defn change-screen [title screen]
-  [:input.btn {:type "button"
-               :value title
-               :on-click #(rf/dispatch [::event/screen screen])}])
-
-;; (defn nav [next]
-;;   (let [previous @(rf/subscribe [::event/previous-screen])]
-;;     [:nav
-;;      (when previous [change-screen "Back" previous])
-;;      [change-screen "Next" next]]))
-
-(defn nav [next]
-  [:nav [change-screen "Next" next]])
 
 (defn status-bars [entities]
   (letfn [(status-bar [title id val]
@@ -30,7 +17,7 @@
        ^{:key id} [status-bar (name id) id val])]))
 
 (defn game-ui [{:keys [entity entities ui?]}]
-  [:header.ui.col 
+  [:div.ui.col 
    [:h1 "Parliament of Species"]
    [:h3 "A social policy making game"]
    (when entity [:h1.card.padded entity])
@@ -38,12 +25,35 @@
 
 ;;; CARDS ;;;
 
+(defn banner
+  ([text]
+   (banner text nil))
+  ([text route]
+   [:div.card.col.padded.banner
+    [:p text]
+    (when route [:a {:herf (href route)}])]))
+
+(defn text [{:keys [title text]}]
+  [:div.card.col
+   [:section.padded.col
+    [:h1 title]
+    [:p text]]])
+
+(defn entity [{:keys [key text]} events]
+  [:div.card.col {:id (name key)
+                  :on-click #(rf/dispatch [::event/select-entity (assoc events :entity key)])}
+   [:section.padded.entity.row
+    [:img {:src "https://encrypted-tbn0.gstatic.com/images?q=tbn%3AANd9GcQbJ9qlXT9GDGFy1LRjR87dftUqg5YXy8gAwA&usqp=CAU"}]
+    [:div.col
+     [:h1 name]
+     [:p text]]]])
+
 (defn projection [{:projection/keys [id name text]}]
   [:div.card.col {:id id}
    [:section.padded.projection
     [:h1 name]
     [:p text]]
-   [:footer.row
+   [:div.card-footer.padded.row
     [:label "Projection"]]])
 
 (defn policy [{:policy/keys [id name text tags]}]
@@ -51,7 +61,7 @@
    [:section.padded.policy
     [:h1 name]
     [:p text]]
-   [:footer.row
+   [:div.card-footer.padded.row
     [:label "Policy"]
     [:div.tags.row
      (for [tag tags]
@@ -64,18 +74,23 @@
     [:p "Aqua -1 Flora +1 Fauna - Homo-sapiens -2 Bacteria +3"]]
    [:section.padded
     [:p "oh no it all went bad"]]
-   [:footer.padded.col  
+   [:div.card-footer.padded.col  
     [:label "effects of the policy"]]])
 
+;;; FORMS ;;;
+
 ;; TODO add validation
-(defn reflection [policy-id]
+;; TODO How do we get the policy ID? From the app-db?
+(defn reflection [_ events]
   (let [state (r/atom {:text "" :reaction nil})]
+
     (letfn [(b'reaction [label k state] ^{:key k}
               [:input.btn.btn-reaction
                {:type "button"
                 :value label
                 :on-click #(swap! state assoc :reaction k)
                 :class (when (= k (:reaction @state)) "btn-reaction-active")}])]
+
       (fn [] 
         [:div.card.reflection
          [:section.padded
@@ -90,16 +105,9 @@
                        :on-change #(swap! state assoc :text (-> % .-target .-value))}]
            [:input.btn {:type "button"
                         :value "Submit"
-                        :on-click #(do (rf/dispatch [::event/submit-reflection @state policy-id])
-                                       (rf/dispatch [::event/screen :write-policy]))}]]]]))))
+                        :on-click #(do (rf/dispatch [::event/submit-reflection (assoc events :reflection @state)]))}]]]]))))
 
-(defn archive []
-  [:div.card.col.padded 
-   [:p "Having a hard time figuring out what to write?"
-    [:br] "Look at previous entities polices in the Archive for inspiration!"]
-   [:a {:href "/archive"} "Go to the archive!"]])
-
-(defn new-policy []
+(defn write-policy [_ events]
   (let [state (r/atom {:text "" :name "" :tags ""})]
     (fn [] 
       [:div.card.policy
@@ -124,5 +132,4 @@
                     :on-change #(swap! state assoc :text (-> % .-target .-value))}]
         [:input.btn {:type "button"
                      :value "Submit"
-                     :on-click #(do (rf/dispatch [::event/submit-reflection @state])
-                                    (rf/dispatch [::event/screen :write-policy]))}]]])))
+                     :on-click #(rf/dispatch [::event/submit-reflection (assoc events :policy @state)])}]]])))
