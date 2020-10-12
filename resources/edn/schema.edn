@@ -1,1 +1,126 @@
-{}
+[;;; Projection
+
+ {:db/ident :projection/id
+  :db/doc "id of the projection"
+  :db/valueType :db.type/uuid
+  :db/unique :db.unique/identity
+  :db/cardinality :db.cardinality/one}
+
+ {:db/ident :projection/source
+  :db/doc "source of the projection"
+  :db/valueType :db.type/string
+  :db/cardinality :db.cardinality/many}
+ 
+ {:db/ident :projection/name
+  :db/doc "name of the projection"
+  :db/valueType :db.type/string
+  :db/cardinality :db.cardinality/one}
+ 
+ {:db/ident :projection/text
+  :db/doc "body of the projection"
+  :db/valueType :db.type/string
+  :db/cardinality :db.cardinality/one}
+ 
+ {:db/ident :projection/entities
+  :db/doc "entities affected by of the projection"
+  :db/valueType :db.type/string
+  :db/cardinality :db.cardinality/one}
+ 
+ ;;; Policy
+
+ {:db/ident :policy/id
+  :db/doc "id of the policy"
+  :db/valueType :db.type/uuid
+  :db/unique :db.unique/identity
+  :db/cardinality :db.cardinality/one}
+
+ {:db/ident :policy/projection
+  :db/doc "projection the policy refers to"
+  :db/valueType :db.type/ref
+  :db/cardinality :db.cardinality/one}
+ 
+ {:db/ident :policy/author
+  :db/doc "author of the policy, ref to a session"
+  :db/valueType :db.type/ref
+  :db/cardinality :db.cardinality/one}
+ 
+ {:db/ident :policy/name
+  :db/doc "name of the policy"
+  :db/valueType :db.type/string
+  :db/cardinality :db.cardinality/one}
+ 
+ {:db/ident :policy/text
+  :db/doc "body of the policy"
+  :db/valueType :db.type/string
+  :db/cardinality :db.cardinality/one}
+ 
+ {:db/ident :policy/tags
+  :db/doc "tags relating to the policy"
+  :db/valueType :db.type/ref
+  :db/cardinality :db.cardinality/many}
+
+ ;; Enum for :policy/tag
+ {:db/ident :tag/food}
+ {:db/ident :tag/economy}
+ {:db/ident :tag/culture}
+ 
+ ;;; Effect
+
+ {:db/ident :effect/id
+  :db/doc "id of the effect"
+  :db/valueType :db.type/uuid
+  :db/unique :db.unique/identity
+  :db/cardinality :db.cardinality/one}
+
+ {:db/ident :effect/policy
+  :db/doc "policy the effect refers to"
+  :db/valueType :db.type/ref
+  :db/cardinality :db.cardinality/one}
+ 
+ {:db/ident :effect/author
+  :db/doc "author of the effect, reference to a session/author"
+  :db/valueType :db.type/ref
+  :db/cardinality :db.cardinality/one}
+ 
+ {:db/ident :effect/name
+  :db/doc "name of the effect"
+  :db/valueType :db.type/string
+  :db/cardinality :db.cardinality/one}
+ 
+ {:db/ident :effect/impact
+  :db/doc "if the effect has a :pos or :neg impact"
+  :db/valueType :db.type/ref
+  :db/cardinality :db.cardinality/one}
+ 
+ ;; Enums for :effect/impact
+ {:db/ident :impact/positive}
+ {:db/ident :impact/negative}
+
+ {:db/ident :effect/text
+  :db/doc "body of the effect"
+  :db/valueType :db.type/string
+  :db/cardinality :db.cardinality/one}
+
+ ;;; Session
+
+ {:db/ident :session/id
+  :db/doc "id of the session"
+  :db/valueType :db.type/uuid
+  :db/unique :db.unique/identity
+  :db/cardinality :db.cardinality/one}
+
+ {:db/ident :session/entity
+  :db/doc "the entity used in the session"
+  :db/valueType :db.type/ref
+  :db/cardinality :db.cardinality/one}
+
+ ;; Enums for the entities
+ {:db/ident :entity/aqua}
+ {:db/ident :entity/flora}
+ {:db/ident :entity/fauna}
+ {:db/ident :entity/homo-sapiens}
+
+ {:db/ident :session/date
+  :db/doc "the date the session was started"
+  :db/valueType :db.type/instant
+  :db/cardinality :db.cardinality/one}]

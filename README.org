@@ -1,29 +1,2 @@
 * All adjourn the Parliament of Species!
   /It’s time to cry at the bus stop!/
-
-* Schema
-  #+BEGIN_SRC clojure
-  #:projection
-  {:id #uuid
-   :author ref -> stakeholder/ref ;; infer the entity who wrote this
-   :name str
-   :text str
-   :entites #{:aqua :fauna}}
- 
-  #:policy
-  {:id #uuid
-   :projection -> projection/ref
-   :author ref -> session/ref
-   :name str
-   :text str
-   :tags #{:economic …}}
-
-  #:policy/effect
-  {:id #uuid
-   :author ref -> session/ref 
-   :entity #{entities...} ; kan vi ev få genom session-ref
-   :impact :pos/:neg
-   :text str
-   :policy -> ref
-   :tags #{:economic …}}
-  #+END_SRC clojure
