@@ -3,10 +3,14 @@
  :deps {;; Server
         com.datomic/client-pro  {:mvn/version "0.9.63"}
         org.clojure/spec.alpha  {:mvn/version "0.2.187"}
+        org.clojure/data.csv    {:mvn/version "1.0.0"}
         metosin/reitit          {:mvn/version "0.5.6"}
         metosin/muuntaja        {:mvn/version "0.6.7"}
         metosin/malli           {:mvn/version "0.1.0"}
         ring/ring-jetty-adapter {:mvn/version "1.8.2"}
+
+        ;; TODO remove
+        com.datomic/datomic-free   {:mvn/version "0.9.5697"}
 
         ;; Front end
         thheller/shadow-cljs       {:mvn/version "2.11.4"}
@@ -18,5 +22,5 @@
         day8.re-frame/http-fx      {:mvn/version "v0.2.0"}
         day8.re-frame/tracing      {:mvn/version "0.5.1"}}
 
- :aliases {:cljs
-           {:main-opts ["-m" "shadow.cljs.devtools.cli"]}}}
+ :aliases {:server {:main-opts ["-m" "amr.server.core"]}
+           :cljs {:main-opts ["-m" "shadow.cljs.devtools.cli"]}}}
