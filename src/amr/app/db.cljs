@@ -14,6 +14,8 @@
    :game {:cards [:card/intro :card/select-entity]
           :session-id (random-uuid)
           :entity nil
+          :policy {}
+          :reflection {}
           :entities #:entity{:aqua 8
                              :flora 2
                              :fauna 7

@@ -98,11 +98,10 @@ progress {
 }
 
 textarea {
-    background: crimson;
-    border: 2px solid lightcoral;
-    color: white;
-    border-width: 0 0 2px 0;
-    padding-bottom: 2rem;
+    background: white;
+    color: var(--fg);
+    border-width: 0;
+    padding: 3rem;
     font-family: "ISO v0.8";
     margin: 4rem 0;
     resize: none;

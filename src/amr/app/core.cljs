@@ -6,6 +6,7 @@
             [amr.app.home.core :refer [home]]
             [amr.app.routes :as routes]
             [amr.app.subs :as sub]
+            [day8.re-frame.http-fx]
             [re-frame.core :as rf]
             [reagent.dom :as r]
             [reitit.core :as reitit]

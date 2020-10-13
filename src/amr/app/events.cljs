@@ -68,3 +68,13 @@
          controllers (reitit.contollers/apply-controllers (:contollers old-match) new-match)]
      (set-title! new-match) ;; WARN This now does two things, which I dislike
      (assoc-in db [:app :route] (assoc new-match :contollers controllers)))))
+
+(reg-event-db
+ :http/faliure
+ (fn [db [_ result]]
+   (assoc-in db [:state :http-failure] result)))
+
+(reg-event-db
+ :http/success
+ (fn [db [_]]
+   (assoc-in db [:state :pending-request?] true)))

@@ -1,5 +1,7 @@
 (ns amr.app.game.components
   (:require [amr.app.game.events :as event]
+            [amr.app.game.subs :as sub]
+            [amr.utils :as utils]
             [re-frame.core :as rf]
             [reagent.core :as r]
             [reitit.frontend.easy :refer [href]]))
@@ -41,20 +43,22 @@
 
 (defn entity [{:keys [key text]} events]
   [:div.card.col {:id (name key)
-                  :on-click #(rf/dispatch [::event/select-entity (assoc events :entity key)])}
+                  :on-click #(do (rf/dispatch [::event/select-entity key])
+                                 (utils/emit-n events))}
    [:section.padded.entity.row
     [:img {:src "https://encrypted-tbn0.gstatic.com/images?q=tbn%3AANd9GcQbJ9qlXT9GDGFy1LRjR87dftUqg5YXy8gAwA&usqp=CAU"}]
     [:div.col
-     [:h1 name]
+     [:h1 (name key)]
      [:p text]]]])
 
-(defn projection [{:projection/keys [id name text]}]
-  [:div.card.col {:id id}
-   [:section.padded.projection
-    [:h1 name]
-    [:p text]]
-   [:div.card-footer.padded.row
-    [:label "Projection"]]])
+(defn projection []
+  (let [{:projection/keys [id text name]} @(rf/subscribe [::sub/projection])] 
+    [:div.card.col {:id id}
+     [:section.padded.projection
+      [:h1 name]
+      [:p text]]
+     [:div.card-footer.padded.row
+      [:label "Projection"]]]))
 
 (defn policy [{:policy/keys [id name text tags]}]
   [:div.card.col {:id id}
@@ -132,4 +136,4 @@
                     :on-change #(swap! state assoc :text (-> % .-target .-value))}]
         [:input.btn {:type "button"
                      :value "Submit"
-                     :on-click #(rf/dispatch [::event/submit-reflection (assoc events :policy @state)])}]]])))
+                     :on-click #(rf/dispatch [::event/submit-policy (assoc events :policy @state)])}]]])))

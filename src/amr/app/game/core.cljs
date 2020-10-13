@@ -46,58 +46,63 @@
    :text lorem-ipsum})
 
 ;;; ----------------------------------------------------------------------------
-;;; MAIN
+;;; CARDS
 ;;; ----------------------------------------------------------------------------
 
 (def cards
   {:card/intro
-   {:carnality ::one
+   {:cardinality ::one
     :view c/text
-    :data {:title "The World in World World"
+    :data {:title "Introduction to AMR"
            :text  lorem-ipsum}}
 
    :card/select-entity
-   {:carnality ::many
+   {:cardinality ::many
     :tip {:text "Select your entity"}
     :cards {:view c/entity
-            :events {:remove-cards [:card/intro :card/select-entity]
-                     :add-cards [:card/projection :card/policy :card/reflection]}
+            :events [[::event/remove-cards [:card/intro :card/select-entity]]
+                     [::event/request-projection]
+                     [::event/add-cards [:card/projection :card/policy :card/reflection]]]
             :data [{:key :entity/aqua         :text lorem-ipsum}
                    {:key :entity/flora        :text lorem-ipsum}
                    {:key :entity/fauna        :text lorem-ipsum}
                    {:key :entity/homo-sapiens :text lorem-ipsum}]}}
 
    :card/projection
-   {:carnality ::one
+   {:cardinality ::one
     :view c/projection
     :data sample-projection}
 
    :card/policy
-   {:carnality ::one
+   {:cardinality ::one
     :view c/policy
     :data sample-policy}
 
    :card/reflection
-   {:carnality ::one
+   {:cardinality ::one
     :view c/reflection
     :events {:remove-cards [:card/policy :card/reflection]
              :add-cards [:card/effect :card/write-policy]}}
 
    :card/effect
-   {:carnality ::one
+   {:cardinality ::one
     :view c/effect} 
 
    :card/write-policy
-   {:carnality ::one
+   {:cardinality ::one
     :events {:remove-cards [:card/projection :card/effect :card/write-policy]
              :add-cards [:card/final]}
     :view c/write-policy}
 
    :card/final
-   {:carnality ::one
+   {:cardinality ::one
     :view c/text
     :data {:title "You win"
            :text lorem-ipsum}}})
+
+;;; ----------------------------------------------------------------------------
+;;; FNS
+;;; ----------------------------------------------------------------------------
 
 (defn- render-tip [{:keys [text route]}]
   [c/banner text route])
@@ -109,13 +114,13 @@
   (for [card data]
     ^{:key card} [view card events]))
 
-(defn- render [id {:keys [carnality cards tip] :as data}]
+(defn- render [id {:keys [cardinality cards tip] :as data}]
   [:<>
    (when tip [render-tip tip])
-   (case carnality
+   (case cardinality
      ::one  [render-card data]
      ::many (render-cards cards) ;; WARN triggers a warning
-     [:p.error "Card " id " has an invalid carnality " carnality])])
+     [:p.error "Card " id " has an invalid cardinality " cardinality])])
 
 (defn game []
   (let [state @(rf/subscribe [::sub/state])]
