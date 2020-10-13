@@ -1,0 +1,11 @@
+# _*_ restclient _*_
+#
+## random projection
+
+GET https://localhost:3131/api/projection/random
+Accept: application/transit+json
+
+## specific projection
+
+GET http://localhost:3131/api/projection/id/31d5db74-cd3d-42d3-ad50-cf703b3f4143
+Accept: application/transit+json

@@ -8,6 +8,7 @@
         metosin/muuntaja        {:mvn/version "0.6.7"}
         metosin/malli           {:mvn/version "0.1.0"}
         ring/ring-jetty-adapter {:mvn/version "1.8.2"}
+        ring-cors/ring-cors     {:mvn/version "0.1.13"}
 
         ;; TODO remove
         com.datomic/datomic-free   {:mvn/version "0.9.5697"}
