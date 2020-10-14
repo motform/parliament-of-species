@@ -17,37 +17,41 @@
 ;;; ROUTES 
 
 (def api
-  [["/random/{domain}"
+  [["/random"
     {:name :api/random
      :doc "Returns a random entity from that `domain`."
-     :coercion malli/coercion
      :parameters {:path [:map [:domain domain?]]}
-     :get (fn [{{:keys [domain]} :path-params}]
+     :get (fn [{{domain "domain"} :query-params}]
             {:status 200
              :body (db/random domain)})}]
 
    ["/in/{domain}/{id}"
     {:name :api.in.domain/id
      :doc "Returns the entity from `domain` that corresponds to that `id`."
-     :coersion malli/coercion
      :parameters {:path [:map
                          [:id UUID?]
                          [:domain domain?]]}
-
      :get (fn [{{:keys [domain id]} :path-params}]
             {:status 200
              :body (db/id->e (utils/->UUID id) (keyword domain))})}]
 
+   ;; TODO test
    ["/policy"
     ["/for-entity"
      {:name :api.policy/for-entity
       :doc "Returns a random policy for `projection` _not_ written by the `entity`."
-      :coercion malli/coercion
       :parameters {:query [:map
                            [:entity entity?]
                            [:projection uuid?]]}
-      :get (fn [{{:keys [entity projection]} :query-params}]
-             (db/policy-for-entity entity projection))}]
+      :get (fn [{{entity "entity" projection "projection"} :query-params}]
+             (db/policy-for-entity (utils/->entity entity) (utils/->UUID projection)))}]]
 
-    ;; ["/effect"]
-    ]])
+   ["/stack"
+    {:name :api/stack-for
+     :doc "Returns the initial stack of cards for the `entity`."
+     :parameters {:query [:map [:entity entity?]]}
+     :get (fn [{{entity "entity"} :query-params}]
+            (db/stack-for-entity (utils/->entity entity)))}]
+
+   ;; ["/effect"]
+   ])

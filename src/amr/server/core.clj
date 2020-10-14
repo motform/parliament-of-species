@@ -9,6 +9,7 @@
             [reitit.ring.middleware.muuntaja :as muuntaja]
             [reitit.ring.middleware.parameters :as parameters]
             [reitit.spec :as spec]
+            [reitit.coercion.malli :as malli]
             [ring.adapter.jetty :as jetty]
             [ring.middleware.cors :as cors]))
 
@@ -20,6 +21,7 @@
       routes/api]]
 
     {:exception pretty/exception
+     :coercion malli/coercion
      :validate spec/validate
      :reitit.middleware/transform dev/print-request-diffs
      :data {:muuntaja m/instance
@@ -43,7 +45,13 @@
 
   (server {:request-method :get
            :headers {"Accept" "application/transit+json"}
-           :uri "/api/random/projection"})
+           :uri "/api/random"
+           :query-params {"domain" "projection"}})
+
+  (server {:request-method :get
+           :headers {"Accept" "application/transit+json"}
+           :uri "/api/stack-for-entity"
+           :query-params {"entity" "aqua"}})
 
   (server {:request-method :get
            :headers {"Accept" "application/transit+json"}
