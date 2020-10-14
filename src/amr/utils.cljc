@@ -1,5 +1,6 @@
 (ns amr.utils
-  (:require #?(:cljs [re-frame.core :as rf])))
+  (:require [clojure.string :as str]
+            #?(:cljs [re-frame.core :as rf])))
 
 (defn ?assoc
   "Associates the `k` into the `m` if the `v` is truthy, otherwise returns `m`.
@@ -7,6 +8,23 @@
   [m k v]
   (if v (assoc m k v) m))
 
+(defn ?update
+  [m k f]
+  (if (m k) (update m k f) m))
+
+(defn update-vals [m vals f]
+  (reduce #(update-in % [%2] f) m vals))
+
+(defn remove-nil
+  "Returns `m` with all nil keys removed."
+  [m]
+  (into {} (remove #(nil? (val %)) m)))
+
+(defn remove-empty [m]
+  (into {} (remove #(str/blank? (val %)) m)))
+
+(defn ->entity [entity]
+  (keyword "entity" entity))
 
 #?(:cljs
    (defn ->uri [route]

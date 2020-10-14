@@ -1,8 +1,7 @@
 (ns amr.server.data
   (:require [amr.utils :as utils]
             [clojure.data.csv :as csv]
-            [clojure.string :as str]
-            [clojure.edn :as edn])
+            [clojure.string :as str])
   (:import [java.util UUID]))
 
 (defn csv->m [domain [header & rest]]
@@ -10,29 +9,27 @@
        (->> header (map (partial keyword (name domain))) repeat)
        rest))
 
-(defn ->UUID [s]
-  (when s (UUID/fromString s)))
-
-(defn nillify [csv]
-  (map (partial map #(if (= % "nil") (edn/read-string %) %)) csv))
+(defn ->UUID
+  ([s] 
+   (when s (UUID/fromString s)))
+  ([m ks]
+   (utils/update-vals m ks ->UUID)))
 
 (defmulti xf-row :domain)
 
 (defmethod xf-row :projection [{:keys [row]}]
   (-> row
-      (update :projection/id       ->UUID)
+      (->UUID [:projection/id])
       (update :projection/source #(str/split % #";"))))
 
 (defmethod xf-row :policy [{:keys [row]}]
   (-> row
-      (update        :policy/id         ->UUID)
-      (update        :policy/projection ->UUID)
-      (update        :policy/session    ->UUID)
+      (->UUID [:policy/id :policy/projection :policy/session])
       (utils/?update :policy/derived    ->UUID)))
 
 (defmethod xf-row :session [{:keys [row]}]
   (-> row
-      (update :session/id     ->UUID)
+      (->UUID [:session/id])
       (update :session/entity utils/->entity)))
 
 (defn parse-csv
@@ -41,9 +38,8 @@
   (->> csv
        slurp
        csv/read-csv
-       nillify
        (csv->m domain)
-       (map utils/remove-nil)
+       (map utils/remove-empty)
        (map #(xf-row {:domain domain :row %}))))
 
 (comment
