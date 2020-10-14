@@ -5,6 +5,11 @@
  {:db/ident :entity/fauna}
  {:db/ident :entity/homo-sapiens}
 
+ ;; Enum for :policy/tag
+
+ {:db/ident :tag/food}
+ {:db/ident :tag/economy}
+ {:db/ident :tag/culture}
 
 ;;; Projection
 
@@ -29,11 +34,6 @@
   :db/valueType :db.type/string
   :db/cardinality :db.cardinality/one}
  
- {:db/ident :projection/entities ;; TODO move into singular
-  :db/doc "entities affected by of the projection"
-  :db/valueType :db.type/ref
-  :db/cardinality :db.cardinality/many}
- 
  ;;; Policy
 
  {:db/ident :policy/id
@@ -52,7 +52,7 @@
   :db/valueType :db.type/ref
   :db/cardinality :db.cardinality/one}
 
- {:db/ident :policy/author
+ {:db/ident :policy/session
   :db/doc "author of the policy, ref to a session"
   :db/valueType :db.type/ref
   :db/cardinality :db.cardinality/one}
@@ -71,11 +71,6 @@
   :db/doc "tags relating to the policy"
   :db/valueType :db.type/ref
   :db/cardinality :db.cardinality/many}
-
- ;; Enum for :policy/tag
- {:db/ident :tag/food}
- {:db/ident :tag/economy}
- {:db/ident :tag/culture}
  
  ;;; Effect
 
@@ -90,7 +85,7 @@
   :db/valueType :db.type/ref
   :db/cardinality :db.cardinality/one}
  
- {:db/ident :effect/author
+ {:db/ident :effect/session
   :db/doc "author of the effect, reference to a session/author"
   :db/valueType :db.type/ref
   :db/cardinality :db.cardinality/one}

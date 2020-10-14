@@ -1,6 +1,8 @@
 (ns amr.server.data
-  (:require [clojure.data.csv :as csv]
-            [clojure.string :as str])
+  (:require [amr.utils :as utils]
+            [clojure.data.csv :as csv]
+            [clojure.string :as str]
+            [clojure.edn :as edn])
   (:import [java.util UUID]))
 
 (defn csv->m [domain [header & rest]]
@@ -8,20 +10,30 @@
        (->> header (map (partial keyword (name domain))) repeat)
        rest))
 
-(defn m-field->vec [field]
-  (let [sep (str/split field #";")]
-    (if (= 1 (count sep)) field sep)))
+(defn ->UUID [s]
+  (when s (UUID/fromString s)))
 
-(defn str->entity-enum [row ->domain]
-  (update row (->domain  "entities") #(map (partial keyword "entity") %)))
+(defn nillify [csv]
+  (map (partial map #(if (= % "nil") (edn/read-string %) %)) csv))
 
-(defn xf-row [domain row]
-  (let [->domain (partial keyword (name domain))]
-    (-> row
-        (update (->domain "id") #(UUID/fromString %))
-        (update (->domain "source") #(str/split % #";"))
-        (update (->domain "entities") #(str/split % #";"))
-        (update (->domain "entities") #(map (partial keyword "entity") %)))))
+(defmulti xf-row :domain)
+
+(defmethod xf-row :projection [{:keys [row]}]
+  (-> row
+      (update :projection/id       ->UUID)
+      (update :projection/source #(str/split % #";"))))
+
+(defmethod xf-row :policy [{:keys [row]}]
+  (-> row
+      (update        :policy/id         ->UUID)
+      (update        :policy/projection ->UUID)
+      (update        :policy/session    ->UUID)
+      (utils/?update :policy/derived    ->UUID)))
+
+(defmethod xf-row :session [{:keys [row]}]
+  (-> row
+      (update :session/id     ->UUID)
+      (update :session/entity utils/->entity)))
 
 (defn parse-csv
   "`Domain` is a datomic entity ns."
@@ -29,11 +41,13 @@
   (->> csv
        slurp
        csv/read-csv
+       nillify
        (csv->m domain)
-       (map (partial xf-row domain))))
-
+       (map utils/remove-nil)
+       (map #(xf-row {:domain domain :row %}))))
 
 (comment
-  (parse-csv "resources/csv/policies.csv" :policy)
+  (parse-csv "resources/csv/policies.csv"    :policy)
   (parse-csv "resources/csv/projections.csv" :projection)
+  (parse-csv "resources/csv/sessions.csv"    :session)
   )
