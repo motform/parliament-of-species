@@ -1,15 +1,14 @@
-[;; Enums for the entities
+[;;; Entity enum
 
  {:db/ident :entity/aqua}
  {:db/ident :entity/flora}
  {:db/ident :entity/fauna}
  {:db/ident :entity/homo-sapiens}
 
- ;; Enum for :policy/tag
-
- {:db/ident :tag/food}
- {:db/ident :tag/economy}
- {:db/ident :tag/culture}
+;;; Impact enum
+ 
+ {:db/ident :impact/positive}
+ {:db/ident :impact/negative}
 
 ;;; Projection
 
@@ -67,9 +66,9 @@
   :db/valueType :db.type/string
   :db/cardinality :db.cardinality/one}
  
- {:db/ident :policy/tags
+ {:db/ident :policy/tag
   :db/doc "tags relating to the policy"
-  :db/valueType :db.type/ref
+  :db/valueType :db.type/keyword
   :db/cardinality :db.cardinality/many}
  
  ;;; Effect
@@ -96,7 +95,7 @@
   :db/cardinality :db.cardinality/one}
  
  {:db/ident :effect/impact
-  :db/doc "if the effect has a :pos or :neg impact"
+  :db/doc "if the effect has a :impact/positive or :impact/negative impact"
   :db/valueType :db.type/ref
   :db/cardinality :db.cardinality/one}
  
@@ -109,6 +108,10 @@
   :db/valueType :db.type/string
   :db/cardinality :db.cardinality/one}
 
+ {:db/ident :effect/tag
+  :db/doc "tags relating to the policy"
+  :db/valueType :db.type/keyword
+  :db/cardinality :db.cardinality/many}
  ;;; Session
 
  {:db/ident :session/id
