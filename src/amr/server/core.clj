@@ -17,7 +17,7 @@
    (ring/router
 
     [["/api"
-      routes/game]]
+      routes/api]]
 
     {:exception pretty/exception
      :validate spec/validate
@@ -43,11 +43,11 @@
 
   (server {:request-method :get
            :headers {"Accept" "application/transit+json"}
-           :uri "/api/projection/random"})
+           :uri "/api/random/projection"})
 
   (server {:request-method :get
            :headers {"Accept" "application/transit+json"}
-           :uri "/api/projection/id/a975be9f-6ab6-4df1-8036-57a5be9ecb13"})
+           :uri "/api/in/projection/a975be9f-6ab6-4df1-8036-57a5be9ecb13"})
 
   )
 
