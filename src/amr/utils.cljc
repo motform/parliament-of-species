@@ -1,6 +1,7 @@
 (ns amr.utils
   (:require [clojure.string :as str]
-            #?(:cljs [re-frame.core :as rf])))
+            #?(:cljs [re-frame.core :as rf]))
+  #?(:clj (:import [java.util UUID])))
 
 (defn ?assoc
   "Associates the `k` into the `m` if the `v` is truthy, otherwise returns `m`.
@@ -9,8 +10,10 @@
   (if v (assoc m k v) m))
 
 (defn ?update
-  [m k f]
-  (if (m k) (update m k f) m))
+  ([m k f] 
+   (if (m k) (update m k f) m))
+  ([m k f x]
+   (if (m k) (update m k f x) m)))
 
 (defn update-vals [m vals f]
   (reduce #(update-in % [%2] f) m vals))
@@ -25,6 +28,14 @@
 
 (defn ->entity [entity]
   (keyword "entity" entity))
+
+;; TODO add cljs version
+#?(:clj
+   (defn ->UUID
+     ([s] 
+      (when s (UUID/fromString s)))
+     ([m ks]
+      (update-vals m ks ->UUID))))
 
 #?(:cljs
    (defn ->uri [route]
