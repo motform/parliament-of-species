@@ -6,8 +6,6 @@
             [amr.utils :as utils]
             [amr.server.db :as db]))
 
-;; TODO figure out how to include the entity-enums
-
 ;;; SETUP ;; NOTE maybe move this to a component library?
 
 (def schema (-> "resources/edn/schema.edn" slurp edn/read-string))
@@ -42,7 +40,7 @@
 
 (defn policy-for-entity
   "Returns a random policy for `projection` _not_ written by the `entity`"
-  [projection entity]
+  [entity projection]
   (q-rand {:query '[:find (pull ?policy [*])
                     :where
                     [?policy :policy/session ?session]
@@ -50,13 +48,35 @@
                     [?e :policy/projection ?projection]
                     [?projection :projection/id ?projection-id]
                     :in $ ?projection-id ?entity]
-           :args [db projection (utils/->entity entity)]}))
+           :args [db projection entity]}))
+
+(defn stack-for-entity
+  "Returns the initial stack of cards for the `entity`."
+  [entity]
+  (let [{:projection/keys [id] :as projection} (random :projection)
+        policy (policy-for-entity entity id)]
+    {:projection projection
+     :policy policy}))
+
+
+
 
 
 (comment
   ;;; DEV LOCAL
-  (d/transact conn {:tx-data schema})
-  (d/transact conn {:tx-data (data/parse-csv "resources/csv/projections.csv" :projection)})
+
+  (defn transact-singularly [data]
+    (doall (map #(d/transact conn {:tx-data [%]}) data)))
+
+  (do
+    (d/transact conn {:tx-data schema})
+    (d/transact conn {:tx-data (data/parse-csv "resources/csv/projections.csv" :projection)})
+    (d/transact conn {:tx-data (data/parse-csv "resources/csv/sessions.csv" :session)})
+
+    ;; First transact non-derived polices, then the derived ones
+    (transact-singularly (remove data/derived? (data/parse-csv "resources/csv/policies.csv" :policy)))
+    (transact-singularly (filter data/derived? (data/parse-csv "resources/csv/policies.csv" :policy)))
+    (transact-singularly (data/parse-csv "resources/csv/effects.csv" :effect)))
 
   ;;; Testing in-memory with peer library
   (require '[datomic.api :as dm])
@@ -67,7 +87,7 @@
       (dm/create-database muri)
       (def mconn (dm/connect muri)))
   
-  (defn transact-singularly [data]
+  (defn transact-singularly-m [data]
     (doall (map #(dm/transact mconn [%]) data)))
 
   (do (dm/transact mconn schema)
@@ -75,9 +95,9 @@
       (dm/transact mconn (data/parse-csv "resources/csv/sessions.csv" :session))
 
       ;; First transact non-derived polices, then the derived ones
-      (transact-singularly (remove data/derived? (data/parse-csv "resources/csv/policies.csv" :policy)))
-      (transact-singularly (filter data/derived? (data/parse-csv "resources/csv/policies.csv" :policy)))
-      (transact-singularly (data/parse-csv "resources/csv/effects.csv" :effect))
+      (transact-singularly-m (remove data/derived? (data/parse-csv "resources/csv/policies.csv" :policy)))
+      (transact-singularly-m (filter data/derived? (data/parse-csv "resources/csv/policies.csv" :policy)))
+      (transact-singularly-m (data/parse-csv "resources/csv/effects.csv" :effect))
       (def mdb (dm/db mconn)))
 
   ;;; QUERIES 
