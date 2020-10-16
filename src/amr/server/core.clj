@@ -2,14 +2,15 @@
   (:require [amr.config :refer [config]]
             [amr.server.routes :as routes]
             [muuntaja.core :as m]
+            [reitit.coercion.malli :as malli]
             [reitit.dev.pretty :as pretty]
             [reitit.ring :as ring]
+            [reitit.ring.coercion :as coersion]
             [reitit.ring.middleware.dev :as dev]
             [reitit.ring.middleware.exception :as exception]
             [reitit.ring.middleware.muuntaja :as muuntaja]
             [reitit.ring.middleware.parameters :as parameters]
             [reitit.spec :as spec]
-            [reitit.coercion.malli :as malli]
             [ring.adapter.jetty :as jetty]
             [ring.middleware.cors :as cors]))
 
@@ -17,8 +18,7 @@
   (ring/ring-handler
    (ring/router
 
-    [["/api"
-      routes/api]]
+    [["/api" routes/api]]
 
     {:exception pretty/exception
      :coercion malli/coercion
@@ -31,8 +31,12 @@
                          parameters/parameters-middleware
                          muuntaja/format-negotiate-middleware
                          muuntaja/format-response-middleware
+                         coersion/coerce-response-middleware
                          exception/exception-middleware
-                         muuntaja/format-request-middleware]}})
+                         coersion/coerce-exceptions-middleware
+                         muuntaja/format-request-middleware
+                         muuntaja/format-middleware
+                         coersion/coerce-request-middleware]}})
 
    (ring/create-default-handler)))
 
@@ -50,12 +54,20 @@
 
   (server {:request-method :get
            :headers {"Accept" "application/transit+json"}
-           :uri "/api/stack-for-entity"
-           :query-params {"entity" "aqua"}})
-
-  (server {:request-method :get
-           :headers {"Accept" "application/transit+json"}
            :uri "/api/in/projection/a975be9f-6ab6-4df1-8036-57a5be9ecb13"})
+
+  (server {:request-method :post
+           :headers {"Accept" "application/transit+json"}
+           :uri "/api/debug"})
+
+  ;; NOTE actually posts to the db
+  #_(server {:request-method :post
+             :headers {"Accept" "application/transit+json"}
+             :uri "/api/submit/effect"
+             :body-params {:id #uuid "dc1a3596-7f60-4567-95da-fa8443178f0c",
+                           :policy #uuid "b390fcee-b847-4c18-bb06-558e8157bdec",
+                           :session #uuid "df94c6b6-978e-4f98-8aea-7dcaff284692",
+                           :impact :impact/positive, :text "", :tag []}})
 
   )
 
