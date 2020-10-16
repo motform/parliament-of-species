@@ -11,7 +11,6 @@
 (def schema (-> "resources/edn/schema.edn" slurp edn/read-string))
 (def client (d/client (get-in config [:datomic :cfg])))
 (def conn (d/connect client {:db-name "amr"}))
-(def db (d/db conn))
 
 ;;; HELPERS
 
@@ -27,7 +26,7 @@
     (d/q {:query '[:find (pull ?e [*])
                    :where [?e ?ns ?id]
                    :in $ ?id ?ns]
-          :args [db id domain]})))
+          :args [(d/db conn) id domain]})))
 
 (defn random
   "Return random entity from domain `k`."
@@ -36,7 +35,7 @@
     (q-rand {:query '[:find (pull ?e [*])
                       :where [?e ?ns _]
                       :in $ ?ns]
-             :args [db ns]})))
+             :args [(d/db conn) ns]})))
 
 (defn policy-for-entity
   "Returns a random policy for `projection` _not_ written by the `entity`"
@@ -48,7 +47,7 @@
                     (not [?session :session/entity ?entity])
                     [?policy :policy/projection ?projection]
                     [?projection :projection/id ?projection-id]]
-           :args [db projection entity]}))
+           :args [(d/db conn) projection entity]}))
 
 (defn stack-for-entity
   "Returns the initial stack of cards for the `entity`."
@@ -58,6 +57,20 @@
     {:projection projection
      :policy policy}))
 
+(defn submit-effect
+  "Adds an effect to the `db`."
+  [{:keys [policy session impact text]}]
+  (d/transact conn {:tx-data
+                    [{:effect/id (util/uuid)
+                      :effect/policy [:policy/id policy]
+                      :effect/session [:session/id session]
+                      :effect/impact impact
+                      :effect/text text}]}))
+
+(defn submit-session
+  "Adds a `session` to the `db`."
+  [session]
+  (d/transact conn {:tx-data [session]}))
 
 (comment
   ;;; DEV LOCAL
@@ -94,8 +107,7 @@
       ;; First transact non-derived polices, then the derived ones
       (transact-singularly-m (remove data/derived? (data/parse-csv "resources/csv/policies.csv" :policy)))
       (transact-singularly-m (filter data/derived? (data/parse-csv "resources/csv/policies.csv" :policy)))
-      (transact-singularly-m (data/parse-csv "resources/csv/effects.csv" :effect))
-      (def mdb (dm/db mconn)))
+      (transact-singularly-m (data/parse-csv "resources/csv/effects.csv" :effect)))
 
   ;;; QUERIES 
 
@@ -104,14 +116,14 @@
           :with ?impact
           :where
           [?impact :effect/impact ?i]]
-        mdb)
+        (dm/db mconn))
 
   (dm/q '[:find ?n
           :where
           [?pol :policy/id  #uuid "189d2c8f-71f8-41bd-bbb1-d3980eecdd96"]
           [?pol :policy/session ?pro]
           [?pro :session/entity ?n]]
-        mdb)
+        (dm/db mconn))
 
   (dm/q '[:find (pull ?e [*])
           :where
@@ -120,7 +132,7 @@
           [?e :policy/projection ?p]
           [?p :projection/id ?projection-id]
           :in $ ?projection-id ?entity]
-        mdb #uuid "a975be9f-6ab6-4df1-8036-57a5be9ecb13" (util/->entity "fauna"))
+        (dm/db mconn) #uuid "a975be9f-6ab6-4df1-8036-57a5be9ecb13" (util/->entity "fauna"))
 
   ;; GETTING THE IDENT OF AN ENUM
   (dm/q '[:find ?type-ident
@@ -131,6 +143,5 @@
           [?e :policy/projection ?p]
           [?p :projection/id ?projection-id]
           :in $ ?projection-id]
-        mdb #uuid "a975be9f-6ab6-4df1-8036-57a5be9ecb13")
-
+        (dm/db mconn) #uuid "a975be9f-6ab6-4df1-8036-57a5be9ecb13")
   )
