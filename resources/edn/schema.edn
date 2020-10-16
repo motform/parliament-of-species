@@ -125,7 +125,18 @@
   :db/valueType :db.type/ref
   :db/cardinality :db.cardinality/one}
 
- {:db/ident :session/date
+ {:db/ident :session/start-date
   :db/doc "the date the session was started"
   :db/valueType :db.type/instant
+  :db/cardinality :db.cardinality/one}
+
+ {:db/ident :session/end-date
+  :db/doc "the date the session was ended"
+  :db/valueType :db.type/instant
+  :db/cardinality :db.cardinality/one}
+
+ {:db/ident :session/author
+  :db/doc "the author of the session, a uuid saved in localstorage 
+           00000000-0000-0000-0000-000000000000 identifies the program authors"
+  :db/valueType :db.type/uuid
   :db/cardinality :db.cardinality/one}]
