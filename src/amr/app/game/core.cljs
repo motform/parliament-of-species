@@ -23,7 +23,6 @@
     :tip {:text "Select your entity"}
     :cards {:view c/entity
             :events [[::event/remove-cards [:card/intro :card/select-entity]]
-                     [::event/request-projection]
                      [::event/add-cards [:card/projection :card/policy :card/reflection]]]
             :data [{:key :entity/aqua         :text lorem-ipsum}
                    {:key :entity/flora        :text lorem-ipsum}
@@ -41,8 +40,8 @@
    :card/reflection
    {:cardinality ::one
     :view c/reflection
-    :events {:remove-cards [:card/policy :card/reflection]
-             :add-cards [:card/effect :card/write-policy]}}
+    :events {::event/remove-cards [:card/policy :card/reflection]
+             ::event/add-cards    [:card/effect :card/write-policy]}}
 
    :card/effect
    {:cardinality ::one
@@ -60,9 +59,7 @@
     :data {:title "You win"
            :text lorem-ipsum}}})
 
-;;; ----------------------------------------------------------------------------
-;;; FNS
-;;; ----------------------------------------------------------------------------
+;;; MACHINERY
 
 (defn- render-tip [{:keys [text route]}]
   [c/banner text route])
@@ -83,7 +80,7 @@
      [:p.error "Card " id " has an invalid cardinality " cardinality])])
 
 (defn game []
-  (let [state @(rf/subscribe [::sub/state])]
+  (let [active-cards @(rf/subscribe [::sub/cards])]
     [:main.game
-     (for [[k data] (select-keys cards (:cards state))]
+     (for [[k data] (select-keys cards active-cards)]
        ^{:key k} [render k data])]))

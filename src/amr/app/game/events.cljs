@@ -1,11 +1,7 @@
 (ns amr.app.game.events
-  (:require [ajax.core :as ajax]
+  (:require [amr.util :as util]
+            [ajax.core :as ajax]
             [re-frame.core :as rf :refer [reg-event-db reg-event-fx reg-fx inject-cofx]]))
-
-(defn manipulate-cards [cards push pop]
-  (->> (apply conj cards push)
-       (remove (into #{} pop))
-       (into [])))
 
 (reg-event-db
  ::select-entity
@@ -19,8 +15,8 @@
 
 (reg-event-db
  ::remove-cards
- (fn [db [_]]
-   db))
+ (fn [db [_ cards]]
+   (update-in db [:game :cards] #(into [] (remove (into #{} cards)) %))))
 
 (reg-event-db
  ::submit-reflection
