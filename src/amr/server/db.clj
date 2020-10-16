@@ -6,7 +6,7 @@
             [amr.util :as util]
             [amr.server.db :as db]))
 
-;;; SETUP ;; NOTE maybe move this to a component library?
+;;; SETUP
 
 (def schema (-> "resources/edn/schema.edn" slurp edn/read-string))
 (def client (d/client (get-in config [:datomic :cfg])))
@@ -42,12 +42,12 @@
   "Returns a random policy for `projection` _not_ written by the `entity`"
   [entity projection]
   (q-rand {:query '[:find (pull ?policy [*])
+                    :in $ ?projection-id ?entity
                     :where
                     [?policy :policy/session ?session]
                     (not [?session :session/entity ?entity])
-                    [?e :policy/projection ?projection]
-                    [?projection :projection/id ?projection-id]
-                    :in $ ?projection-id ?entity]
+                    [?policy :policy/projection ?projection]
+                    [?projection :projection/id ?projection-id]]
            :args [db projection entity]}))
 
 (defn stack-for-entity
@@ -57,9 +57,6 @@
         policy (policy-for-entity entity id)]
     {:projection projection
      :policy policy}))
-
-
-
 
 
 (comment
