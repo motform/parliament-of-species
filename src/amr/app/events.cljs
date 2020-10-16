@@ -44,6 +44,11 @@
    (set-title! route)
    (apply reitit.easy/push-state route)))
 
+(reg-fx
+ ::scroll-to-top!
+ (fn []
+   (. js/window scrollTo 0 0)))
+
 ;;; EVENTS ;;;
 
 (reg-event-fx
@@ -51,15 +56,15 @@
  (fn [_ [_ default-db]]
    {:db default-db}))
 
-;; (reg-event-db
-;;  ::active-page
-;;  (fn [db [_ page]]
-;;    (assoc-in db [:app :active-page] page)))
-
 (reg-event-fx
  ::navigate
  (fn [_ [_ & route]]
    {::navigate! route}))
+
+(reg-event-fx
+ ::scroll-to-top
+ (fn [_ _]
+   {::scroll-to-top! nil}))
 
 (reg-event-db
  ::navigated
@@ -70,11 +75,11 @@
      (assoc-in db [:app :route] (assoc new-match :contollers controllers)))))
 
 (reg-event-db
- :http/faliure
+ :http/failure
  (fn [db [_ result]]
-   (assoc-in db [:state :http-failure] result)))
+   (assoc-in db [:app :http-failure] result)))
 
 (reg-event-db
  :http/success
  (fn [db [_]]
-   (assoc-in db [:state :pending-request?] true)))
+   (assoc-in db [:app :pending-request?] true)))
