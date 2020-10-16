@@ -1,9 +1,6 @@
 (ns amr.app.core
-  (:require [amr.app.archive.core :refer [archive]]
-            [amr.app.db :as db]
+  (:require [amr.app.db :as db]
             [amr.app.events :as event]
-            [amr.app.game.core :refer [game]]
-            [amr.app.home.core :refer [home]]
             [amr.app.routes :as routes]
             [amr.app.subs :as sub]
             [day8.re-frame.http-fx]

@@ -1,5 +1,5 @@
 (ns amr.server.data
-  (:require [amr.utils :as utils]
+  (:require [amr.util :as util]
             [clojure.data.csv :as csv]
             [clojure.string :as str]))
 
@@ -25,25 +25,25 @@
 
 (defmethod xf-row :projection [{:keys [row]}]
   (-> row
-      (utils/->UUID [:projection/id])
+      (util/->uuid [:projection/id])
       (update :projection/source #(str/split % #";"))))
 
 (defmethod xf-row :policy [{:keys [row]}]
   (-> row
-      (utils/->UUID [:policy/id :policy/projection :policy/session])
+      (util/->uuid [:policy/id :policy/projection :policy/session])
       (update :policy/projection ->lookup-ref :projection/id)
       (update :policy/session ->lookup-ref :session/id)
-      (utils/?update :policy/derived utils/->UUID)
-      (utils/?update :policy/derived ->lookup-ref :policy/id)))
+      (util/?update :policy/derived util/->UUID)
+      (util/?update :policy/derived ->lookup-ref :policy/id)))
 
 (defmethod xf-row :session [{:keys [row]}]
   (-> row
-      (utils/->UUID [:session/id])
-      (update :session/entity utils/->entity)))
+      (util/->uuid [:session/id])
+      (update :session/entity util/->entity)))
 
 (defmethod xf-row :effect [{:keys [row]}]
   (-> row
-      (utils/->UUID [:effect/id :effect/policy :effect/session])
+      (util/->uuid [:effect/id :effect/policy :effect/session])
       (update :effect/policy  ->lookup-ref :policy/id)
       (update :effect/session ->lookup-ref :session/id)
       (update :effect/impact #(keyword "impact" %))
@@ -57,7 +57,7 @@
        slurp
        csv/read-csv
        (csv->m domain)
-       (map utils/remove-empty)
+       (map util/remove-empty)
        (map #(xf-row {:domain domain :row %}))))
 
 (comment

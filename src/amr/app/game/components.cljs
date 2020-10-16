@@ -1,7 +1,7 @@
 (ns amr.app.game.components
   (:require [amr.app.game.events :as event]
             [amr.app.game.subs :as sub]
-            [amr.utils :as utils]
+            [amr.util :as util]
             [re-frame.core :as rf]
             [reagent.core :as r]
             [reitit.frontend.easy :refer [href]]))
@@ -44,7 +44,7 @@
 (defn entity [{:keys [key text]} events]
   [:div.card.col {:id (name key)
                   :on-click #(do (rf/dispatch [::event/select-entity key])
-                                 (utils/emit-n events))}
+                                 (util/emit-n events))}
    [:section.padded.entity.row
     [:img {:src "https://encrypted-tbn0.gstatic.com/images?q=tbn%3AANd9GcQbJ9qlXT9GDGFy1LRjR87dftUqg5YXy8gAwA&usqp=CAU"}]
     [:div.col

@@ -1,4 +1,4 @@
-(ns amr.utils
+(ns amr.util
   (:require [clojure.string :as str]
             #?(:cljs [re-frame.core :as rf]))
   #?(:clj (:import [java.util UUID])))
@@ -30,12 +30,10 @@
   (keyword "entity" entity))
 
 ;; TODO add cljs version
-#?(:clj
-   (defn ->UUID
-     ([s] 
-      (when s (UUID/fromString s)))
-     ([m ks]
-      (update-vals m ks ->UUID))))
+(defn ->uuid
+  ([s] #?(:clj (when s (UUID/fromString s))
+          :cljs (when s (uuid s))))
+  ([m ks] #?(:clj (update-vals m ks ->UUID))))
 
 #?(:cljs
    (defn ->uri [route]

@@ -1,7 +1,7 @@
 (ns amr.server.routes
   (:require [amr.model :as model]
             [amr.server.db :as db]
-            [amr.utils :as utils]))
+            [amr.util :as util]))
 
 ;;; ROUTES 
 
@@ -22,7 +22,7 @@
                          [:domain model/domain?]]}
      :get (fn [{{:keys [domain id]} :path-params}]
             {:status 200
-             :body (db/id->e (utils/->UUID id) (keyword domain))})}]
+             :body (db/id->e (util/->UUID id) (keyword domain))})}]
 
    ;; TODO test
    ["/policy"
@@ -33,14 +33,14 @@
                            [:entity model/entity?]
                            [:projection model/UUID?]]}
       :get (fn [{{entity "entity" projection "projection"} :query-params}]
-             (db/policy-for-entity (utils/->entity entity) (utils/->UUID projection)))}]]
+             (db/policy-for-entity (util/->entity entity) (util/->uuid projection)))}]]
 
    ["/stack"
     {:name :api/stack-for
      :doc "Returns the initial stack of cards for the `entity`."
      :parameters {:query [:map [:entity model/entity?]]}
      :get (fn [{{entity "entity"} :query-params}]
-            (db/stack-for-entity (utils/->entity entity)))}]
+            (db/stack-for-entity (util/->entity entity)))}]
 
    ;; ["/effect"]
    ])

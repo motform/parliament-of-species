@@ -1,5 +1,5 @@
 (ns amr.model
-  (:require [amr.utils :as utils]
+  (:require [amr.util :as util]
             [clojure.string :as str]
             [malli.core :as m]
             [malli.error :as me]
@@ -11,9 +11,9 @@
 
 ;;; PREDS
 
-(defn- UUID? [s]
+(defn UUID? [s]
   ;; TODO move into malli format
-  (uuid? (utils/->UUID s)))
+  (uuid? (util/->uuid s)))
 
 (def entity
   [:enum :entity/flora :entity/fauna :entity/homo-sapiens :entit/aqua])

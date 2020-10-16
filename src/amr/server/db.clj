@@ -3,7 +3,7 @@
             [amr.server.data :as data]
             [clojure.edn :as edn]
             [datomic.client.api :as d]
-            [amr.utils :as utils]
+            [amr.util :as util]
             [amr.server.db :as db]))
 
 ;;; SETUP ;; NOTE maybe move this to a component library?
@@ -123,7 +123,7 @@
           [?e :policy/projection ?p]
           [?p :projection/id ?projection-id]
           :in $ ?projection-id ?entity]
-        mdb #uuid "a975be9f-6ab6-4df1-8036-57a5be9ecb13" (utils/->entity "fauna"))
+        mdb #uuid "a975be9f-6ab6-4df1-8036-57a5be9ecb13" (util/->entity "fauna"))
 
   ;; GETTING THE IDENT OF AN ENUM
   (dm/q '[:find ?type-ident

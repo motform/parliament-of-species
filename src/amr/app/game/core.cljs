@@ -2,52 +2,14 @@
   (:require [amr.app.game.components :as c]
             [amr.app.game.events :as event]
             [amr.app.game.subs :as sub]
-            [amr.utils :as utils]
             [re-frame.core :as rf]))
 
-;;; ----------------------------------------------------------------------------
 ;;; SMAPLE DATA ;;;
-;;; ----------------------------------------------------------------------------
 
 (def lorem-ipsum
   "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.")
 
-(def sample-projection
-  #:projection
-  {:id (random-uuid)
-   :author (random-uuid)
-   :name "All the rice has died"
-   :text lorem-ipsum
-   :entities #{:entity/aqua :entity/flora}})
-
-(def sample-projection2
-  #:projection
-  {:id (random-uuid)
-   :author (random-uuid)
-   :name "Wow still no rice"
-   :text lorem-ipsum
-   :entities #{:entity/aqua :entity/flora}})
-
-(def sample-policy
-  #:policy
-  {:id (random-uuid)
-   :author (random-uuid)
-   :name "Resurrect all the rice"
-   :text lorem-ipsum
-   :tags #{:economic :farming}})
-
-(def sample-reflection
-  #:policy
-  {:id (random-uuid)
-   :author (random-uuid)
-   :entity :entity/aqua
-   :name "Resurrect all the rice"
-   :impact :pos
-   :text lorem-ipsum})
-
-;;; ----------------------------------------------------------------------------
 ;;; CARDS
-;;; ----------------------------------------------------------------------------
 
 (def cards
   {:card/intro
@@ -70,13 +32,11 @@
 
    :card/projection
    {:cardinality ::one
-    :view c/projection
-    :data sample-projection}
+    :view c/projection}
 
    :card/policy
    {:cardinality ::one
-    :view c/policy
-    :data sample-policy}
+    :view c/policy}
 
    :card/reflection
    {:cardinality ::one

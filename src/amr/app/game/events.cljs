@@ -1,6 +1,5 @@
 (ns amr.app.game.events
-  (:require [amr.utils :as utils]
-            [ajax.core :as ajax]
+  (:require [ajax.core :as ajax]
             [re-frame.core :as rf :refer [reg-event-db reg-event-fx reg-fx inject-cofx]]))
 
 (defn manipulate-cards [cards push pop]

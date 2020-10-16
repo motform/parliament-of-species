@@ -1,6 +1,6 @@
 (ns amr.app.events
   (:require [amr.app.db :as db]
-            [amr.utils :as utils]
+            [amr.util :as util]
             [ajax.core :as ajax]
             [clojure.spec.alpha :as s]
             [re-frame.core :as rf :refer [reg-event-db reg-event-fx reg-fx inject-cofx path after debug]]
@@ -34,7 +34,7 @@
 ;;  :initialize-db
 ;;  [(inject-cofx :local-store-collections) spec-interceptor]
 ;;  (fn [{:keys [local-store-collections]} [_ default-db]]
-;;    {:db (utils/?assoc default-db :stories local-store-collections)}))
+;;    {:db (util/?assoc default-db :stories local-store-collections)}))
 
 ;;; EFFECTS ;;;
 
