@@ -1,28 +1,39 @@
 (ns amr.app.db
-  (:require [cljs.reader :as reader]
-            [cljs.spec.alpha :as s]
+  (:require [amr.model :as model]
+            [cljs.reader :as reader]
             [malli.core :as m]
-            [malli.provider :as mp]
+            [malli.generator :as mg]
             [re-frame.core :as rf]))
 
-(s/def ::db (s/keys :req-un [::state]))
-(s/def ::state (s/keys :req-un [::active-page]))
-(s/def ::active-page #{:home :game})
+;;; INITIAL DB
+
+;; TODO co-locate the schema and the initial-db?
+(def default-db-schema
+  [:map
+   [:app
+    [:map
+     [:route string?]
+     [:author-id uuid?]]]
+   [:game
+    [:session-id uuid?]
+    [:entity? model/entity]
+    [:cards [:vector qualified-keyword?]]
+    [:policy [:map]]
+    [:reflection [:map]]
+    [:entites [:map]]]])
 
 (def default-db
-  {:app  {:route nil}
+  {:app  {:route nil
+          :author-id (random-uuid)}
    :game {:cards [:card/intro :card/select-entity]
           :session-id (random-uuid)
           :entity nil
-          :policy {}
-          :reflection {}
-          :entities #:entity{:aqua 8
-                             :flora 2
-                             :fauna 7
-                             :homo-sapiens 5
-                             :bacterica 2}}})
+          :content {:projection {}
+                    :policy {}
+                    :reflection {}}
+          :entities #:entity{:aqua 8 :flora 2 :fauna 7 :homo-sapiens 5 :bacterica 2}}})
 
-;;; local-storage
+;;; LOCAL-STORAGE
 
 (def ls-key "parliment.of.species")
 
