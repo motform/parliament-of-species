@@ -1,5 +1,6 @@
 (ns amr.util
   (:require [clojure.string :as str]
+            #?(:cljs [cognitect.transit :as transit])
             #?(:cljs [re-frame.core :as rf]))
   #?(:clj (:import [java.util UUID])))
 
@@ -33,7 +34,11 @@
 (defn ->uuid
   ([s] #?(:clj (when s (UUID/fromString s))
           :cljs (when s (uuid s))))
-  ([m ks] #?(:clj (update-vals m ks ->UUID))))
+  ([m ks] #?(:clj (update-vals m ks ->uuid))))
+
+#?(:clj
+   (defn uuid []
+     (UUID/randomUUID)))
 
 #?(:cljs
    (defn ->uri [route]
@@ -41,9 +46,13 @@
        (str "http://" host "/" route))))
 
 #?(:cljs
-   (defn emit-n
-     "Emits a multi-event
+   (defn do-events
+     "Sets off the events in `event-vs`.
       SOURCE: https://github.com/Day8/re-frame/issues/51"
      [event-vs]
      (doall (map rf/dispatch (remove nil? event-vs)))
      nil))
+
+#?(:cljs
+   (defn ->transit+json [x]
+     (transit/write (transit/writer :json) x)))

@@ -1,7 +1,7 @@
 {:paths ["src" "test" "resources"]
 
  :deps {;; Server
-        com.datomic/client-pro  {:mvn/version "0.9.63"}
+        com.datomic/client-pro  {:mvn/version "0.9.63"} ;; TODO move to peer lib?
         org.clojure/spec.alpha  {:mvn/version "0.2.187"}
         org.clojure/data.csv    {:mvn/version "1.0.0"}
         metosin/reitit          {:mvn/version "0.5.6"}
@@ -14,6 +14,7 @@
         com.datomic/datomic-free   {:mvn/version "0.9.5697"}
 
         ;; Front end
+        com.cognitect/transit-cljs {:mvn/version "0.8.264"}
         thheller/shadow-cljs       {:mvn/version "2.11.4"}
         thheller/shadow-cljsjs     {:mvn/version "0.0.21"}
         binaryage/devtools         {:mvn/version "1.0.2"}
