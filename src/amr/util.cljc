@@ -19,16 +19,16 @@
 (defn update-vals [m vals f]
   (reduce #(update-in % [%2] f) m vals))
 
-(defn remove-nil
-  "Returns `m` with all nil keys removed."
-  [m]
-  (into {} (remove #(nil? (val %)) m)))
-
-(defn remove-empty [m]
-  (into {} (remove #(str/blank? (val %)) m)))
+(defn remove-vals
+  "Remove kvs from `m` where (`pred` v) is truthy."
+  [m pred]
+  (into {} (remove #(pred (val %)) m)))
 
 (defn ->entity [entity]
   (keyword "entity" entity))
+
+(defn ->lookup-ref [v ref-k]
+  [ref-k v])
 
 ;; TODO add cljs version
 (defn ->uuid
@@ -52,7 +52,3 @@
      [event-vs]
      (doall (map rf/dispatch (remove nil? event-vs)))
      nil))
-
-#?(:cljs
-   (defn ->transit+json [x]
-     (transit/write (transit/writer :json) x)))
