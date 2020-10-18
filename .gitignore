@@ -8,6 +8,8 @@ resources/edn/config.edn
 node_modules/
 !resources/public
 resources/public/js/
+resources/public/fonts/
+resources/public/img/
 resources/csv
 package-lock.json
 TODO.org
