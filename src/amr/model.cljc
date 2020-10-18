@@ -30,8 +30,7 @@
   [:map
    [:session/id UUID?]
    [:session/entity entity]
-   [:session/start-date inst?]
-   [:session/end-date inst?]
+   [:session/date inst?]
    [:session/author UUID?]])
 
 (def projection
@@ -52,12 +51,12 @@
 
 (def effect
   [:map
-   [:effect/id UUID?] 
-   [:effect/policy UUID?] 
-   [:effect/session UUID?] 
-   [:effect/impact UUID?] 
+   [:effect/id uuid?] 
+   [:effect/policy uuid?] 
+   [:effect/session uuid?] 
+   [:effect/impact impact] 
    [:effect/text string?] 
-   [:effect/tag [:vector qualified-keyword?]]])
+   #_[:effect/tag [:vector qualified-keyword?]]])
 
 (def schema
   [:schema
@@ -67,7 +66,7 @@
 
 (comment
   
-  
   (m/validate effect (first (mg/sample effect)))
+  (mg/sample effect {:size 1})
 
   )

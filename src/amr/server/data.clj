@@ -10,9 +10,6 @@
        (->> header (map (partial keyword (name domain))) repeat)
        rest))
 
-(defn ->lookup-ref [v ref-k]
-  [ref-k v])
-
 (defn ->tag [s]
   (keyword "tag" (str/replace s " " "-")))
 
@@ -31,10 +28,10 @@
 (defmethod xf-row :policy [{:keys [row]}]
   (-> row
       (util/->uuid [:policy/id :policy/projection :policy/session])
-      (update :policy/projection ->lookup-ref :projection/id)
-      (update :policy/session ->lookup-ref :session/id)
-      (util/?update :policy/derived util/->UUID)
-      (util/?update :policy/derived ->lookup-ref :policy/id)))
+      (update :policy/projection util/->lookup-ref :projection/id)
+      (update :policy/session util/->lookup-ref :session/id)
+      (util/?update :policy/derived util/->uuid)
+      (util/?update :policy/derived util/->lookup-ref :policy/id)))
 
 (defmethod xf-row :session [{:keys [row]}]
   (-> row
@@ -44,8 +41,8 @@
 (defmethod xf-row :effect [{:keys [row]}]
   (-> row
       (util/->uuid [:effect/id :effect/policy :effect/session])
-      (update :effect/policy  ->lookup-ref :policy/id)
-      (update :effect/session ->lookup-ref :session/id)
+      (update :effect/policy  util/->lookup-ref :policy/id)
+      (update :effect/session util/->lookup-ref :session/id)
       (update :effect/impact #(keyword "impact" %))
       (update :effect/tag #(str/split % #";"))
       (update :effect/tag #(map ->tag %))))
@@ -57,12 +54,12 @@
        slurp
        csv/read-csv
        (csv->m domain)
-       (map util/remove-empty)
+       (map #(util/remove-vals % str/blank?))
        (map #(xf-row {:domain domain :row %}))))
 
 (comment
-  (remove derived? (parse-csv "resources/csv/policies.csv" :policy))
+  (first (parse-csv "resources/csv/policies.csv" :policy))
   (parse-csv "resources/csv/projections.csv" :projection)
   (parse-csv "resources/csv/sessions.csv" :session)
-  (parse-csv "resources/csv/effects.csv" :effect)
+  (first (parse-csv "resources/csv/effects.csv" :effect))
   )

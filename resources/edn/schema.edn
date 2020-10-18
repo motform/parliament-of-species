@@ -112,6 +112,7 @@
   :db/doc "tags relating to the policy"
   :db/valueType :db.type/keyword
   :db/cardinality :db.cardinality/many}
+
  ;;; Session
 
  {:db/ident :session/id
@@ -125,13 +126,8 @@
   :db/valueType :db.type/ref
   :db/cardinality :db.cardinality/one}
 
- {:db/ident :session/start-date
+ {:db/ident :session/date
   :db/doc "the date the session was started"
-  :db/valueType :db.type/instant
-  :db/cardinality :db.cardinality/one}
-
- {:db/ident :session/end-date
-  :db/doc "the date the session was ended"
   :db/valueType :db.type/instant
   :db/cardinality :db.cardinality/one}
 
