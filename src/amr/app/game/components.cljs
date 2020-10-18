@@ -1,10 +1,12 @@
 (ns amr.app.game.components
   (:require [amr.app.game.events :as event]
+            [amr.app.events :as app]
             [amr.app.game.subs :as sub]
             [amr.util :as util]
             [re-frame.core :as rf]
             [reagent.core :as r]
-            [reitit.frontend.easy :refer [href]]))
+            [reitit.frontend.easy :refer [href]]
+            [clojure.string :as str]))
 
 ;;; UI ;;;
 
@@ -18,14 +20,9 @@
      (for [[id val] entities]
        ^{:key id} [status-bar (name id) id val])]))
 
-(defn game-ui [{:keys [entity entities ui?]}]
-  [:div.ui.col 
-   [:h1 "Parliament of Species"]
-   [:h3 "A social policy making game"]
-   (when entity [:h1.card.padded entity])
-   (when ui? [status-bars entities])])
-
 ;;; CARDS ;;;
+
+;;; GENERAL
 
 (defn banner
   ([text]
@@ -35,41 +32,89 @@
     [:p text]
     (when route [:a {:herf (href route)}])]))
 
-(defn text [{:keys [title text]}]
+(defn text [{:keys [title texts]}]
   [:div.card.col
    [:section.padded.col
     [:h1 title]
-    [:p text]]])
+    (for [text texts]
+      ^{:keys text} [:p text])]])
 
-(defn entity [{:keys [key text]} events]
+(defn ul [label items]
+  [:<>  
+   [:h2.list-heading label]
+   [:ul {:class label}
+    (for [item items]
+      ^{:key item} [:li.item item])]])
+
+;;; SPECIFIC
+
+(defn timeline [years]
+  (let [state (r/atom "2020")]
+    (fn []
+      [:div.card.col.timeline
+       [:section.padded
+        [:input.timeline
+         {:type "range" :list "years"
+          :value @state :min 2020 :max 2024 :step 1
+          :on-change #(reset! state (.. % -target -value))}]
+        [:datalist#years
+         [:option {:label "2020"} 2020]
+         [:option {:label "2021"} 2021]
+         [:option {:label "2022"} 2022]
+         [:option {:label "2023"} 2023]
+         [:option {:label "2024"} 2024]]
+        [:h1.year @state]
+        [:p (years @state)]]])))
+
+(defn entity [{:keys [key represents relation]} {:keys [clickable?]}]
   [:div.card.col {:id (name key)
-                  :on-click #(do (rf/dispatch [::event/select-entity key])
-                                 (util/emit-n events))}
-   [:section.padded.entity.row
-    [:img {:src "https://encrypted-tbn0.gstatic.com/images?q=tbn%3AANd9GcQbJ9qlXT9GDGFy1LRjR87dftUqg5YXy8gAwA&usqp=CAU"}]
+                  :on-click #(when clickable?
+                               ;; this sometimes fails, possibly when the session-submission
+                               ;; comes before the effect submission?
+                               ;; should post them both in sync
+                               (rf/dispatch [::event/create-session])
+                               (rf/dispatch [::event/select-entity key])
+                               (rf/dispatch [::event/request-stack-for (name key)])
+                               (rf/dispatch [::app/scroll-to-top])
+                               (rf/dispatch [::event/screen :screen/reflection]))}
+   [:section.padded.entity.row {:class (when clickable? "clickable")}
+    [:img.entity-portrait {:src (str "/img/entities/" (name key) ".png")}]
     [:div.col
-     [:h1 (name key)]
-     [:p text]]]])
+     ;; [:h1 (name key)]
+     [ul "represents" represents]
+     [ul "relation" relation]]]])
 
-(defn projection []
-  (let [{:projection/keys [id text name]} @(rf/subscribe [::sub/projection])] 
+(defn current-entity [entites]
+  (let [current-entity (:session/entity @(rf/subscribe [::sub/from-session :session]))]
+    [entity (first (filter #(= current-entity (:key %)) entites)) {:clickable? false}]))
+
+(defn projection
+  ([]
+   (let [p @(rf/subscribe [::sub/from-session :projection])] 
+     (projection p {:clickable? false})))
+  ([{:projection/keys [id text name] :as projection} {:keys [clickable? screen]}]
+   [:div.card.col {:id id
+                   :class (when clickable? "clickable")
+                   :on-click #(when clickable?
+                                (rf/dispatch [::event/select-projection projection])
+                                (rf/dispatch [::event/screen screen]))}
+    [:section.padded.projection
+     [:h1 name]
+     [:p text]]
+    [:div.card-footer.padded.row
+     [:label "Projection"]]]))
+
+(defn policy []
+  (let [{:policy/keys [id name text tags]} @(rf/subscribe [::sub/from-session :policy])]  
     [:div.card.col {:id id}
-     [:section.padded.projection
+     [:section.padded.policy
       [:h1 name]
       [:p text]]
      [:div.card-footer.padded.row
-      [:label "Projection"]]]))
-
-(defn policy [{:policy/keys [id name text tags]}]
-  [:div.card.col {:id id}
-   [:section.padded.policy
-    [:h1 name]
-    [:p text]]
-   [:div.card-footer.padded.row
-    [:label "Policy"]
-    [:div.tags.row
-     (for [tag tags]
-       ^{:key tag} [:span.tag (str "#" (clojure.core/name tag))])]]])
+      [:label "Policy"]
+      [:div.tags.row
+       (for [tag tags]
+         ^{:key tag} [:span.tag (str "#" (clojure.core/name tag))])]]]))
 
 (defn effect []
   [:div.card.col.effect
@@ -83,36 +128,67 @@
 
 ;;; FORMS ;;;
 
-;; TODO add validation
-;; TODO How do we get the policy ID? From the app-db?
-(defn reflection [_ events]
-  (let [state (r/atom {:text "" :reaction nil})]
+(defn reflection
+  "Component for creating submitting effects. Some might call it badly named."
+  []
+  (let [state (r/atom #:effect{:text "" :impact nil})]
 
-    (letfn [(b'reaction [label k state] ^{:key k}
-              [:input.btn.btn-reaction
+    (letfn [(btn-impact [label k] ^{:key k}
+              [:input.btn.btn-impact
                {:type "button"
                 :value label
-                :on-click #(swap! state assoc :reaction k)
-                :class (when (= k (:reaction @state)) "btn-reaction-active")}])]
+                :on-click #(swap! state assoc :effect/impact k)
+                :class (when (= k (:effect/impact @state)) "btn-impact-active")}])
 
+            (valid-input? [{:effect/keys [text impact]}]
+              (and impact (> (count text) 30)))]
+      
       (fn [] 
-        [:div.card.reflection
-         [:section.padded
-          [:h1 "How does this impact you?"]
-          [:p "Elaborate on how this affects you."]
-          [:form.col
-           [:div.btns
-            [b'reaction "Good" :pos state]
-            [b'reaction "Bad"  :neg state]] 
-           [:textarea {:rows 10
-                       :value (:text @state)
-                       :on-change #(swap! state assoc :text (-> % .-target .-value))}]
-           [:input.btn {:type "button"
-                        :value "Submit"
-                        :on-click #(do (rf/dispatch [::event/submit-reflection (assoc events :reflection @state)]))}]]]]))))
+        (let [policy  @(rf/subscribe [::sub/from-session :policy])
+              session @(rf/subscribe [::sub/from-session :session])
+              author  @(rf/subscribe [::sub/author])
+              effect  #:effect{:id (random-uuid) :policy (:policy/id policy) :session (:session/id session)}]
 
-(defn write-policy [_ events]
-  (let [state (r/atom {:text "" :name "" :tags ""})]
+          [:div.card.reflection
+           [:section.padded
+            [:h1 (str "How does this impact " (name (:session/entity session))) " ?"]
+            [:p "Elaborate on how this affects you."]
+            [:div.col
+             [:div.btns
+              [btn-impact "Positively" :impact/positive]
+              [btn-impact "Negatively" :impact/negative]] 
+             [:textarea {:rows 10
+                         :value (:effect/text @state)
+                         :on-change #(swap! state assoc :effect/text (.. % -target -value))}]
+             [:input {:type "button"
+                      :value "submit"
+                      :disabled (if (valid-input? @state) false true)
+                      :on-click #(do (rf/dispatch [::event/submit-session (merge {:session/author author} session)])
+                                     (rf/dispatch [::event/submit-effect (merge @state effect)])
+                                     (rf/dispatch [::app/scroll-to-top])
+                                     (case (:effect/impact @state)
+                                       :impact/negative
+                                       (do (rf/dispatch [::event/screen :screen/derive-policy]))
+
+                                       :impact/positive
+                                       (do (rf/dispatch [::event/screen :screen/select-projection])
+                                           (rf/dispatch [::event/request-all :projection]))))}]]]])))))
+
+(defn select-projection []
+  (let [current-projection @(rf/subscribe [::sub/from-session :projection])
+        projections (->> @(rf/subscribe [::sub/from-temp :projection])
+                         (remove #(= % current-projection)))]
+    [:<> 
+     (for [p projections]
+       ^{:key (:projection/id p)}
+       [projection p {:clickable? true :screen :screen/new-policy}])]))
+
+;; get the derived key from somewhere idk
+(defn write-policy [{:keys [derived]}]
+  (let [state (r/atom #:policy{:text "" :name "" :tags ""})
+        {session-id :session/id} @(rf/subscribe [::sub/from-session :session])
+        {projection-id :projection/id} @(rf/subscribe [::sub/from-session :projection])
+        policy #:policy{:projection projection-id :session session-id :id (random-uuid) :derived derived}]
     (fn [] 
       [:div.card.policy
        [:section.padded
@@ -136,4 +212,4 @@
                     :on-change #(swap! state assoc :text (-> % .-target .-value))}]
         [:input.btn {:type "button"
                      :value "Submit"
-                     :on-click #(rf/dispatch [::event/submit-policy (assoc events :policy @state)])}]]])))
+                     :on-click #(rf/dispatch [::event/submit-policy (merge @state policy)])}]]])))

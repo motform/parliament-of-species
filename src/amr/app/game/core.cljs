@@ -4,83 +4,90 @@
             [amr.app.game.subs :as sub]
             [re-frame.core :as rf]))
 
-;;; SMAPLE DATA ;;;
+;;; DATA
 
 (def lorem-ipsum
   "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.")
 
-;;; CARDS
+(def intro-text
+  ["AMR: Antimicrobial resistance happens when microorganisms, such as bacteria [...], change when they are exposed to antimicrobial drugs, such as antibiotics[...]. Microorganisms that develop antimicrobial resistance are sometimes referred to as “superbugs”."
 
-(def cards
-  {:card/intro
-   {:cardinality ::one
-    :view c/text
-    :data {:title "Introduction to AMR"
-           :text  lorem-ipsum}}
+   "As a result, the medicines become ineffective and infections persist in the body, increasing the risk of spread to others. - WHO "])
 
-   :card/select-entity
-   {:cardinality ::many
-    :tip {:text "Select your entity"}
-    :cards {:view c/entity
-            :events [[::event/remove-cards [:card/intro :card/select-entity]]
-                     [::event/add-cards [:card/projection :card/policy :card/reflection]]]
-            :data [{:key :entity/aqua         :text lorem-ipsum}
-                   {:key :entity/flora        :text lorem-ipsum}
-                   {:key :entity/fauna        :text lorem-ipsum}
-                   {:key :entity/homo-sapiens :text lorem-ipsum}]}}
+(def years
+  {"2020" lorem-ipsum
+   "2021" lorem-ipsum
+   "2022" lorem-ipsum
+   "2023" lorem-ipsum
+   "2024" lorem-ipsum})
 
-   :card/projection
-   {:cardinality ::one
-    :view c/projection}
+(def entites
+  [{:key :entity/aqua
+    :represents ["Oceans, rivers, lakes" "Rain"]
+    :relation ["Antibiotics used on many aquatic animals" "Sewedge" "Antibiotic pollution in rivers"]}
 
-   :card/policy
-   {:cardinality ::one
-    :view c/policy}
+   {:key :entity/flora
+    :represents ["Plantkind" "Agriculture"]
+    :relation ["Antibiotics used in veggies" "Since animals are given antibiotics, their wastes are also affecting the ecosystem"]}
 
-   :card/reflection
-   {:cardinality ::one
-    :view c/reflection
-    :events {::event/remove-cards [:card/policy :card/reflection]
-             ::event/add-cards    [:card/effect :card/write-policy]}}
+   {:key :entity/fauna
+    :represents ["Animalkind" "Animal Husbandry"]
+    :relation ["Farm animals are given a lot of antibiotics (not for healing them) more"
+               "Superbugs can contaminate animals and kill them"
+               "Animals can contaminate each others with superbugs"
+               "Animals become resistant to antibiotics by eating plants and drinking water"]}
 
-   :card/effect
-   {:cardinality ::one
-    :view c/effect} 
-
-   :card/write-policy
-   {:cardinality ::one
-    :events {:remove-cards [:card/projection :card/effect :card/write-policy]
-             :add-cards [:card/final]}
-    :view c/write-policy}
-
-   :card/final
-   {:cardinality ::one
-    :view c/text
-    :data {:title "You win"
-           :text lorem-ipsum}}})
+   {:key :entity/homo-sapiens
+    :represents ["Humankind, past and present" "Society"]
+    :relation ["Antibiotics becoming less effective in healthcare"
+               "Super bugs"
+               "Overuse, underuse and misuse of antibiotics"
+               "Different global approaches to AMR"
+               "Needs good sanitary conditions, clean drinking water and proper sewage systems to prevent diseases spreading"
+               "Lack of public knowledge about antibiotics"]}])
 
 ;;; MACHINERY
 
-(defn- render-tip [{:keys [text route]}]
-  [c/banner text route])
-
-(defn- render-card [{:keys [view data events]}]
-  [view data events])
-
-(defn- render-cards [{:keys [view data events]}]
-  (for [card data]
-    ^{:key card} [view card events]))
-
-(defn- render [id {:keys [cardinality cards tip] :as data}]
-  [:<>
-   (when tip [render-tip tip])
-   (case cardinality
-     ::one  [render-card data]
-     ::many (render-cards cards) ;; WARN triggers a warning
-     [:p.error "Card " id " has an invalid cardinality " cardinality])])
-
 (defn game []
-  (let [active-cards @(rf/subscribe [::sub/cards])]
+  (let [screen @(rf/subscribe [::sub/screen])]
     [:main.game
-     (for [[k data] (select-keys cards active-cards)]
-       ^{:key k} [render k data])]))
+     [#:screen
+
+      {:intro
+       (fn []
+         [:<>
+          [c/text {:title "Antimicrobial Resistance" :texts intro-text}]
+          [c/timeline years]
+          (for [entity entites]
+            ^{:key (:key entity)} [c/entity entity {:clickable? true}])])
+
+       :reflection
+       (fn []
+         [:<>
+          [c/current-entity entites]
+          [c/projection]
+          [c/policy]
+          [c/reflection]])
+
+       :derive-policy
+       (fn []
+         [:<>
+          [:p "derive"]])
+
+       :select-projection
+       (fn []
+         [:<>
+          [c/current-entity entites]
+          [c/text {:title "Select a new projection" :text lorem-ipsum}]
+          [c/select-projection]
+          ])
+
+       :new-policy
+       (fn []
+         [:<>
+          [c/current-entity entites]
+          [c/projection]
+          [c/write-policy]])
+
+       }
+      screen]]))

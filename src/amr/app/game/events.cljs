@@ -1,52 +1,101 @@
 (ns amr.app.game.events
-  (:require [amr.util :as util]
-            [ajax.core :as ajax]
+  (:require [ajax.core :as ajax]
             [re-frame.core :as rf :refer [reg-event-db reg-event-fx reg-fx inject-cofx]]))
+
+(reg-event-db
+ ::screen
+ (fn [db [_ screen]]
+   (assoc-in db [:game :screen] screen)))
+
+(reg-event-db
+ ::create-session
+ (fn [db _]
+   (let [id (random-uuid)]
+     (-> db
+         (assoc-in [:sessions id :session] #:session{:id id :date (js/Date.)})
+         (assoc-in [:game :current-session] id)))))
 
 (reg-event-db
  ::select-entity
  (fn [db [_ entity]]
-   (assoc-in db [:game :entity] entity)))
+   (let [session (get-in db [:game :current-session])]
+     (assoc-in db [:sessions session :session :session/entity] entity))))
 
+;; NOTE this currently overrides the original projection, which is slightly unnecessary
 (reg-event-db
- ::add-cards
- (fn [db [_ cards]]
-   (update-in db [:game :cards] #(apply conj % cards))))
+ ::select-projection
+ (fn [db [_ projection]]
+   (let [session (get-in db [:game :current-session])]
+     (assoc-in db [:sessions session :projection] projection))))
 
-(reg-event-db
- ::remove-cards
- (fn [db [_ cards]]
-   (update-in db [:game :cards] #(into [] (remove (into #{} cards)) %))))
-
-(reg-event-db
- ::submit-reflection
- (fn [db [_ {:keys [reflection add-cards remove-cards]}]]
-   (-> db
-       (assoc-in [:game :reflection] reflection)
-       (update-in [:game :cards] manipulate-cards add-cards remove-cards))))
-
-(reg-event-db
- ::submit-policy
- (fn [db [_ {:keys [policy add-cards remove-cards]}]]
-   (-> db
-       (assoc-in [:game :policy] policy)
-       (update-in [:game :cards] manipulate-cards add-cards remove-cards))))
-
-(reg-event-db
- ::handle-projection
- (fn [db [_ response]]
-   (-> db
-       (assoc-in [:app :pending-request?] false)
-       (assoc-in [:game :projection] response))))
+;;; GET
 
 (reg-event-fx
- ::request-projection
- (fn [{:keys [db]} _]
+ ::request-stack-for
+ (fn [{:keys [db]} [_ entity]]
    {:db (assoc-in db [:state :pending-request] true)
     :http-xhrio {:method :get
-                 :uri "http://localhost:3131/api/projection/random"
-                 :timeout 800000
+                 :uri "http://localhost:3131/api/stack"
+                 :params {:entity entity}
+                 :response-format (ajax/transit-response-format {:keywords? true})
+                 :on-success [::handle-stack]
+                 :on-failure [:http/failure]}}))
+
+(reg-event-db
+ ::handle-stack
+ (fn [db [_ {:keys [projection policy]}]]
+   (let [session (get-in db [:game :current-session])]
+     (-> db
+         (assoc-in [:sessions session :projection] projection)
+         (assoc-in [:sessions session :policy] policy)
+         (assoc-in [:app :pending-request?] false)))))
+
+(reg-event-fx
+ ::request-all
+ (fn [{:keys [db]} [_ ns]]
+   {:db (assoc-in db [:state :pending-request] true)
+    :http-xhrio {:method :get
+                 :uri (str "http://localhost:3131/api/all/" (name ns))
+                 :response-format (ajax/transit-response-format {:keywords? true})
+                 :on-success [::handle-temp ns]
+                 :on-failure [:http/failure]}}))
+
+(reg-event-db
+ ::handle-temp
+ (fn [db [_ ns data]]
+   (assoc-in db [:temp ns] data)))
+
+;;; POST
+
+(reg-event-fx
+ ::submit-session
+ (fn [_ [_ data]]
+   {:http-xhrio {:method :post
+                 :uri "http://localhost:3131/api/submit/session"
+                 :params data
                  :format (ajax/transit-request-format)
                  :response-format (ajax/transit-response-format {:keywords? true})
-                 :on-success [::handle-projection]
+                 :on-failure [:http/failure]}}))
+
+
+(reg-event-fx
+ ::submit-effect
+ (fn [{:keys [db]} [_ data]]
+   (let [session (get-in db [:game :current-session])]
+     {:db (assoc-in db [:sessions session :effect] data)
+      :http-xhrio {:method :post
+                   :uri "http://localhost:3131/api/submit/effect"
+                   :params data
+                   :format (ajax/transit-request-format)
+                   :response-format (ajax/transit-response-format {:keywords? true})
+                   :on-failure [:http/failure]}})))
+
+(reg-event-fx
+ ::submit-policy
+ (fn [_ [_ data]]
+   {:http-xhrio {:method :post
+                 :uri "http://localhost:3131/api/submit/policy"
+                 :params data
+                 :format (ajax/transit-request-format)
+                 :response-format (ajax/transit-response-format {:keywords? true})
                  :on-failure [:http/failure]}}))

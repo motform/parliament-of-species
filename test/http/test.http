@@ -7,5 +7,13 @@ Accept: application/transit+json
 
 ## specific projection
 
-GET http://localhost:3131/api/in/projection/31d5db74-cd3d-42d3-ad50-cf703b3f4143
+GET http://localhost:3131/api/stack?entity=aqua
 Accept: application/transit+json
+
+## session submission
+
+POST http://localhost:3131/api/submit/session
+Accept: application/transit+json
+Content-Type: application/transit+json
+
+["^ ","~:session/id","~ueb5fb212-5d24-4642-94e7-99ba0696af93","~:session/entity","~:entity/aqua"]: 
