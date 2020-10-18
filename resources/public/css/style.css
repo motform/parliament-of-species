@@ -29,6 +29,8 @@
 html {
     font-size: 5px;
     font-family: sans-serif;
+    max-width: 1000px;
+    margin: 0 auto;
 }
 
 body {
@@ -70,6 +72,7 @@ button:hover {
 
 a {
     color: var(--fg);
+    text-decoration: none;
 }
 
 h1 {
@@ -87,6 +90,14 @@ h3 {
 
 nav {
     margin-top: 5rem;
+}
+
+p {
+    margin-bottom: 5rem;
+}
+
+p:last-child {
+    margin-bottom: 0;
 }
 
 progress {
@@ -125,18 +136,53 @@ textarea {
     padding: 5rem;
 }
 
+.clickable {
+    cursor: pointer;
+}
+
+.clickable:hover {
+    box-shadow: 10px 10px;
+}
+
 /* HEADER */
 
 header {
     min-height: 20rem;
-    background: whitesmoke;
+    margin-bottom: 5rem;
+    justify-content: space-between;
+    padding-top: 5rem;
+}
+
+.nameplate {
+    font-family: "Obviously Condensed";
+    font-size: 10rem;
+    text-transform: uppercase;
+    line-height: 15rem;
+    font-weight: 900;
+}
+
+.links * {
+    margin-left: 3rem;
+    font-family: "Obviously Condensed";
+    font-size: 10rem;
+    text-transform: uppercase;
+    line-height: 15rem;
+    font-weight: 500;
+}
+
+li a:hover {
+    cursor: pointer;
+    color: whitesmoke;
+}
+
+.active {
+    color: whitesmoke;
 }
 
 /* FOOTER */
 
 footer {
-    min-height: 30rem;
-    background: whitesmoke;
+    margin-top: 10rem;
 }
 
 /* HOME */
@@ -182,6 +228,14 @@ nav {
     margin: 2.5rem 0;
 }
 
+.timeline {
+    width: 100%
+}
+
+.year {
+    text-align: center;
+}
+
 .select-entity {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
@@ -200,18 +254,18 @@ nav {
 }
 
 .entity {
-    transition: all 0.25s;
-}
-
-.entity:hover {
-    box-shadow: 10px 10px;
 }
 
 .entity img {
     margin-right: 5rem;
 }
-.entity:hover {
-    cursor: pointer;
+
+.entity-portrait {
+    max-height: 50rem;
+}
+
+.list-heading {
+    text-transform: capitalize;
 }
 
 .event-reaction {
@@ -223,6 +277,7 @@ nav {
     width: 100%;
     margin: 5rem 0;
     background: white;
+    transition: all 0.25s;
 }
 
 .card-footer {
@@ -293,10 +348,11 @@ nav {
     justify-content: space-between;
 }
 
-.btn-reaction {
+.btn-impact {
+    color: var(--ia);
 }
 
-.btn-reaction-active {
+.btn-impact-active {
     font-weight: bold;
     color: var(--fg);
 }

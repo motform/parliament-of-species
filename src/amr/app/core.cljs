@@ -12,15 +12,17 @@
 (def debug? ^boolean goog.DEBUG)
 
 (defn header [router current-route]
-  [:header.padded.col
-   [:h1 "Parliment of Species"]
-   [:ul
+  [:header.padded.row
+   [:a.nameplate {:herf (href :route/home)} "Parliment of Species"]
+   [:ul.links.row
     (for [route-name (reitit/route-names router)
           :let [route (reitit/match-by-name router route-name)
                 text (get-in route [:data :link-text])]]
-      [:li {:key route-name}
-       (when (= route-name (get-in current-route [:data :name])) "> ")
-       [:a {:href (href route-name)} text]])]])
+      (when-not (= route-name :route/home) 
+        [:li {:key route-name}
+         [:a {:href (href route-name)
+              :class (when (= route-name (get-in current-route [:data :name])) "active")}
+          text]]))]])
 
 (defn footer []
   [:footer.padded "Counterfactual speculations by Malmö University."])
