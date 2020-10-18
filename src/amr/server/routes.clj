@@ -9,7 +9,7 @@
   [["/random"
     {:name :api/random
      :doc "Returns a random entity from that `domain`."
-     :parameters {:path [:map [:domain model/domain?]]}
+     :parameters {:path [:map [:domain model/domain]]}
      :get (fn [{{domain "domain"} :query-params}]
             {:status 200
              :body (db/random domain)})}]
@@ -19,28 +19,68 @@
      :doc "Returns the entity from `domain` that corresponds to that `id`."
      :parameters {:path [:map
                          [:id model/UUID?]
-                         [:domain model/domain?]]}
+                         [:domain model/domain]]}
      :get (fn [{{:keys [domain id]} :path-params}]
             {:status 200
-             :body (db/id->e (util/->UUID id) (keyword domain))})}]
+             :body (db/id->e (util/->uuid id) (keyword domain))})}]
+
+   ["/all"
+    ["/{ns}"
+     {:name :api.all/ns
+      :doc   "Return all es in `ns.`"
+      :parameters {:path [:map [:ns [:enum "projection" "policy" "effect"]]]}
+      :get (fn [{{:keys [ns]} :path-params}]
+             {:status 200
+              :body (db/all (keyword ns "id"))})}]]
 
    ;; TODO test
+   ;; NOTE not in use
    ["/policy"
     ["/for-entity"
      {:name :api.policy/for-entity
       :doc "Returns a random policy for `projection` _not_ written by the `entity`."
       :parameters {:query [:map
-                           [:entity model/entity?]
+                           [:entity model/entity]
                            [:projection model/UUID?]]}
       :get (fn [{{entity "entity" projection "projection"} :query-params}]
-             (db/policy-for-entity (util/->entity entity) (util/->uuid projection)))}]]
+             {:status 200
+              :body (db/policy-for-entity (util/->entity entity) (util/->uuid projection))})}]]
 
+   ;; TODO handle null ptr exception?
    ["/stack"
     {:name :api/stack-for
      :doc "Returns the initial stack of cards for the `entity`."
-     :parameters {:query [:map [:entity model/entity?]]}
+     :parameters {:query [:map [:entity model/entity]]}
      :get (fn [{{entity "entity"} :query-params}]
-            (db/stack-for-entity (util/->entity entity)))}]
+            {:status 200
+             :body (db/stack-for-entity (util/->entity entity))})}]
 
-   ;; ["/effect"]
-   ])
+   ["/submit" ;; TODO parameterize?
+    
+    ["/session"
+     {:name :api.submit/session
+      :doc "Submits the session into the `db`."
+      :parameters {:body model/session}
+      :post (fn [{body :body-params}]
+              (db/submit-session (dissoc body :session/author)) ;; TODO change when updated schema
+              {:status 201
+               :body (str "/api/session/id/" (:session/id body))})}]
+
+    ["/effect"
+     {:name :api.submit/effect
+      :doc "Submits the effect into the `db`."
+      :parameters {:body model/effect}
+      :post (fn [{body :body-params}]
+              (db/submit-effect body)
+              {:status 200
+               :body (str "/effect/id/" (str (:effect/id body)))})}]
+
+    ["/policy"
+     {:name :api.submit/policy
+      :doc "Submits the policy into the `db`."
+      :parameters {:body model/policy}
+      :post (fn [{body :body-params}]
+              (db/submit-policy body) 
+              {:status 201
+               :body (str "/api/policy/id/" (:policy/id body))})}]
+    ]])

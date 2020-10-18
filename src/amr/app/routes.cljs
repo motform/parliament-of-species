@@ -18,16 +18,24 @@
     {:name :route/home
      :view home
      :link-text "Home"}]
+
    ["game"
     {:name :route/game
      :view game
      :title "Collaborative Policy Making"
-     :link-text "Game"}]
+     :link-text "Policymaking"}]
+
    ["archive"
     {:name :route/archive
      :view archive
      :title "Archive of Futures"
-     :link-text "Archive"}]])
+     :link-text "Archive"}]
+
+   ["about"
+    {:name :route/about
+     :view archive
+     :title "About"
+     :link-text "About"}]])
 
 (def router
   (reitit.frontend/router

@@ -6,6 +6,7 @@
             [amr.util :as util]
             [amr.server.db :as db]))
 
+;; TODO narrow the pulls
 ;;; SETUP
 
 (def schema (-> "resources/edn/schema.edn" slurp edn/read-string))
@@ -27,6 +28,14 @@
                    :where [?e ?ns ?id]
                    :in $ ?id ?ns]
           :args [(d/db conn) id domain]})))
+
+(defn all
+  "Return all es in `ns.`"
+  [ns]
+  (map first (d/q {:query '[:find (pull ?e [*])
+                            :in $ ?ns
+                            :where [?e ?ns]]
+                   :args [(d/db conn) ns]})))
 
 (defn random
   "Return random entity from domain `k`."
@@ -57,20 +66,33 @@
     {:projection projection
      :policy policy}))
 
+;;; TRANSACTIONS 
+
 (defn submit-effect
-  "Adds an effect to the `db`."
-  [{:keys [policy session impact text]}]
-  (d/transact conn {:tx-data
-                    [{:effect/id (util/uuid)
-                      :effect/policy [:policy/id policy]
-                      :effect/session [:session/id session]
-                      :effect/impact impact
-                      :effect/text text}]}))
+  "Adds an `effect` to the `db`."
+  [effect]
+  (let [tx (-> effect
+               (update :effect/session util/->lookup-ref :session/id)
+               (update :effect/policy util/->lookup-ref :policy/id))]
+    (d/transact conn {:tx-data [tx]})))
 
 (defn submit-session
   "Adds a `session` to the `db`."
   [session]
   (d/transact conn {:tx-data [session]}))
+
+(defn submit-policy
+  "Adds a `policy` to the `db`."
+  [policy]
+  (let [tx (-> policy
+               (util/remove-vals nil?)
+               (util/?update :policy/derived util/->lookup-ref :policy/id)
+               (update :policy/session util/->lookup-ref :session/id)
+               (update :policy/projection util/->lookup-ref :projection/id))]  
+    (d/transact conn {:tx-data [tx]})))
+
+
+
 
 (comment
   ;;; DEV LOCAL
