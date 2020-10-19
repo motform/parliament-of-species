@@ -1,10 +1,9 @@
 (ns amr.app.routes
   (:require [amr.app.archive.core :refer [archive]]
+            [amr.app.about.core :refer [about]]
             [amr.app.game.core :refer [game]]
             [amr.app.home.core :refer [home]]
             [amr.app.events :as event]
-            [amr.app.subs :as sub]
-            [reitit.core :as reitit]
             [reitit.coercion.spec :as reitit.spec]
             [reitit.frontend :as reitit.frontend]
             [reitit.frontend.easy :as reitit.easy]
@@ -33,7 +32,7 @@
 
    ["about"
     {:name :route/about
-     :view archive
+     :view about
      :title "About"
      :link-text "About"}]])
 

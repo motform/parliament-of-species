@@ -9,10 +9,10 @@
 
 (reg-event-db
  ::create-session
- (fn [db _]
-   (let [id (random-uuid)]
+ (fn [db [_ {:session/keys [id] :as session}]]
+   (let [author (get-in db [:app :author])]
      (-> db
-         (assoc-in [:sessions id :session] #:session{:id id :date (js/Date.)})
+         (assoc-in [:sessions id :session] (assoc session :session/author author))
          (assoc-in [:game :current-session] id)))))
 
 (reg-event-db
@@ -69,10 +69,10 @@
 
 (reg-event-fx
  ::submit-session
- (fn [_ [_ data]]
+ (fn [_ [_ session]]
    {:http-xhrio {:method :post
                  :uri "http://localhost:3131/api/submit/session"
-                 :params data
+                 :params session
                  :format (ajax/transit-request-format)
                  :response-format (ajax/transit-response-format {:keywords? true})
                  :on-failure [:http/failure]}}))
@@ -80,22 +80,22 @@
 
 (reg-event-fx
  ::submit-effect
- (fn [{:keys [db]} [_ data]]
+ (fn [{:keys [db]} [_ effect]]
    (let [session (get-in db [:game :current-session])]
-     {:db (assoc-in db [:sessions session :effect] data)
+     {:db (assoc-in db [:sessions session :effect] effect)
       :http-xhrio {:method :post
                    :uri "http://localhost:3131/api/submit/effect"
-                   :params data
+                   :params effect
                    :format (ajax/transit-request-format)
                    :response-format (ajax/transit-response-format {:keywords? true})
                    :on-failure [:http/failure]}})))
 
 (reg-event-fx
  ::submit-policy
- (fn [_ [_ data]]
+ (fn [_ [_ policy]]
    {:http-xhrio {:method :post
                  :uri "http://localhost:3131/api/submit/policy"
-                 :params data
+                 :params policy
                  :format (ajax/transit-request-format)
                  :response-format (ajax/transit-response-format {:keywords? true})
                  :on-failure [:http/failure]}}))

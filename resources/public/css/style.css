@@ -6,19 +6,28 @@
 /* Variables */
 
 :root {
-    /* --bg: #40403e; from the reference, maybe a bit too dark */
-    --bg: gray;
+    --bg: #f5dcaf;
+    --bg-dark: #dab994;
+    --bg-card: #f8e8ca;
     --fg: black;
+    --hl: #e67b5c;
     --ia: gray;
-}
 
-/* @media (prefers-color-scheme: dark) { */
-/*     :root { */
-/*         --bg: #1e1e1e; */
-/*         --fg: whitesmoke; */
-/*         --ia: gray; */
-/*     } */
-/* } */
+    --flora-fg: #488f96;
+    --flora-bg: #1FA659;
+
+    --fauna-fg: #f3ca7d;
+    --fauna-bg: #efbd58;
+
+    --aqua-fg:  #507aa0;
+    --aqua-bg:  #0d618b;
+
+    --homo-sapiens-fg: #874b7a;
+    --homo-sapiens-bg: #6b2964;
+
+    --amr-fg: #5a6169;
+    --amr-bg: #32474f;
+}
 
 /* Global */
 
@@ -34,7 +43,7 @@ html {
 }
 
 body {
-    font-family: "Obviously";
+    font-family: "Auroc";
     font-size: 3rem;
     background: var(--bg);
     color: var(--fg);
@@ -77,6 +86,7 @@ a {
 
 h1 {
     font-size: 7rem;
+    line-height: 7rem;
 }
 
 h2 {
@@ -108,6 +118,10 @@ progress {
     height: 3rem;
 }
 
+input {
+    outline: none;
+}
+
 textarea {
     background: white;
     color: var(--fg);
@@ -120,7 +134,7 @@ textarea {
     outline: none;
 }
 
-/* Helpers */
+/* HELPERS */
 
 .col {
     display: flex;
@@ -132,51 +146,71 @@ textarea {
     flex-direction: row;
 }
 
+.paddedm {
+}
+
 .padded {
     padding: 5rem;
 }
 
-.clickable {
+.clickable:hover {
     cursor: pointer;
+    box-shadow: 10px 10px var(--bg-dark);
+    transform: rotate(-1deg);
 }
 
-.clickable:hover {
-    box-shadow: 10px 10px;
+/* ENTITIES */
+
+.flora {
+    background: var(--flora-bg);
+}
+
+.fauna {
+    background: var(--fauna-bg);
+}
+
+.aqua {
+    background: var(--aqua-bg);
+}
+
+.homo-sapiens {
+    background: var(--homo-sapiens-bg);
+}
+
+.bacteria {
+    background: var(--amr-bg);
 }
 
 /* HEADER */
 
 header {
-    min-height: 20rem;
+    font: 400 5rem/5rem "Auroc", serif;
+    padding: 0 5rem;
     margin-bottom: 5rem;
     justify-content: space-between;
-    padding-top: 5rem;
+    background: wheat;
+
+    border: 1px solid var(--bg-dark);
+    border-width: 0 0 1px 0;
 }
 
 .nameplate {
-    font-family: "Obviously Condensed";
-    font-size: 10rem;
-    text-transform: uppercase;
-    line-height: 15rem;
+    font-size: 8rem;
+    line-height: 7rem;
     font-weight: 900;
 }
 
 .links * {
     margin-left: 3rem;
-    font-family: "Obviously Condensed";
-    font-size: 10rem;
-    text-transform: uppercase;
-    line-height: 15rem;
-    font-weight: 500;
 }
 
 li a:hover {
     cursor: pointer;
-    color: whitesmoke;
+    text-decoration: underline;
 }
 
 .active {
-    color: whitesmoke;
+    font-style: italic;
 }
 
 /* FOOTER */
@@ -200,7 +234,7 @@ nav {
 }
 
 .game {
-    min-height: 100vh;
+    margin-top: 10rem;
 }
 
 .status-bars {
@@ -273,43 +307,65 @@ nav {
     flex-direction: column;
 }
 
-.card {
-    width: 100%;
-    margin: 5rem 0;
-    background: white;
+/*******
+  CARD  
+*******/
+
+.card-border {
+    padding: 2rem;
+    border: 1px solid var(--fg);
     transition: all 0.25s;
 }
 
-.card-footer {
-    background: white;
-    color: black;
+.card {
+    width: 100%;
+    border: 1px solid var(--fg);
+    background: whitesmoke;
+    font: 3rem/4rem "SangBleu Sunrise";
+}
+
+.rounded {
+    border-radius: 10px;
+}
+
+.card-header {
+    padding: 4rem 0;
     text-align: center;
     justify-content: space-between;
+    font: 3rem/3rem "SangBleu Sunrise";
+    background: var(--bg);
+    border: 1px solid var(--fg);
+    border-width: 0 0 1px 0;
+    color: black;
+}
+
+.card section {
+    background: var(--bg-card);
 }
 
 .card h1 {
-    text-transform: uppercase;
+    font: 10rem/10rem "Auroc";
+    margin-bottom: 4rem;
+    text-transform: capitalize;
+}
+
+.card h2 {
+    font: 6rem/6rem "Auroc";
+    margin-bottom: 2rem;
+    text-transform: capitalize;
+}
+
+.card ul {
+    margin-bottom: 3rem;
+}
+
+.card li {
+    list-style: circle;
+    margin-left: 5rem;
 }
 
 .card label {
     text-transform: uppercase;
-}
-
-.banner {
-    font-family: "Obviously";
-    text-align: center;
-    text-transform: uppercase;
-    background: yellow;
-}
-
-.projection {
-    background: green;
-    color: lightgreen;
-}
-
-.policy {
-    color: lightcoral;
-    background: crimson;
 }
 
 .tags span {
@@ -318,48 +374,127 @@ nav {
     margin-left: 2rem;
 }
 
-.reflection section {
-    background: yellow;
+/****************
+  Specific Cards
+*****************/
+
+/* Entity */
+
+.entity {
+    margin: 5rem 0;
 }
 
-.reflection form > * {
-    margin: 2rem 0;
+/* Projection */
+
+.projection {
+    margin: 5rem 0;
+    border-radius: 10px;
 }
 
-.btn {
-    color: var(--fg);
-    background: white;
-    padding: 2rem;
-    font-family: "Obviously";
-    border-radius: 0;
-    border: 0;
+/* Policy */
+
+.policy {
+    margin: 5rem 0 0 0;
+    border-radius: 10px 10px 0 0;
+    padding: 2rem 2rem 0 2rem;
+    border-bottom-style: dashed;
+}
+
+.policy-body {
+    border-bottom: 0;
+    padding-bottom: 10rem;
+    background: var(--bg-card);
+}
+
+/* Effect */
+
+.effect {
+    border-top: 0;
     transition: all 0.25s;
 }
 
-.btn:hover {
-    cursor: pointer;
-    color: var(--bg);
-    background: var(--fg);
+.tear {
+    transform: translate(0, 3rem);
+    border-top: 1px solid black;
+    border-top-style: dashed;
 }
 
-.btns {
-    display: flex;
-    width: 25rem;
+.effect form {
+    justify-content: center;
+}
+
+.impact {
     justify-content: space-between;
 }
 
-.btn-impact {
-    color: var(--ia);
-}
-
-.btn-impact-active {
-    font-weight: bold;
+input[type=button] {
+    background: var(--bg-card);
     color: var(--fg);
+    font: 4rem/4rem "ISO v0.8";
+    text-transform: uppercase;
+    padding: 0 0 2rem 0;
+    margin: 5rem 2rem;
+    border-radius: 0;
+    border: 0;
+    transition: all 0.25s;
+    border: 2px solid var(--bg-card);
+    border-width: 0 0 2px 0;
 }
 
-.effect {
-    background: yellow;
+input[type=button]:hover {
+    cursor: pointer;
+    border-color: var(--fg);
+    border-width: 0 0 2px 0;
 }
+
+#button-active {
+    border-color: var(--fg);
+    border-width: 0 0 2px 0;
+}
+
+textarea {
+    background: whitesmoke;
+    color: var(--fg);
+    border: 1px solid var(--fg);
+    padding: 3rem;
+    font-family: "ISO v0.8";
+    margin: 4rem 2rem;
+    resize: none;
+    font-size: 4rem;
+    outline: none;
+}
+
+input[type=button]:disabled {
+    text-decoration: line-through;
+}
+
+/* BANNER */
+
+.banner {
+    text-transform: uppercase;
+    text-align: center;
+    margin: 10rem 0;
+}
+
+.banner h1 {
+    font: 15rem/15rem "Auroc";
+}
+
+/* NEW POLICY */
 
 .new-policy {
+}
+
+
+/* TEXT */
+
+.text {
+    margin: 5rem 0;
+}
+
+/****************
+  Archive 
+*****************/
+
+.archive {
 }

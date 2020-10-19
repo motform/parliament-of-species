@@ -13,7 +13,7 @@
 
 (defn header [router current-route]
   [:header.padded.row
-   [:a.nameplate {:herf (href :route/home)} "Parliment of Species"]
+   [:a.nameplate {:herf (href :route/home)} "Parliament" [:br] "of Species"]
    [:ul.links.row
     (for [route-name (reitit/route-names router)
           :let [route (reitit/match-by-name router route-name)

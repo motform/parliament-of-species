@@ -15,11 +15,11 @@
    "As a result, the medicines become ineffective and infections persist in the body, increasing the risk of spread to others. - WHO "])
 
 (def years
-  {"2020" lorem-ipsum
-   "2021" lorem-ipsum
-   "2022" lorem-ipsum
-   "2023" lorem-ipsum
-   "2024" lorem-ipsum})
+  {"2020" (str "2020 " lorem-ipsum)
+   "2021" (str "2021 " lorem-ipsum)
+   "2022" (str "2022 " lorem-ipsum)
+   "2023" (str "2023 " lorem-ipsum)
+   "2024" (str "2024 " lorem-ipsum)})
 
 (def entites
   [{:key :entity/aqua
@@ -32,7 +32,7 @@
 
    {:key :entity/fauna
     :represents ["Animalkind" "Animal Husbandry"]
-    :relation ["Farm animals are given a lot of antibiotics (not for healing them) more"
+    :relation ["Farm animals are given a lot of antibiotics"
                "Superbugs can contaminate animals and kill them"
                "Animals can contaminate each others with superbugs"
                "Animals become resistant to antibiotics by eating plants and drinking water"]}
@@ -78,9 +78,8 @@
        (fn []
          [:<>
           [c/current-entity entites]
-          [c/text {:title "Select a new projection" :text lorem-ipsum}]
-          [c/select-projection]
-          ])
+          [c/banner "Select a new projection"]
+          [c/select-projection]])
 
        :new-policy
        (fn []

@@ -24,20 +24,17 @@
 
 ;;; GENERAL
 
-(defn banner
-  ([text]
-   (banner text nil))
-  ([text route]
-   [:div.card.col.padded.banner
-    [:p text]
-    (when route [:a {:herf (href route)}])]))
+(defn banner [title]
+  [:div.col.banner
+   [:section.padded.col
+    [:h1 title]]])
 
 (defn text [{:keys [title texts]}]
-  [:div.card.col
+  [:div.col.card.text
    [:section.padded.col
     [:h1 title]
     (for [text texts]
-      ^{:keys text} [:p text])]])
+      ^{:key text} [:p text])]])
 
 (defn ul [label items]
   [:<>  
@@ -67,22 +64,24 @@
         [:p (years @state)]]])))
 
 (defn entity [{:keys [key represents relation]} {:keys [clickable?]}]
-  [:div.card.col {:id (name key)
-                  :on-click #(when clickable?
-                               ;; this sometimes fails, possibly when the session-submission
-                               ;; comes before the effect submission?
-                               ;; should post them both in sync
-                               (rf/dispatch [::event/create-session])
-                               (rf/dispatch [::event/select-entity key])
-                               (rf/dispatch [::event/request-stack-for (name key)])
-                               (rf/dispatch [::app/scroll-to-top])
-                               (rf/dispatch [::event/screen :screen/reflection]))}
-   [:section.padded.entity.row {:class (when clickable? "clickable")}
-    [:img.entity-portrait {:src (str "/img/entities/" (name key) ".png")}]
-    [:div.col
-     ;; [:h1 (name key)]
-     [ul "represents" represents]
-     [ul "relation" relation]]]])
+  (let [session #:session{:id (random-uuid) :date (js/Date.) :entity key}]
+    [:div.card-border.entity {:class (str (name key) " " (when clickable? "clickable"))
+                              :id (name key)
+                              :on-click #(when clickable?
+                                           (rf/dispatch [::event/create-session session])
+                                           (rf/dispatch [::event/submit-session session])
+                                           (rf/dispatch [::event/request-stack-for (name key)])
+                                           (rf/dispatch [::app/scroll-to-top])
+                                           (rf/dispatch [::event/screen :screen/reflection]))}
+     [:div.card.col 
+      [:div.card-header
+       [:label "Entity"]]
+      [:section.padded.row 
+       [:img.entity-portrait {:src (str "/img/entities/" (name key) ".png")}]
+       [:div.col
+        ;; [:h1 (name key)]
+        [ul "represents" represents]
+        [ul "relation" relation]]]]]))
 
 (defn current-entity [entites]
   (let [current-entity (:session/entity @(rf/subscribe [::sub/from-session :session]))]
@@ -93,52 +92,46 @@
    (let [p @(rf/subscribe [::sub/from-session :projection])] 
      (projection p {:clickable? false})))
   ([{:projection/keys [id text name] :as projection} {:keys [clickable? screen]}]
-   [:div.card.col {:id id
-                   :class (when clickable? "clickable")
-                   :on-click #(when clickable?
-                                (rf/dispatch [::event/select-projection projection])
-                                (rf/dispatch [::event/screen screen]))}
-    [:section.padded.projection
-     [:h1 name]
-     [:p text]]
-    [:div.card-footer.padded.row
-     [:label "Projection"]]]))
+   [:div.card-border.projection.bacteria
+    {:id id
+     :class (when clickable? "clickable")
+     :on-click #(when clickable?
+                  (rf/dispatch [::event/select-projection projection])
+                  (rf/dispatch [::event/screen screen]))}
+    [:div.card.col 
+     [:div.card-header
+      [:label "Projection"]]
+     [:section.padded
+      [:h1 name]
+      [:p text]]]]))
 
 (defn policy []
   (let [{:policy/keys [id name text tags]} @(rf/subscribe [::sub/from-session :policy])]  
-    [:div.card.col {:id id}
-     [:section.padded.policy
-      [:h1 name]
-      [:p text]]
-     [:div.card-footer.padded.row
-      [:label "Policy"]
-      [:div.tags.row
-       (for [tag tags]
-         ^{:key tag} [:span.tag (str "#" (clojure.core/name tag))])]]]))
-
-(defn effect []
-  [:div.card.col.effect
-   [:section.padded.row {:style {:justify-content "space-between"}}
-    [:p ":("]
-    [:p "Aqua -1 Flora +1 Fauna - Homo-sapiens -2 Bacteria +3"]]
-   [:section.padded
-    [:p "oh no it all went bad"]]
-   [:div.card-footer.padded.col  
-    [:label "effects of the policy"]]])
+    [:div.policy.card-border.flora {:id id}
+     [:div.card.col.policy-body
+      [:div.card-header
+       [:label "Policy by Fauna"]
+       [:div.tags.row
+        (for [tag tags]
+          ^{:key tag} [:span.tag (str "#" (clojure.core/name tag))])]]
+      [:section.padded
+       [:h1 name]
+       [:p text]]]]))
 
 ;;; FORMS ;;;
 
 (defn reflection
   "Component for creating submitting effects. Some might call it badly named."
   []
-  (let [state (r/atom #:effect{:text "" :impact nil})]
+  (let [state (r/atom #:effect{:text "" :impact nil :hover? false})]
 
     (letfn [(btn-impact [label k] ^{:key k}
-              [:input.btn.btn-impact
-               {:type "button"
-                :value label
-                :on-click #(swap! state assoc :effect/impact k)
-                :class (when (= k (:effect/impact @state)) "btn-impact-active")}])
+              (let [active? (when (= k (:effect/impact @state)) "button-active")]
+                [:input.btn.btn-impact
+                 {:type "button"
+                  :value label
+                  :on-click #(swap! state assoc :effect/impact k)
+                  :id (when active? "button-active")}]))
 
             (valid-input? [{:effect/keys [text impact]}]
               (and impact (> (count text) 30)))]
@@ -146,33 +139,36 @@
       (fn [] 
         (let [policy  @(rf/subscribe [::sub/from-session :policy])
               session @(rf/subscribe [::sub/from-session :session])
-              author  @(rf/subscribe [::sub/author])
               effect  #:effect{:id (random-uuid) :policy (:policy/id policy) :session (:session/id session)}]
 
-          [:div.card.reflection
+          [:div.card.effect {:class (when (:effect/hover? @state) "tear")}
+           [:div.card-header.header-entity
+            [:label "Effect submission from"]]
            [:section.padded
             [:h1 (str "How does this impact " (name (:session/entity session))) " ?"]
             [:p "Elaborate on how this affects you."]
-            [:div.col
-             [:div.btns
+            [:form.col
+             [:div.impact.row
               [btn-impact "Positively" :impact/positive]
               [btn-impact "Negatively" :impact/negative]] 
              [:textarea {:rows 10
                          :value (:effect/text @state)
                          :on-change #(swap! state assoc :effect/text (.. % -target -value))}]
-             [:input {:type "button"
-                      :value "submit"
-                      :disabled (if (valid-input? @state) false true)
-                      :on-click #(do (rf/dispatch [::event/submit-session (merge {:session/author author} session)])
-                                     (rf/dispatch [::event/submit-effect (merge @state effect)])
-                                     (rf/dispatch [::app/scroll-to-top])
-                                     (case (:effect/impact @state)
-                                       :impact/negative
-                                       (do (rf/dispatch [::event/screen :screen/derive-policy]))
+             [:input#submit
+              {:type "button"
+               :value "submit"
+               :on-mouse-over (fn [] (swap! state assoc :effect/hover? true))
+               :on-mouse-out  (fn [] (swap! state assoc :effect/hover? false))
+               :disabled (if (valid-input? @state) false true)
+               :on-click #(do (rf/dispatch [::event/submit-effect (merge @state effect)])
+                              (rf/dispatch [::app/scroll-to-top])
+                              (case (:effect/impact @state)
+                                :impact/negative
+                                (do (rf/dispatch [::event/screen :screen/derive-policy]))
 
-                                       :impact/positive
-                                       (do (rf/dispatch [::event/screen :screen/select-projection])
-                                           (rf/dispatch [::event/request-all :projection]))))}]]]])))))
+                                :impact/positive
+                                (do (rf/dispatch [::event/screen :screen/select-projection])
+                                    (rf/dispatch [::event/request-all :projection]))))}]]]])))))
 
 (defn select-projection []
   (let [current-projection @(rf/subscribe [::sub/from-session :projection])
@@ -190,7 +186,7 @@
         {projection-id :projection/id} @(rf/subscribe [::sub/from-session :projection])
         policy #:policy{:projection projection-id :session session-id :id (random-uuid) :derived derived}]
     (fn [] 
-      [:div.card.policy
+      [:div.card.write-policy
        [:section.padded
         [:h1 "New policy"]
         [:p "Write a new policy to addresses the bad thing that just happened."]]
