@@ -1,15 +1,41 @@
 @font-face {
-    font-family: "Obviously Condensed";
-    src: url("/fonts/Obviously-Condensed_Black.woff2") format("woff2");
+    font-family: "Auroc";
+    src: url("/fonts/Auroc-Full.woff2") format("woff2");
     font-weight: 900;
     font-style: normal;
 }
 
-
 @font-face {
-    font-family: "Obviously Condensed";
-    src: url("/fonts/Obviously-Condensed_Medium.woff2") format("woff2");
-    font-weight: 500;
+    font-family: "Auroc";
+    src: url("/fonts/Auroc-Half.woff2") format("woff2");
+    font-weight: 700;
     font-style: normal;
 }
 
+@font-face {
+    font-family: "Auroc";
+    src: url("/fonts/Auroc-Quart.woff2") format("woff2");
+    font-weight: 400;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: "Auroc";
+    src: url("/fonts/Auroc-QuartItalic.woff2") format("woff2");
+    font-weight: 400;
+    font-style: italic;
+}
+
+@font-face {
+    font-family: "Silverspoon";
+    src: url("/fonts/Silverspoon-Regular.woff2") format("woff2");
+    font-weight: 700;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: "Silverspoon";
+    src: url("/fonts/Silverspoon-Italic.woff2") format("woff2");
+    font-weight: 700;
+    font-style: italic;
+}
