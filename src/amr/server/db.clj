@@ -15,8 +15,8 @@
 
 ;;; HELPERS
 
-(defn- q-rand [arg-map]
-  (first (rand-nth (d/qseq arg-map))))
+(defn- assoc-entity [[policy entity]]
+  (assoc policy :policy/entity entity))
 
 ;;; QUERIES
 
@@ -41,22 +41,30 @@
   "Return random entity from domain `k`."
   [k]
   (let [ns (keyword (name k) "id")]
-    (q-rand {:query '[:find (pull ?e [*])
-                      :where [?e ?ns _]
-                      :in $ ?ns]
-             :args [(d/db conn) ns]})))
+    (-> {:query '[:find (pull ?e [*])
+                  :where [?e ?ns _]
+                  :in $ ?ns]
+         :args [(d/db conn) ns]}
+        d/qseq
+        rand-nth
+        first)))
 
 (defn policy-for-entity
   "Returns a random policy for `projection` _not_ written by the `entity`"
   [entity projection]
-  (q-rand {:query '[:find (pull ?policy [*])
-                    :in $ ?projection-id ?entity
-                    :where
-                    [?policy :policy/session ?session]
-                    (not [?session :session/entity ?entity])
-                    [?policy :policy/projection ?projection]
-                    [?projection :projection/id ?projection-id]]
-           :args [(d/db conn) projection entity]}))
+  (-> {:query '[:find (pull ?policy [*]) ?by-entity-ident
+                :in $ ?projection-id ?entity
+                :where
+                [?policy :policy/session ?session]
+                (not [?session :session/entity ?entity])
+                [?session :session/entity ?by-entity]
+                [?by-entity :db/ident ?by-entity-ident]
+                [?policy :policy/projection ?projection]
+                [?projection :projection/id ?projection-id]]
+       :args [(d/db conn) projection entity]}
+      d/qseq
+      rand-nth
+      assoc-entity))
 
 (defn stack-for-entity
   "Returns the initial stack of cards for the `entity`."
@@ -166,4 +174,13 @@
           [?p :projection/id ?projection-id]
           :in $ ?projection-id]
         (dm/db mconn) #uuid "a975be9f-6ab6-4df1-8036-57a5be9ecb13")
+
+  (d/q {:query '[:find ?id
+                 :where
+                 [_ :projection/id ?id]
+                 :in $]
+        :args [(d/db conn)
+               
+               ]})
+
   )
