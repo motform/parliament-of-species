@@ -1,12 +1,12 @@
 (ns amr.app.game.components
-  (:require [amr.app.game.events :as event]
-            [amr.app.events :as app]
+  (:require [amr.app.events :as app]
+            [amr.app.game.events :as event]
             [amr.app.game.subs :as sub]
             [amr.util :as util]
+            [clojure.string :as str]
             [re-frame.core :as rf]
             [reagent.core :as r]
-            [reitit.frontend.easy :refer [href]]
-            [clojure.string :as str]))
+            [reitit.frontend.easy :refer [href]]))
 
 ;;; UI ;;;
 
@@ -72,7 +72,7 @@
                                            (rf/dispatch [::event/submit-session session])
                                            (rf/dispatch [::event/request-stack-for (name key)])
                                            (rf/dispatch [::app/scroll-to-top])
-                                           (rf/dispatch [::event/screen :screen/reflection]))}
+                                           (rf/dispatch [::event/screen :screen/write-effect]))}
      [:div.card.col 
       [:div.card-header
        [:label "Entity"]]
@@ -89,28 +89,30 @@
 
 (defn projection
   ([]
+   (projection {}))
+  ([opts]
    (let [p @(rf/subscribe [::sub/from-session :projection])] 
-     (projection p {:clickable? false})))
-  ([{:projection/keys [id text name] :as projection} {:keys [clickable? screen]}]
-   [:div.card-border.projection.bacteria
+     (projection p opts)))
+  ([{:projection/keys [id text name] :as projection} {:keys [clickable? screen tearable?]}]
+   [:div.card-border.projection
     {:id id
-     :class (when clickable? "clickable")
+     :class (str (when clickable? "clickable ") (if tearable? "tearable" "rounded")) 
      :on-click #(when clickable?
                   (rf/dispatch [::event/select-projection projection])
                   (rf/dispatch [::event/screen screen]))}
-    [:div.card.col 
+    [:div.card.col {:class (when tearable? "tearable-body")}
      [:div.card-header
       [:label "Projection"]]
      [:section.padded
       [:h1 name]
       [:p text]]]]))
 
-(defn policy []
+(defn policy [{:keys [tearable?]}]
   (let [{:policy/keys [id name text tags]} @(rf/subscribe [::sub/from-session :policy])]  
-    [:div.policy.card-border.flora {:id id}
-     [:div.card.col.policy-body
+    [:div.card-border {:id id :class (when tearable? "tearable")} 
+     [:div.card.col {:class (when tearable? "tearable-body")}
       [:div.card-header
-       [:label "Policy by Fauna"]
+       [:label "Policy by Fauna"] ;; TODO include in response
        [:div.tags.row
         (for [tag tags]
           ^{:key tag} [:span.tag (str "#" (clojure.core/name tag))])]]
@@ -118,11 +120,13 @@
        [:h1 name]
        [:p text]]]]))
 
-;;; FORMS ;;;
+(defn review-effect []
+  (let [effects @(rf/subscribe [::sub/from-temp :effect])]
+    ))
 
-(defn reflection
-  "Component for creating submitting effects. Some might call it badly named."
-  []
+;;; FORMS
+
+(defn write-effect []
   (let [state (r/atom #:effect{:text "" :impact nil :hover? false})]
 
     (letfn [(btn-impact [label k] ^{:key k}
@@ -141,7 +145,7 @@
               session @(rf/subscribe [::sub/from-session :session])
               effect  #:effect{:id (random-uuid) :policy (:policy/id policy) :session (:session/id session)}]
 
-          [:div.card.effect {:class (when (:effect/hover? @state) "tear")}
+          [:div.card.write-effect {:class (when (:effect/hover? @state) "tear")}
            [:div.card-header.header-entity
             [:label "Effect submission from"]]
            [:section.padded
@@ -159,16 +163,10 @@
                :value "submit"
                :on-mouse-over (fn [] (swap! state assoc :effect/hover? true))
                :on-mouse-out  (fn [] (swap! state assoc :effect/hover? false))
-               :disabled (if (valid-input? @state) false true)
-               :on-click #(do (rf/dispatch [::event/submit-effect (merge @state effect)])
+               :disabled (not (valid-input? @state))
+               :on-click #(do (rf/dispatch [::event/submit-effect (-> @state (dissoc :effect/hover?) (merge effect))])
                               (rf/dispatch [::app/scroll-to-top])
-                              (case (:effect/impact @state)
-                                :impact/negative
-                                (do (rf/dispatch [::event/screen :screen/derive-policy]))
-
-                                :impact/positive
-                                (do (rf/dispatch [::event/screen :screen/select-projection])
-                                    (rf/dispatch [::event/request-all :projection]))))}]]]])))))
+                              (rf/dispatch [::event/screen :write-poilcy]))}]]]])))))
 
 (defn select-projection []
   (let [current-projection @(rf/subscribe [::sub/from-session :projection])
@@ -177,35 +175,50 @@
     [:<> 
      (for [p projections]
        ^{:key (:projection/id p)}
-       [projection p {:clickable? true :screen :screen/new-policy}])]))
+       [projection p {:clickable? true :screen :screen/write-policy}])]))
 
-;; get the derived key from somewhere idk
+;; TODO get the derived key from somewhere idk
 (defn write-policy [{:keys [derived]}]
-  (let [state (r/atom #:policy{:text "" :name "" :tags ""})
+  (let [state (r/atom #:policy{:text "" :name "" :hover? false})
         {session-id :session/id} @(rf/subscribe [::sub/from-session :session])
         {projection-id :projection/id} @(rf/subscribe [::sub/from-session :projection])
         policy #:policy{:projection projection-id :session session-id :id (random-uuid) :derived derived}]
-    (fn [] 
-      [:div.card.write-policy
-       [:section.padded
-        [:h1 "New policy"]
-        [:p "Write a new policy to addresses the bad thing that just happened."]]
-       [:form.col.padded
-        [:div.row 
-         [:div.col {:style {:margin-right "5rem"}}
-          [:label "Name"]
-          [:textarea {:rows 1
-                      :value (:name @state)
-                      :on-change #(swap! state assoc :name (-> % .-target .-value))}]]
-         [:div.col 
-          [:label "Tags"] ;; TODO should be an [:select [:option]]
-          [:textarea {:rows 1
-                      :value (:tags @state)
-                      :on-change #(swap! state assoc :tags (-> % .-target .-value))}]]]
-        [:label "Contents"]
-        [:textarea {:rows 10
-                    :value (:text @state)
-                    :on-change #(swap! state assoc :text (-> % .-target .-value))}]
-        [:input.btn {:type "button"
-                     :value "Submit"
-                     :on-click #(rf/dispatch [::event/submit-policy (merge @state policy)])}]]])))
+
+    (letfn [(valid-input? [{:policy/keys [text name tags]}]
+              (and (> (count name) 10)
+                   (> (count text) 50)
+                   #_(seq tags)))] 
+
+      (fn [] 
+        [:div.card.write-policy {:class (when (:policy/hover? @state) "tear")}
+         [:div.card-header.header-entity
+          [:label "Policy submission from"]]
+         [:section.padded
+          [:h1 "New policy"]
+          [:p "Write a new policy to addresses the bad thing that just happened."]
+          [:form.col
+           [:div.row 
+            [:div.col {:style {:width "100%"}}
+             [:label "Policy Name"]
+             [:textarea.name {:rows 1
+                              :value (:policy/name @state)
+                              :on-change #(swap! state assoc :policy/name (.. % -target -value))}]]
+            ;; [:div.col 
+            ;;  [:label "Tags"] ;; TODO should be an [:select [:option]]
+            ;;  [:select#tag-select {:name "tag-select"}]
+            ;;  [:textarea {:rows 1
+            ;;              :value (:policy/tags @state)
+            ;;              :on-change #(swap! state assoc :policy/tags (.. % -target -value))}]]
+            ]
+           [:textarea.text {:rows 10
+                            :value (:policy/text @state)
+                            :on-change #(swap! state assoc :policy/text (.. % -target -value))}]
+           [:input#submit
+            {:type "button"
+             :value "Submit"
+             :on-mouse-over (fn [] (swap! state assoc :policy/hover? true))
+             :on-mouse-out  (fn [] (swap! state assoc :policy/hover? false))
+             :disabled (not (valid-input? @state))
+             :on-click #(do (rf/dispatch [::event/submit-policy (-> @state (dissoc :policy/hover?) (merge policy))])
+                            (rf/dispatch [::app/scroll-to-top])
+                            (rf/dispatch [::event/screen :screen/end]))}]]]]))))

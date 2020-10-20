@@ -1,6 +1,7 @@
-/* Parliment of Species
+/* Parliament of Species
  *
  * Primary CSS.
+ *
  */
 
 /* Variables */
@@ -9,11 +10,12 @@
     --bg: #f5dcaf;
     --bg-dark: #dab994;
     --bg-card: #f8e8ca;
+    --bg-text: whitesmoke;
     --fg: black;
     --hl: #e67b5c;
     --ia: gray;
 
-    --flora-fg: #488f96;
+    --flora-fg: #488f96; /* UPDATE */
     --flora-bg: #1FA659;
 
     --fauna-fg: #f3ca7d;
@@ -33,6 +35,7 @@
 
 * {
     box-sizing: border-box;
+    transition: all 0.25s;
 }
 
 html {
@@ -60,7 +63,7 @@ main {
 .error {
     margin: 5rem;
     color: red;
-    font-family: monospace;
+    font-family: "ISO v0.8";
 }
 
 button {
@@ -161,25 +164,25 @@ textarea {
 
 /* ENTITIES */
 
-.flora {
-    background: var(--flora-bg);
-}
+/* .flora { */
+/*     background: var(--flora-bg); */
+/* } */
 
-.fauna {
-    background: var(--fauna-bg);
-}
+/* .fauna { */
+/*     background: var(--fauna-bg); */
+/* } */
 
-.aqua {
-    background: var(--aqua-bg);
-}
+/* .aqua { */
+/*     background: var(--aqua-bg); */
+/* } */
 
-.homo-sapiens {
-    background: var(--homo-sapiens-bg);
-}
+/* .homo-sapiens { */
+/*     background: var(--homo-sapiens-bg); */
+/* } */
 
-.bacteria {
-    background: var(--amr-bg);
-}
+/* .bacteria { */
+/*     background: var(--amr-bg); */
+/* } */
 
 /* HEADER */
 
@@ -314,7 +317,7 @@ nav {
 .card-border {
     padding: 2rem;
     border: 1px solid var(--fg);
-    transition: all 0.25s;
+    margin-top: 10rem;
 }
 
 .card {
@@ -387,39 +390,21 @@ nav {
 /* Projection */
 
 .projection {
-    margin: 5rem 0;
-    border-radius: 10px;
 }
 
 /* Policy */
 
 .policy {
-    margin: 5rem 0 0 0;
-    border-radius: 10px 10px 0 0;
-    padding: 2rem 2rem 0 2rem;
-    border-bottom-style: dashed;
 }
 
-.policy-body {
-    border-bottom: 0;
-    padding-bottom: 10rem;
-    background: var(--bg-card);
-}
+/* Write-effect */
 
-/* Effect */
-
-.effect {
+.write-effect {
     border-top: 0;
     transition: all 0.25s;
 }
 
-.tear {
-    transform: translate(0, 3rem);
-    border-top: 1px solid black;
-    border-top-style: dashed;
-}
-
-.effect form {
+.write-effect form {
     justify-content: center;
 }
 
@@ -441,19 +426,13 @@ input[type=button] {
     border-width: 0 0 2px 0;
 }
 
-input[type=button]:hover {
-    cursor: pointer;
-    border-color: var(--fg);
-    border-width: 0 0 2px 0;
-}
-
 #button-active {
     border-color: var(--fg);
     border-width: 0 0 2px 0;
 }
 
 textarea {
-    background: whitesmoke;
+    background: var(--bg-text);
     color: var(--fg);
     border: 1px solid var(--fg);
     padding: 3rem;
@@ -464,8 +443,31 @@ textarea {
     outline: none;
 }
 
+.name {
+    background: var(--bg-card);
+    border-width: 0 0 1px 0;
+    padding-left: 0;
+}
+
+input[type=button]:hover {
+    cursor: pointer;
+    border-color: var(--bg-card);
+    border-width: 0 0 2px 0;
+}
+
+input[type=button]:hover {
+    cursor: pointer;
+    border-color: var(--fg);
+    border-width: 0 0 2px 0;
+}
+
+input[type=button]:disabled:hover {
+    border-color: var(--bg-card);
+}
+
 input[type=button]:disabled {
     text-decoration: line-through;
+    cursor: default;
 }
 
 /* BANNER */
@@ -480,16 +482,43 @@ input[type=button]:disabled {
     font: 15rem/15rem "Auroc";
 }
 
-/* NEW POLICY */
+/* New Policy */
 
-.new-policy {
+.write-policy {
+    border-top: 0;
 }
 
+form label {
+    text-transform: uppercase;
+    font-family: "Auroc";
+    margin-left: 2rem;
+}
 
 /* TEXT */
 
 .text {
     margin: 5rem 0;
+}
+
+/* Tearable */
+
+.tear {
+    transform: translate(0, 3rem);
+    border-top: 1px solid black;
+    border-top-style: dashed;
+}
+
+.tearable {
+    border-bottom-style: dashed;
+    border-radius: 10px 10px 0 0;
+    padding: 2rem 2rem 0 2rem;
+    margin: 5rem 0 0 0;
+}
+
+.tearable-body {
+    border-bottom: 0;
+    padding-bottom: 10rem;
+    background: var(--bg-card);
 }
 
 /****************
