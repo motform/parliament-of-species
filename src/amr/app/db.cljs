@@ -13,6 +13,7 @@
 
    [:app
     [:map
+     [:pending-request? boolean?]
      [:route string?]
      [:author uuid?]]]
 
@@ -40,7 +41,7 @@
    :sessions {}
    :game {:screen :screen/intro
           :current-session nil
-          :entities #:entity{:aqua 8 :flora 2 :fauna 7 :homo-sapiens 5 :bacterica 2}}
+          :entities #:entity{:aqua 5 :flora 5 :fauna 5 :homo-sapiens 5 :bacteria 10}}
    :temp {:projections {}}})
 
 ;;; LOCAL-STORAGE

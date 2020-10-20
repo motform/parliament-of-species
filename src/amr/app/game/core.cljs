@@ -2,6 +2,7 @@
   (:require [amr.app.game.components :as c]
             [amr.app.game.events :as event]
             [amr.app.game.subs :as sub]
+            [amr.app.subs :as app]
             [re-frame.core :as rf]))
 
 ;;; DATA
@@ -51,42 +52,49 @@
 (defn game []
   (let [screen @(rf/subscribe [::sub/screen])]
     [:main.game
-     [#:screen
+     [:<>
+      [c/balance]
+      [#:screen
 
-      {:intro
-       (fn []
-         [:<>
-          [c/text {:title "Antimicrobial Resistance" :texts intro-text}]
-          [c/timeline years]
-          (for [entity entites]
-            ^{:key (:key entity)} [c/entity entity {:clickable? true}])])
+       {:intro
+        (fn []
+          [:<>
+           [c/text {:title "Antimicrobial Resistance" :texts intro-text}]
+           [c/timeline years]
+           (for [entity entites]
+             ^{:key (:key entity)} [c/entity entity {:clickable? true}])])
 
-       :reflection
-       (fn []
-         [:<>
-          [c/current-entity entites]
-          [c/projection]
-          [c/policy]
-          [c/reflection]])
+        :write-effect
+        (fn []
+          [:<>
+           [c/current-entity entites]
+           [c/projection]
+           [c/policy {:tearable? true}]
+           [c/write-effect]])
 
-       :derive-policy
-       (fn []
-         [:<>
-          [:p "derive"]])
+        :review-effect
+        (fn []
+          [:<>
+           [c/review-effect]])
 
-       :select-projection
-       (fn []
-         [:<>
-          [c/current-entity entites]
-          [c/banner "Select a new projection"]
-          [c/select-projection]])
+        ;; NOTE deprecated
+        :select-projection
+        (fn []
+          [:<>
+           [c/current-entity entites]
+           [c/banner "Select a new projection"]
+           [c/select-projection]])
 
-       :new-policy
-       (fn []
-         [:<>
-          [c/current-entity entites]
-          [c/projection]
-          [c/write-policy]])
+        :write-policy
+        (fn []
+          [:<>
+           [c/current-entity entites]
+           [c/projection {:tearable? true}]
+           [c/write-policy]])
 
-       }
-      screen]]))
+        :end 
+        (fn []
+          [:<>
+           [c/text {:title "You win!"}]])} ;; TODO make a nicer end screen
+       screen]]]))
+

@@ -163,27 +163,6 @@ textarea {
 }
 
 /* ENTITIES */
-
-/* .flora { */
-/*     background: var(--flora-bg); */
-/* } */
-
-/* .fauna { */
-/*     background: var(--fauna-bg); */
-/* } */
-
-/* .aqua { */
-/*     background: var(--aqua-bg); */
-/* } */
-
-/* .homo-sapiens { */
-/*     background: var(--homo-sapiens-bg); */
-/* } */
-
-/* .bacteria { */
-/*     background: var(--amr-bg); */
-/* } */
-
 /* HEADER */
 
 header {
@@ -383,8 +362,58 @@ nav {
 
 /* Entity */
 
+.balance {
+    display: grid;
+    grid-template-columns: repeat(30, 1fr);
+    height: 20rem;
+    width: 100%;
+    background: var(--card-bg);
+}
+
+.balance-entity {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: var(--bg);
+    font: 700 3rem/3rem "Auroc";
+}
+
+.balance-label { 
+    color: inherit;
+}
+
+.flora {
+    background: var(--flora-bg);
+    color: var(--flora-bg);
+}
+
+.fauna {
+    background: var(--fauna-bg);
+    color: var(--fauna-bg);
+}
+
+.aqua {
+    background: var(--aqua-bg);
+    color: var(--aqua-bg);
+}
+
+.homo-sapiens {
+    background: var(--homo-sapiens-bg);
+    color: var(--homo-sapiens-bg);
+}
+
+.bacteria {
+    background: var(--amr-bg);
+    color: var(--amr-bg);
+}
+
+.show-labels {
+    color: var(--bg-card);
+}
+
+/* Entity */
+
 .entity {
-    margin: 5rem 0;
 }
 
 /* Projection */
@@ -397,6 +426,9 @@ nav {
 .policy {
 }
 
+.glyph {
+    margin-left: 10rem;
+}
 /* Write-effect */
 
 .write-effect {
@@ -512,7 +544,6 @@ form label {
     border-bottom-style: dashed;
     border-radius: 10px 10px 0 0;
     padding: 2rem 2rem 0 2rem;
-    margin: 5rem 0 0 0;
 }
 
 .tearable-body {

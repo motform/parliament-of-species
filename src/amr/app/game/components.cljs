@@ -45,6 +45,24 @@
 
 ;;; SPECIFIC
 
+(defn balance []
+  (let [hover? (r/atom false)]
+    (fn []
+      (let [entites @(rf/subscribe [::sub/entities])]
+        [:div.card.col
+         {:on-mouse-over (fn [] (reset! hover? true))
+          :on-mouse-out  (fn [] (reset! hover? false))}
+         [:div.card-header
+          [:label "Balance of the world" @hover?]]
+         [:div.balance
+          (for [[entity level] entites]
+            [:div.balance-entity
+             {:class (name entity)
+              :style {:grid-column (str "span " level)}}
+             [:label.balance-label
+              {:class (when @hover? "show-labels")}
+              (name entity)]])]]))))
+
 (defn timeline [years]
   (let [state (r/atom "2020")]
     (fn []
@@ -65,7 +83,7 @@
 
 (defn entity [{:keys [key represents relation]} {:keys [clickable?]}]
   (let [session #:session{:id (random-uuid) :date (js/Date.) :entity key}]
-    [:div.card-border.entity {:class (str (name key) " " (when clickable? "clickable"))
+    [:div.card-border.entity {:class (when clickable? "clickable")
                               :id (name key)
                               :on-click #(when clickable?
                                            (rf/dispatch [::event/create-session session])
@@ -108,17 +126,20 @@
       [:p text]]]]))
 
 (defn policy [{:keys [tearable?]}]
-  (let [{:policy/keys [id name text tags]} @(rf/subscribe [::sub/from-session :policy])]  
+  (let [{:policy/keys [id name text tags entity]} @(rf/subscribe [::sub/from-session :policy])
+        entity-name (when entity (clojure.core/name entity))] 
     [:div.card-border {:id id :class (when tearable? "tearable")} 
      [:div.card.col {:class (when tearable? "tearable-body")}
       [:div.card-header
-       [:label "Policy by Fauna"] ;; TODO include in response
+       [:label "Policy by " [:strong entity-name]] ;; TODO include in response
        [:div.tags.row
         (for [tag tags]
           ^{:key tag} [:span.tag (str "#" (clojure.core/name tag))])]]
-      [:section.padded
-       [:h1 name]
-       [:p text]]]]))
+      [:section.padded.row
+       [:div 
+        [:h1 name]
+        [:p text]]
+       (when entity [:img.glyph {:src (str "/svg/glyphs/" entity-name ".svg")}])]]]))
 
 (defn review-effect []
   (let [effects @(rf/subscribe [::sub/from-temp :effect])]

@@ -5,3 +5,8 @@
  ::route
  (fn [db _]
    (get-in db [:app :route])))
+
+(reg-sub
+ ::pending-request?
+ (fn [db _]
+   (get-in db [:app :pending-request?])))
