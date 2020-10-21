@@ -45,24 +45,6 @@
 
 ;;; SPECIFIC
 
-(defn balance []
-  (let [hover? (r/atom false)]
-    (fn []
-      (let [entites @(rf/subscribe [::sub/entities])]
-        [:div.card.col
-         {:on-mouse-over (fn [] (reset! hover? true))
-          :on-mouse-out  (fn [] (reset! hover? false))}
-         [:div.card-header
-          [:label "Balance of the world" @hover?]]
-         [:div.balance
-          (for [[entity level] entites]
-            [:div.balance-entity
-             {:class (name entity)
-              :style {:grid-column (str "span " level)}}
-             [:label.balance-label
-              {:class (when @hover? "show-labels")}
-              (name entity)]])]]))))
-
 (defn timeline [years]
   (let [state (r/atom "2020")]
     (fn []

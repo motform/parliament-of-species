@@ -7,11 +7,6 @@
    (get-in db [:game :screen])))
 
 (reg-sub
- ::entities
- (fn [db _]
-   (get-in db [:game :entities])))
-
-(reg-sub
  ::author
  (fn [db _]
    (get-in db [:app :author])))

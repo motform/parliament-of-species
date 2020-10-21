@@ -10,6 +10,7 @@ node_modules/
 resources/public/js/
 resources/public/fonts/
 resources/public/img/
+resources/public/svg/
 resources/csv
 package-lock.json
 TODO.org

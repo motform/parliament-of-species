@@ -10,3 +10,8 @@
  ::pending-request?
  (fn [db _]
    (get-in db [:app :pending-request?])))
+
+(reg-sub
+ ::entities
+ (fn [db _]
+   (get-in db [:app :entities])))

@@ -36,12 +36,13 @@
 
 (def default-db
   {:app  {:route nil
+          :entities #:entity{:aqua 5 :flora 5 :fauna 5 :homo-sapiens 5 :bacteria 10}
           :pending-request? false
           :author (random-uuid)}
    :sessions {}
    :game {:screen :screen/intro
           :current-session nil
-          :entities #:entity{:aqua 5 :flora 5 :fauna 5 :homo-sapiens 5 :bacteria 10}}
+          }
    :temp {:projections {}}})
 
 ;;; LOCAL-STORAGE

@@ -1,13 +1,13 @@
 (ns amr.app.routes
-  (:require [amr.app.archive.core :refer [archive]]
-            [amr.app.about.core :refer [about]]
-            [amr.app.game.core :refer [game]]
-            [amr.app.home.core :refer [home]]
+  (:require [amr.app.about.core :refer [about]]
+            [amr.app.archive.core :refer [archive]]
             [amr.app.events :as event]
+            [amr.app.game.core :refer [game]]
+            [amr.app.landing :refer [landing]]
+            [re-frame.core :as rf]
             [reitit.coercion.spec :as reitit.spec]
             [reitit.frontend :as reitit.frontend]
-            [reitit.frontend.easy :as reitit.easy]
-            [re-frame.core :as rf]))
+            [reitit.frontend.easy :as reitit.easy]))
 
 ;;; ROUTER ;;;
 
@@ -15,7 +15,7 @@
   ["/"
    [""
     {:name :route/home
-     :view home
+     :view landing
      :link-text "Home"}]
 
    ["game"

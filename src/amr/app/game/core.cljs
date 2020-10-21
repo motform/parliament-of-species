@@ -52,49 +52,47 @@
 (defn game []
   (let [screen @(rf/subscribe [::sub/screen])]
     [:main.game
-     [:<>
-      [c/balance]
-      [#:screen
+     [#:screen
 
-       {:intro
-        (fn []
-          [:<>
-           [c/text {:title "Antimicrobial Resistance" :texts intro-text}]
-           [c/timeline years]
-           (for [entity entites]
-             ^{:key (:key entity)} [c/entity entity {:clickable? true}])])
+      {:intro
+       (fn []
+         [:<>
+          [c/text {:title "Antimicrobial Resistance" :texts intro-text}]
+          [c/timeline years]
+          (for [entity entites]
+            ^{:key (:key entity)} [c/entity entity {:clickable? true}])])
 
-        :write-effect
-        (fn []
-          [:<>
-           [c/current-entity entites]
-           [c/projection]
-           [c/policy {:tearable? true}]
-           [c/write-effect]])
+       :write-effect
+       (fn []
+         [:<>
+          [c/current-entity entites]
+          [c/projection]
+          [c/policy {:tearable? true}]
+          [c/write-effect]])
 
-        :review-effect
-        (fn []
-          [:<>
-           [c/review-effect]])
+       :review-effect
+       (fn []
+         [:<>
+          [c/review-effect]])
 
-        ;; NOTE deprecated
-        :select-projection
-        (fn []
-          [:<>
-           [c/current-entity entites]
-           [c/banner "Select a new projection"]
-           [c/select-projection]])
+       ;; NOTE deprecated
+       :select-projection
+       (fn []
+         [:<>
+          [c/current-entity entites]
+          [c/banner "Select a new projection"]
+          [c/select-projection]])
 
-        :write-policy
-        (fn []
-          [:<>
-           [c/current-entity entites]
-           [c/projection {:tearable? true}]
-           [c/write-policy]])
+       :write-policy
+       (fn []
+         [:<>
+          [c/current-entity entites]
+          [c/projection {:tearable? true}]
+          [c/write-policy]])
 
-        :end 
-        (fn []
-          [:<>
-           [c/text {:title "You win!"}]])} ;; TODO make a nicer end screen
-       screen]]]))
+       :end 
+       (fn []
+         [:<>
+          [c/text {:title "You win!"}]])} ;; TODO make a nicer end screen
+      screen]]))
 

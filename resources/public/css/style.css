@@ -41,7 +41,6 @@
 html {
     font-size: 5px;
     font-family: sans-serif;
-    max-width: 1000px;
     margin: 0 auto;
 }
 
@@ -54,10 +53,6 @@ body {
 
 #mount {
     display: flex;
-}
-
-main {
-    margin: 5rem;
 }
 
 .error {
@@ -149,9 +144,6 @@ textarea {
     flex-direction: row;
 }
 
-.paddedm {
-}
-
 .padded {
     padding: 5rem;
 }
@@ -162,18 +154,104 @@ textarea {
     transform: rotate(-1deg);
 }
 
-/* ENTITIES */
-/* HEADER */
+
+
+/********
+ LANDING
+*********/
+
+.landing {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+}
+
+.landing section {
+    padding: 20rem;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.content {
+    max-width: 900px;
+}
+.landing h1 {
+    font: 15rem/15rem "Auroc";
+    text-align: center;
+    margin-bottom: 15rem;
+}
+
+.landing p {
+    font: 300 4rem/6rem "Saiga 0.5";
+}
+
+.landing span {
+    color: var(--bg);
+    text-transform: capitalize;
+    margin: 0 1rem;
+    padding: 0 1rem;
+    display: inline-block;
+    cursor: crosshair;
+}
+
+.landing-about {
+    background: var(--hl);
+}
+
+.grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    grid-gap: 8rem;
+}
+
+.icons {
+    justify-content: space-between;
+    margin-top: 10rem;
+    padding-right: 10rem;
+}
+
+.icons img {
+    width: 15rem;
+    height: 15rem;
+}
+
+.landing-play {
+    margin: 25rem 0 10rem 0;
+    border: 1px solid var(--fg);
+    padding: 9rem 3rem;
+    border-radius: 2rem;
+}
+
+.landing-play:hover {
+    background: var(--bg-dark);
+}
+
+.landing-play a {
+    padding: 5rem;
+    font: 8rem/8rem "Auroc";
+    border: 1px solid var(--fg);
+}
+
+.landing-play a:hover {
+    background: var(--bg-card);
+}
+
+.landing-archive {
+    background: var(--bg-dark);
+}
+
+/*******
+ HEADER 
+********/
 
 header {
     font: 400 5rem/5rem "Auroc", serif;
-    padding: 0 5rem;
-    margin-bottom: 5rem;
+    padding: 10rem;
     justify-content: space-between;
-    background: wheat;
-
-    border: 1px solid var(--bg-dark);
-    border-width: 0 0 1px 0;
+    background: var(--bg);
 }
 
 .nameplate {
@@ -216,7 +294,8 @@ nav {
 }
 
 .game {
-    margin-top: 10rem;
+    max-width: 800px;
+    margin: 0 auto;
 }
 
 .status-bars {
@@ -365,7 +444,7 @@ nav {
 .balance {
     display: grid;
     grid-template-columns: repeat(30, 1fr);
-    height: 20rem;
+    height: 7rem;
     width: 100%;
     background: var(--card-bg);
 }
@@ -375,11 +454,18 @@ nav {
     justify-content: center;
     align-items: center;
     color: var(--bg);
-    font: 700 3rem/3rem "Auroc";
+    font: 500 3rem/3rem "Saiga 0.5";
 }
 
 .balance-label { 
     color: inherit;
+    text-transform: capitalize;
+}
+
+.small {
+    margin-top: 15rem;
+    height: 5rem;
+    font: 700 2rem/2rem "Auroc";
 }
 
 .flora {
