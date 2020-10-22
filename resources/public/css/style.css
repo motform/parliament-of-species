@@ -29,6 +29,11 @@
 
     --amr-fg: #5a6169;
     --amr-bg: #32474f;
+
+    --display-font: "Auroc", serif;
+    --body-font:  "Saiga", "Gill Sans", sans-serif;
+    --label-font: "Saiga", "Gill Sans", sans-serif;
+    --monospace-font: "Arnold_v0.3", monospace;
 }
 
 /* Global */
@@ -45,7 +50,7 @@ html {
 }
 
 body {
-    font-family: "Auroc";
+    font-family: var(--body-font);
     font-size: 3rem;
     background: var(--bg);
     color: var(--fg);
@@ -58,7 +63,7 @@ body {
 .error {
     margin: 5rem;
     color: red;
-    font-family: "ISO v0.8";
+    font-family: var(--monospace-font);
 }
 
 button {
@@ -125,7 +130,7 @@ textarea {
     color: var(--fg);
     border-width: 0;
     padding: 3rem;
-    font-family: "ISO v0.8";
+    font-family: var(--monospace-font);
     margin: 4rem 0;
     resize: none;
     font-size: 4rem;
@@ -178,14 +183,15 @@ textarea {
 .content {
     max-width: 900px;
 }
+
 .landing h1 {
-    font: 15rem/15rem "Auroc";
+    font: 15rem/15rem var(--display-font);
     text-align: center;
     margin-bottom: 15rem;
 }
 
 .landing p {
-    font: 300 4rem/6rem "Saiga 0.5";
+    font: 300 4rem/6rem var(--body-font);
 }
 
 .landing span {
@@ -197,6 +203,13 @@ textarea {
     cursor: crosshair;
 }
 
+.landing-hero {
+    background-image: url(/svg/bg/landing-1.svg);
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-position: center;
+}
+
 .landing-about {
     background: var(--hl);
 }
@@ -204,7 +217,8 @@ textarea {
 .grid {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
-    grid-gap: 8rem;
+    grid-gap: 10rem;
+    max-width: 1400px;
 }
 
 .icons {
@@ -219,7 +233,7 @@ textarea {
 }
 
 .landing-play {
-    margin: 25rem 0 10rem 0;
+    margin: 25rem 0 5rem 0;
     border: 1px solid var(--fg);
     padding: 9rem 3rem;
     border-radius: 2rem;
@@ -231,7 +245,7 @@ textarea {
 
 .landing-play a {
     padding: 5rem;
-    font: 8rem/8rem "Auroc";
+    font: 8rem/8rem var(--display-font);
     border: 1px solid var(--fg);
 }
 
@@ -248,16 +262,22 @@ textarea {
 ********/
 
 header {
-    font: 400 5rem/5rem "Auroc", serif;
+    font: 400 5rem/5rem var(--display-font), serif;
     padding: 10rem;
     justify-content: space-between;
     background: var(--bg);
 }
 
 .nameplate {
+    padding-top: 1.5rem;
     font-size: 8rem;
     line-height: 7rem;
     font-weight: 900;
+}
+
+.logo {
+    height: 16rem;
+    margin-right: 5rem;
 }
 
 .links * {
@@ -294,7 +314,7 @@ nav {
 }
 
 .game {
-    max-width: 800px;
+    max-width: 1000px;
     margin: 0 auto;
 }
 
@@ -381,8 +401,14 @@ nav {
 .card {
     width: 100%;
     border: 1px solid var(--fg);
-    background: whitesmoke;
-    font: 3rem/4rem "SangBleu Sunrise";
+    font: 400 4rem/5rem var(--body-font);
+}
+
+.bg {
+    background-repeat: no-repeat;
+    background-position: 100% 75%;
+    background-size: 50%;
+    background-color: var(--hl);
 }
 
 .rounded {
@@ -393,25 +419,22 @@ nav {
     padding: 4rem 0;
     text-align: center;
     justify-content: space-between;
-    font: 3rem/3rem "SangBleu Sunrise";
+    font: 300 3rem/3rem var(--label-font);
+    letter-spacing: 2px;
     background: var(--bg);
     border: 1px solid var(--fg);
     border-width: 0 0 1px 0;
     color: black;
 }
 
-.card section {
-    background: var(--bg-card);
-}
-
 .card h1 {
-    font: 10rem/10rem "Auroc";
+    font: 700 10rem/10rem var(--display-font);
     margin-bottom: 4rem;
     text-transform: capitalize;
 }
 
 .card h2 {
-    font: 6rem/6rem "Auroc";
+    font: 6rem/6rem var(--display-font);
     margin-bottom: 2rem;
     text-transform: capitalize;
 }
@@ -425,6 +448,9 @@ nav {
     margin-left: 5rem;
 }
 
+.card p {
+    max-width: 550px;
+}
 .card label {
     text-transform: uppercase;
 }
@@ -454,18 +480,22 @@ nav {
     justify-content: center;
     align-items: center;
     color: var(--bg);
-    font: 500 3rem/3rem "Saiga 0.5";
 }
 
 .balance-label { 
     color: inherit;
-    text-transform: capitalize;
+    font: 400 3rem/3rem var(--body-font);
+    text-transform: uppercase;
+}
+
+.small > .balance-entity > .balance-label {
+    font-size: 2rem;
 }
 
 .small {
     margin-top: 15rem;
     height: 5rem;
-    font: 700 2rem/2rem "Auroc";
+    font: 700 2rem/2rem var(--display-font);
 }
 
 .flora {
@@ -493,7 +523,7 @@ nav {
     color: var(--amr-bg);
 }
 
-.show-labels {
+.hovering {
     color: var(--bg-card);
 }
 
@@ -515,6 +545,13 @@ nav {
 .glyph {
     margin-left: 10rem;
 }
+
+/* Review-effect */
+
+.impacts {
+    justify-content: space-between;
+}
+
 /* Write-effect */
 
 .write-effect {
@@ -533,7 +570,7 @@ nav {
 input[type=button] {
     background: var(--bg-card);
     color: var(--fg);
-    font: 4rem/4rem "ISO v0.8";
+    font: 4rem/4rem var(--monospace-font);
     text-transform: uppercase;
     padding: 0 0 2rem 0;
     margin: 5rem 2rem;
@@ -554,7 +591,7 @@ textarea {
     color: var(--fg);
     border: 1px solid var(--fg);
     padding: 3rem;
-    font-family: "ISO v0.8";
+    font-family: var(--monospace-font);
     margin: 4rem 2rem;
     resize: none;
     font-size: 4rem;
@@ -597,7 +634,7 @@ input[type=button]:disabled {
 }
 
 .banner h1 {
-    font: 15rem/15rem "Auroc";
+    font: 15rem/15rem var(--display-font);
 }
 
 /* New Policy */
@@ -608,7 +645,7 @@ input[type=button]:disabled {
 
 form label {
     text-transform: uppercase;
-    font-family: "Auroc";
+    font-family: var(--display-font);
     margin-left: 2rem;
 }
 
@@ -635,12 +672,22 @@ form label {
 .tearable-body {
     border-bottom: 0;
     padding-bottom: 10rem;
-    background: var(--bg-card);
 }
 
-/****************
+/**********
   Archive 
-*****************/
+***********/
 
 .archive {
+}
+
+.archive section {
+    margin-bottom: 20rem;
+}
+
+.discarded {
+    background-color: var(--bg-dark);
+}
+
+.selected-projection {
 }

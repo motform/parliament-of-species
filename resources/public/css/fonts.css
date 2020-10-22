@@ -25,3 +25,59 @@
     font-weight: 400;
     font-style: italic;
 }
+
+@font-face {
+    font-family: "Saiga";
+    src: url("/fonts/Saiga0.5-Regular.woff2") format("woff2");
+    font-weight: 400;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: "Saiga";
+    src: url("/fonts/Saiga0.5-RegularItalic.woff2") format("woff2");
+    font-weight: 400;
+    font-style: italic;
+}
+
+@font-face {
+    font-family: "Saiga";
+    src: url("/fonts/Saiga0.5-Light.woff2") format("woff2");
+    font-weight: 300;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: "Saiga";
+    src: url("/fonts/Saiga0.5-LightItalic.woff2") format("woff2");
+    font-weight: 300;
+    font-style: italic;
+}
+
+@font-face {
+    font-family: "Saiga";
+    src: url("/fonts/Saiga0.5-Bold.woff2") format("woff2");
+    font-weight: 700;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: "Saiga";
+    src: url("/fonts/Saiga0.5-BoldItalic.woff2") format("woff2");
+    font-weight: 700;
+    font-style: italic;
+}
+
+@font-face {
+    font-family: "Saiga";
+    src: url("/fonts/Saiga0.5-Black.woff2") format("woff2");
+    font-weight: 900;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: "Saiga";
+    src: url("/fonts/Saiga0.5-BlackItalic.woff2") format("woff2");
+    font-weight: 900;
+    font-style: italic;
+}
