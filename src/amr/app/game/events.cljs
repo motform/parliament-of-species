@@ -32,12 +32,17 @@
 (defn- random-projection [db]
   (->> (get-in db [:archive :storage]) keys rand-nth))
 
-;; BUG still does not work?
+(defn remove-keys [pred m]
+  (apply dissoc m (filter pred (keys m))))
+
 (defn- random-policy [db projection entity]
-  (->> (get-in db [:archive :storage projection :projection/policies])
-       (remove (fn [_ v] (= entity (get-in v [:policy/session :session/entity]))))
-       keys
-       rand-nth))
+  (let [policies (get-in db [:archive :storage projection :projection/policies])]
+    (reduce
+     (fn [m [k v]]
+       (if (= entity (get-in policies [k :policy/session :session/entity]))
+         m
+         (assoc m k v)))
+     {} policies)))
 
 (reg-event-db
  ::new-pair
