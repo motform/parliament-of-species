@@ -1,6 +1,8 @@
 (ns amr.app.core
   (:require [amr.app.db :as db]
+            [amr.app.archive.events :as archive]
             [amr.app.header :refer [header balance]]
+            [amr.app.footer :refer [footer]]
             [amr.app.events :as event]
             [amr.app.routes :as routes]
             [amr.app.subs :as sub]
@@ -9,9 +11,6 @@
             [reagent.dom :refer [render]]))
 
 (def debug? ^boolean goog.DEBUG)
-
-(defn footer []
-  [:footer.padded "Counterfactual speculations by Malmö University."])
 
 (defn app [router]
   (let [current-route @(rf/subscribe [::sub/route])]
@@ -33,5 +32,6 @@
 
 (defn ^:export init []
   (rf/dispatch-sync [::event/initialize-db db/default-db])
+  (rf/dispatch-sync [::archive/request-archive])
   (dev-setup)
   (mount))

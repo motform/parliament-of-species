@@ -3,50 +3,55 @@
             [reitit.frontend.easy :refer [href]]
             [amr.app.header :refer [balance]]))
 
+
+(defn entity [name deg selected-entity]
+  [:span {:class name
+          :on-mouse-over #(reset! selected-entity name)
+          :on-mouse-out  #(reset! selected-entity nil)
+          :style {:transform (str "rotate(" deg "deg)")}}
+   name])
+
+(defn hero []
+  (let [selected-entity (r/atom nil)]
+    (fn []
+      [:section.col.landing-hero {:class @selected-entity}
+       [:div.content 
+        [:h1 "In 2030, " [:em "Superbugs"] " are rapidly spreading across the globe threatening the ability to treat common infections."]
+        [:p [:em "Superbugs:"] " drug-resistant pathogens that have acquired new resistance mechanisms that cause infections that are not treatable with antibiotics (WHO)."]
+        [:p "The " [:em "Parliament of Species"] " has been created to tackle antibiotic resistance and its repercussions at a global level. The entities of" [entity "aqua" 1 selected-entity] "," [entity "flora" -2 selected-entity] "," [entity "fauna" -1 selected-entity] "&" [entity "homo-sapiens" 2 selected-entity] " have united to mange the threat of antimicrobial resistance by creating global policies that positively impact their wellbeing."]
+        [:p "In order to coexist, the entities must find a balance between their wellbeing and while managing the level of antimicrobial resistance."]]])))
+
+(defn about []
+  [:section.col.landing-about
+   [:h1 "Create global policies with other entities"]
+   [:div.grid.narrow
+    [:div
+     [:div.icons.row.spaced
+      [:img {:src "/svg/glyphs/landing/aqua.svg"}] 
+      [:img {:src "/svg/glyphs/landing/fauna.svg"}]] 
+     [:div.icons.row.spaced
+      [:img {:src "/svg/glyphs/landing/flora.svg"}]
+      [:img {:src "/svg/glyphs/landing/homo-sapiens.svg"}]]]
+    [:div
+     [:p "Your role as a representative of The Parliament of Speices is to maintain the balance between the four entities while managing the antimicrobial resistance at a low level."]
+     [:p "In order to maintain the balance, representatives collaborate to create new global policies in response to the repercussions of antimicrobial resistance that positively impact all of the entities. The balance of the wellbeing of the entities is displayed in the coloured bar at the top of the screen."]
+     [balance {:class "small" :labels? false}]]
+    [:div
+     [:p "The wellbeing of the entities effects the level of antimicrobial resistance. When a new policy has been created, a different entity receives the policy to assess whether this has a positive or negative impact on their wellbeing. When an entity responds positively, the level of antimicrobial resistance decreases, when it responds negatively it increases."]
+     [:p "If the level of resistance increases past the global threshold, The Parliament of Species is reset and the polices that caused the largest negative impact on all of the entities are abolished."]
+     [balance #:entity{:aqua 2 :flora 2 :fauna 2 :homo-sapiens 2 :resistance 22} {:class "small" :labels? false}]]]
+   [:div.landing-play {:href (href :route/policymaking)}
+    "Create a new policy"]])
+
+(defn archive []
+  [:section.col.landing-archive
+   [:h1 "Explore the Archive of Species"]
+   [:p.text "The Parliament of Species archive contains the policies created by the representatives and the effects that they had on the entities."]
+   [:div.landing-visit {:href (href :route/archive)}
+    "View the Archive"]])
+
 (defn landing []
-  (let [state (r/atom nil)]
-
-    (letfn [(entity [name deg]
-              [:span {:class name
-                      :on-mouse-over #(reset! state name)
-                      :on-mouse-out  #(reset! state nil)
-                      :style {:transform (str "rotate(" deg "deg)")}}
-               name])]
-
-      (fn [] 
-        [:main.landing.col 
-
-         [:section.col {:class @state}
-          [:div.content 
-           [:h1 "In 2030 " [:em "Superbugs"] ", bacteria that resist to all existing antibiotics, are spreading across the world."]
-           [:p "The " [:em "Parliament of Species"] " is created to face antibiotic resistance and its repercussions at a global level: the entities of" [entity "aqua" 1] "," [entity "flora" -2] "," [entity "fauna" -1] "&" [entity "homo-sapiens" 2] " try to create policies that positively impact their wellbeing by managing the threat of antibiotic resistance."]
-           [:p "Entities need to find a balance in the policies they create in order to coexist."]]]
-
-         [:section.col.landing-about
-          [:h1 "Create policies with other representatives"]
-          [:div.grid
-           [:div
-            [:p "Get the opportunity to represent one of the four entities of the parliament of species — Aqua, Fauna, Flora and Homo Sapiens."]
-            [:div.icons.row
-             [:img {:src "/svg/glyphs/aqua.svg"}] 
-             [:img {:src "/svg/glyphs/fauna.svg"}] 
-             [:img {:src "/svg/glyphs/flora.svg"}]
-             [:img {:src "/svg/glyphs/homo-sapiens.svg"}]]]
-
-           [:div
-            [:p "Your role as a representative is to maintain the balance between the four entities while keeping the antimicrobial resistance at a low level. To do this, representatives collaborate together to create policies that positively impact the wellbeing indicator? of all of the entities.
-"]
-            [balance {:class "small"}]]
-
-           [:div
-            [:p "The resistance level responds to the postive or negative impact of the policies on the entities. If the resistance reaches the limit the parliament is reset and the policies that had the most negative impact on all entities are deleted from the collaborative platform. "]
-            [balance #:entity{:aqua 2 :flora 2 :fauna 2 :homo-sapiens 2 :bacteria 22} {:class "small"}]]]
-
-          [:div.landing-play
-           [:a.enter {:href (href :route/game)} "Create a new policy"]]]
-
-         [:section.col.landing-archive
-          [:h1 "Explore the Archive of Species"]
-          ]
-         ])))
-  )
+  [:main.landing.col 
+   [hero]
+   [about]
+   [archive]])

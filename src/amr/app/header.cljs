@@ -7,7 +7,9 @@
 
 (defn header [router current-route]
   [:header.row
-   [:a.nameplate {:href (href :route/home)} "Parliament" [:br] "of Species"]
+   [:a.identity.row {:href (href :route/home)}
+    [:img.logo {:src "/svg/logo.svg"}]
+    [:p.nameplate "Parliament" [:br] "of Species"]]
    [:ul.links.row
     (for [route-name (reitit/route-names router)
           :let [route (reitit/match-by-name router route-name)
@@ -20,19 +22,20 @@
 
 (defn balance
   ([]
-   (balance nil {}))
+   (balance nil {:labels? true}))
   ([opts]
    (balance nil opts))
-  ([entites {:keys [class]}]
+  ([entites {:keys [class labels?]}]
    (let [hover? (r/atom false)]
 
      (letfn [(entity [[entity level]]
-               ^{:key entity} [:div.balance-entity
+               ^{:key entity} [:div.balance-entity.col.centered
                                {:class (name entity)
                                 :style {:grid-column (str "span " level)}}
-                               [:label.balance-label
-                                {:class (when @hover? "show-labels")}
-                                (name entity)]])]
+                               (when labels?
+                                 [:label
+                                  {:class (when @hover? "hovering")}
+                                  (name entity)])])]
        
        (fn []
          (let [entites (or entites @(rf/subscribe [::sub/entities]))]
