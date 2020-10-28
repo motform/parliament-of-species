@@ -1,4 +1,5 @@
 (ns amr.server.core
+  (:gen-class)
   (:require [amr.config :refer [config]]
             [amr.server.routes :as routes]
             [muuntaja.core :as m]
@@ -18,12 +19,13 @@
   (ring/ring-handler
    (ring/router
 
-    [["/api" routes/api]]
+    [""
+     ["/api" routes/api]]
 
     {:exception pretty/exception
      :coercion malli/coercion
      :validate spec/validate
-     :reitit.middleware/transform dev/print-request-diffs
+     ;; :reitit.middleware/transform dev/print-request-diffs
      :data {:muuntaja m/instance
             :middleware [[cors/wrap-cors
                           :access-control-allow-origin [#"http://localhost:8022"]
@@ -38,7 +40,10 @@
                          muuntaja/format-middleware
                          coersion/coerce-request-middleware]}})
 
-   (ring/create-default-handler)))
+   (ring/routes
+    (ring/create-resource-handler {:path "/"})
+    (ring/redirect-trailing-slash-handler)
+    (ring/create-default-handler))))
 
 (defn -main []
   (let [port (or (get-in config [:server :port]) 3000)]
@@ -54,11 +59,16 @@
 
   (server {:request-method :get
            :headers {"Accept" "application/transit+json"}
+           :uri "/api/archive"})
+
+  (server {:request-method :get
+           :headers {"Accept" "application/transit+json"}
            :uri "/api/in/projection/a975be9f-6ab6-4df1-8036-57a5be9ecb13"})
 
-  (server {:request-method :post
+  (server {:request-method :get
            :headers {"Accept" "application/transit+json"}
-           :uri "/api/debug"})
+           :uri "/api/stack"
+           :query-params {"entity" "aqua"}})
 
   ;; NOTE actually posts to the db
   #_(server {:request-method :post

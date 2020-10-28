@@ -1,14 +1,15 @@
 [;;; Entity enum
+ ;; TODO rename /id to /gid
 
- {:db/ident :entity/aqua}
- {:db/ident :entity/flora}
- {:db/ident :entity/fauna}
- {:db/ident :entity/homo-sapiens}
+ ;; {:db/ident :entity/aqua}
+ ;; {:db/ident :entity/flora}
+ ;; {:db/ident :entity/fauna}
+ ;; {:db/ident :entity/homo-sapiens}
 
 ;;; Impact enum
  
- {:db/ident :impact/positive}
- {:db/ident :impact/negative}
+ ;; {:db/ident :impact/positive}
+ ;; {:db/ident :impact/negative}
 
 ;;; Projection
 
@@ -96,12 +97,12 @@
  
  {:db/ident :effect/impact
   :db/doc "if the effect has a :impact/positive or :impact/negative impact"
-  :db/valueType :db.type/ref
+  :db/valueType :db.type/keyword
   :db/cardinality :db.cardinality/one}
  
- ;; Enums for :effect/impact
- {:db/ident :impact/positive}
- {:db/ident :impact/negative}
+ ;; ;; Enums for :effect/impact
+ ;; {:db/ident :impact/positive}
+ ;; {:db/ident :impact/negative}
 
  {:db/ident :effect/text
   :db/doc "body of the effect"
@@ -123,7 +124,7 @@
 
  {:db/ident :session/entity
   :db/doc "the entity used in the session"
-  :db/valueType :db.type/ref
+  :db/valueType :db.type/keyword
   :db/cardinality :db.cardinality/one}
 
  {:db/ident :session/date
@@ -131,6 +132,7 @@
   :db/valueType :db.type/instant
   :db/cardinality :db.cardinality/one}
 
+ ;; TODO should this be a ref?
  {:db/ident :session/author
   :db/doc "the author of the session, a uuid saved in localstorage 
            00000000-0000-0000-0000-000000000000 identifies the program authors"

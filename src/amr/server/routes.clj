@@ -27,14 +27,19 @@
    ["/all"
     ["/{ns}"
      {:name :api.all/ns
-      :doc   "Return all es in `ns.`"
+      :doc "Return all es in `ns.`"
       :parameters {:path [:map [:ns [:enum "projection" "policy" "effect"]]]}
       :get (fn [{{:keys [ns]} :path-params}]
              {:status 200
               :body (db/all (keyword ns "id"))})}]]
 
-   ;; TODO test
-   ;; NOTE not in use
+   ["/archive"
+    {:name :api/archive
+     :doc "Returns the archive as a vec of policy trees"
+     :get (fn [_]
+            {:status 200
+             :body (db/archive)})}]
+
    ["/policy"
     ["/for-entity"
      {:name :api.policy/for-entity
@@ -44,9 +49,16 @@
                            [:projection model/UUID?]]}
       :get (fn [{{entity "entity" projection "projection"} :query-params}]
              {:status 200
-              :body (db/policy-for-entity (util/->entity entity) (util/->uuid projection))})}]]
+              :body (db/policy-for-entity (util/->entity entity) (util/->uuid projection))})}]
 
-   ;; TODO handle null ptr exception?
+    ["/impact"
+     {:name :api.policy/impact
+      :doc "Returns a the total impact of a `policy`."
+      :parameters {:query [:map [:policy model/UUID?]]}
+      :get (fn [{{policy "policy"} :query-params}]
+             {:status 200
+              :body (db/impact (util/->uuid policy))})}]]
+
    ["/stack"
     {:name :api/stack-for
      :doc "Returns the initial stack of cards for the `entity`."
@@ -55,8 +67,8 @@
             {:status 200
              :body (db/stack-for-entity (util/->entity entity))})}]
 
-   ["/submit" ;; TODO parameterize?
-    
+   ["/submit"
+    ;; NOTE there could be a db-fn that infers an :author entity from the first submitted session
     ["/session"
      {:name :api.submit/session
       :doc "Submits the session into the `db`."
@@ -64,7 +76,7 @@
       :post (fn [{body :body-params}]
               (db/submit-session (dissoc body :session/author)) ;; TODO change when updated schema
               {:status 201
-               :body (str "/api/session/id/" (:session/id body))})}]
+               :body {:resource (str "/api/session/id/" (:session/id body))}})}]
 
     ["/effect"
      {:name :api.submit/effect
@@ -73,7 +85,7 @@
       :post (fn [{body :body-params}]
               (db/submit-effect body)
               {:status 200
-               :body (str "/effect/id/" (str (:effect/id body)))})}]
+               :body {:resource (str "/effect/id/" (str (:effect/id body)))}})}]
 
     ["/policy"
      {:name :api.submit/policy
@@ -82,5 +94,4 @@
       :post (fn [{body :body-params}]
               (db/submit-policy body) 
               {:status 201
-               :body (str "/api/policy/id/" (:policy/id body))})}]
-    ]])
+               :body {:resource (str "/api/policy/id/" (:policy/id body))}})}]]])

@@ -18,8 +18,15 @@
 (defn- assoc-entity [[policy entity]]
   (assoc policy :policy/entity entity))
 
+(defn seed-db! []
+  ;; parse all the csvs -> 2dvec
+  ;; filter for derived
+  ;; map transmit-singularly
+  )
+
 ;;; QUERIES
 
+;; TODO rewrite to use pure pull API
 (defn id->e
   "Return the entity with `id` in domain `k`."
   [id k]
@@ -74,6 +81,60 @@
     {:projection projection
      :policy policy}))
 
+(defn impact
+  "Returns a the total impact of a `policy`."
+  [policy]
+  (let [base-effects (zipmap [:entity/aqua :entity/flora :entity/fauna :entity/homo-sapiens]
+                             (repeat #:impact{:positive 0, :negative 0}))]
+    (->> {:query '[:find ?entity-ident ?impact-ident
+                   :in $ ?policy-id
+                   :with ?effect
+                   :where
+                   [?policy :policy/id ?policy-id]
+                   [?effect :effect/policy ?policy]
+
+                   [?effect :effect/impact ?impact]
+                   [?impact :db/ident ?impact-ident]
+
+                   [?effect :effect/session ?session]
+                   [?session :session/entity ?entity]
+                   [?entity :db/ident ?entity-ident]]
+          :args [(d/db conn) policy]}
+         d/q
+         frequencies
+         (reduce-kv
+          (fn [m [e i] n]
+            (assoc-in m [e i] n))
+          base-effects))))
+
+(defn projection-tree
+  "Pulls the entire tree for `projection`."
+  [projection]
+  (d/pull (d/db conn)
+          [{[:effect/session] "..."}
+           :effect/text :effect/id :effect/impact
+           {[:effect/_policy :as :policy/effects] "..."}
+
+           [:session/entity]
+           {[:policy/session] "..."}
+
+           :policy/id :policy/name :policy/text
+           {[:policy/_projection :as :projection/policies] "..."}
+
+           :projection/id :projection/text :projection/name]
+
+          [:projection/id projection]))
+
+(defn archive
+  "Returns the entire archive as a vec of projection-trees,
+  for use in the front-end app-db."
+  []
+  (->> (d/q {:query '[:find ?id :where [_ :projection/id ?id]]
+             :args [(d/db conn)]})
+       (mapv (comp projection-tree first))
+       (mapv #(update-in % [:projection/policies] (partial util/index-by :policy/id)))
+       (util/index-by :projection/id)))
+
 ;;; TRANSACTIONS 
 
 (defn submit-effect
@@ -99,9 +160,6 @@
                (update :policy/projection util/->lookup-ref :projection/id))]  
     (d/transact conn {:tx-data [tx]})))
 
-
-
-
 (comment
   ;;; DEV LOCAL
 
@@ -116,7 +174,8 @@
     ;; First transact non-derived polices, then the derived ones
     (transact-singularly (remove data/derived? (data/parse-csv "resources/csv/policies.csv" :policy)))
     (transact-singularly (filter data/derived? (data/parse-csv "resources/csv/policies.csv" :policy)))
-    (transact-singularly (data/parse-csv "resources/csv/effects.csv" :effect)))
+    (transact-singularly (data/parse-csv "resources/csv/effects.csv" :effect))
+    )
 
   ;;; Testing in-memory with peer library
   (require '[datomic.api :as dm])
@@ -141,46 +200,112 @@
 
   ;;; QUERIES 
 
-  ;; count the impact
-  (dm/q '[:find ?i
-          :with ?impact
-          :where
-          [?impact :effect/impact ?i]]
-        (dm/db mconn))
+  (def fx-q {:query '[:find (pull ?effect [*])
+                      :in $ ?policy
+                      :where
+                      [?p :policy/id ?policy]
+                      [?effect :effect/policy ?p]]
+             :args [(d/db conn) #uuid "189d2c8f-71f8-41bd-bbb1-d3980eecdd96"]})
 
-  (dm/q '[:find ?n
-          :where
-          [?pol :policy/id  #uuid "189d2c8f-71f8-41bd-bbb1-d3980eecdd96"]
-          [?pol :policy/session ?pro]
-          [?pro :session/entity ?n]]
-        (dm/db mconn))
+  (-> fx-q d/q)
 
-  (dm/q '[:find (pull ?e [*])
-          :where
-          [?e :policy/session ?s]
-          (not [?s :session/entity ?entity])
-          [?e :policy/projection ?p]
-          [?p :projection/id ?projection-id]
-          :in $ ?projection-id ?entity]
-        (dm/db mconn) #uuid "a975be9f-6ab6-4df1-8036-57a5be9ecb13" (util/->entity "fauna"))
+  ;; Quantify the impact of a single effect
+  (def impact-q {:query '[:find ?the-entity ?impact-value
+                          :in $ ?id
+                          :with ?effect
+                          :where
+                          [?policy :policy/id ?id]
+                          [?effect :effect/policy ?policy]
 
-  ;; GETTING THE IDENT OF AN ENUM
-  (dm/q '[:find ?type-ident
-          :where
-          [?e :policy/session ?s]
-          [?s :session/entity ?entity]
-          [?entity :db/ident ?type-ident]
-          [?e :policy/projection ?p]
-          [?p :projection/id ?projection-id]
-          :in $ ?projection-id]
-        (dm/db mconn) #uuid "a975be9f-6ab6-4df1-8036-57a5be9ecb13")
+                          [?effect :effect/impact ?impact]
+                          [?impact :db/ident ?impact-value]
 
-  (d/q {:query '[:find ?id
+                          [?effect :effect/session ?session]
+                          [?session :session/entity ?entity]
+                          [?entity :db/ident ?the-entity]]
+                 :args [(d/db conn) #uuid "189d2c8f-71f8-41bd-bbb1-d3980eecdd96"]})
+
+  (->> impact-q
+       d/q
+       (map (fn [[entity impact]]
+              [entity (if (= :impact/negative impact) [-1 1] [1 -1])]))
+       (reduce
+        (fn [m [entity [e b]]]
+          (-> m (update entity + e) (update :entity/resistance + b)))
+        #:entity{:fauna 0 :flora 0 :resistance 0 :aqua 0 :homo-sapiens 0}))
+
+  ;; Get the combined impacts of the effects
+  (->> impact-q
+       d/q
+       frequencies
+       (reduce-kv
+        (fn [m [e i] n]
+          (assoc-in m [e i] n))
+        {}))
+
+  ;; to calculate the total effect of a policy we need:
+  ;;  - have a policy id (in this case we use 17592186045437, as it has the most effects)
+  ;;  - find all the effects that point to that policy
+  ;;  - for all entities, make a tuple of [pos neg]
+  ;;  - the bacterial effect is implicit in this data, I guess?
+
+  (d/q {:query '[:find ?id ?n
                  :where
-                 [_ :projection/id ?id]
-                 :in $]
-        :args [(d/db conn)
-               
-               ]})
+                 [?e :projection/name ?n]
+                 [?e :projection/id ?id]
+                 ]
+        :args [(d/db conn)]})
 
+  (-> {:query '[:find ?e
+                :where [?e :projection/id]]
+       :args [(d/db conn)]}
+      d/q
+      ffirst)
+
+
+  (-> {:query '[:find ?policy
+                :in $ ?projection
+                :where [?policy :policy/projection ?projection]]
+       :args [(d/db conn) 17592186045425]}
+      d/q)
+
+  17592186045443
+
+  (-> {:query '[:find ?policy
+                :in $ ?projection
+                :where [?policy :effect/projection ?projection]]
+       :args [(d/db conn) 17592186045443]}
+      
+      d/q)
+
+  (require '[clojure.inspector :as i])
+
+  (i/inspect-tree (archive))
+
+  (->> (dm/q '[:find ?id
+               :where [_ :projection/id ?id]]
+             (dm/db mconn))
+       (map first)
+       (mapv #(dm/pull (dm/db mconn)
+                       [{[:effect/session] "..."}
+                        :effect/text
+                        :effect/id
+                        :effect/impact
+                        {[:effect/_policy :as :effects] "..."}
+
+
+                        [:session/entity]
+                        {[:policy/session] "..."}
+
+                        :policy/id
+                        :policy/name
+                        :policy/text
+                        {[:policy/_projection :as :policies] "..."}
+
+                        :projection/id
+                        :projection/text
+                        :projection/name]
+
+                       [:projection/id %]))
+       i/inspect-tree)
   )

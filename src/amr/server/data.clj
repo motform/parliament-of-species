@@ -22,6 +22,7 @@
 
 (defmethod xf-row :projection [{:keys [row]}]
   (-> row
+      (dissoc :projection/year)
       (util/->uuid [:projection/id])
       (update :projection/source #(str/split % #";"))))
 
@@ -35,7 +36,7 @@
 
 (defmethod xf-row :session [{:keys [row]}]
   (-> row
-      (util/->uuid [:session/id])
+      (util/->uuid [:session/id :session/author])
       (update :session/entity util/->entity)))
 
 (defmethod xf-row :effect [{:keys [row]}]
