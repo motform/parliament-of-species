@@ -81,3 +81,17 @@
     font-weight: 900;
     font-style: italic;
 }
+
+@font-face {
+    font-family: "Arnold";
+    src: url("/fonts/Arnold_v0.3-Regular.woff2") format("woff2");
+    font-weight: 400;
+    font-style: regular;
+}
+
+@font-face {
+    font-family: "Arnold";
+    src: url("/fonts/Arnold_v0.3-Italic.woff2") format("woff2");
+    font-weight: 400;
+    font-style: italic;
+}
