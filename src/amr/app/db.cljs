@@ -1,9 +1,7 @@
 (ns amr.app.db
   (:require [amr.model :as model]
-            [cljs.reader :as reader]
             [malli.core :as m]
-            [malli.generator :as mg]
-            [re-frame.core :as rf]))
+            [malli.generator :as mg]))
 
 ;;; INITIAL DB
 
@@ -32,28 +30,25 @@
     [:reflection [:map]]
     [:entites [:map]]]
 
-   [:temp [:map [:projections map?]]]])
+   [:archive [:map
+              [:effect map?]
+              [:policy map?]
+              [:projection map?]]]])
+
+(def session
+  [:map
+   ])
 
 (def default-db
   {:app  {:route nil
-          :entities #:entity{:aqua 5 :flora 5 :fauna 5 :homo-sapiens 5 :bacteria 10}
+          :entities #:entity{:aqua 5 :flora 5 :fauna 5 :homo-sapiens 5 :resistance 10}
           :pending-request? false
-          :author (random-uuid)}
+          :author (random-uuid)} ;; TODO move
+   :meta {:author (random-uuid)}
    :sessions {}
-   :game {:screen :screen/intro
-          :current-session nil
-          }
-   :temp {:projections {}}})
-
-;;; LOCAL-STORAGE
-
-(def ls-key "parliment.of.species")
-
-(defn collections->local-storage [db]
-  (.setItem js/localStorage ls-key (str db)))
-
-(rf/reg-cofx ; source: re-frame docs
- :local-store-collections
- (fn [cofx _]
-   (assoc cofx :local-store-collections
-          (some->> (.getItem js/localStorage ls-key) (reader/read-string)))))
+   :game {:screen :screen/sessions
+          :current-session nil}
+   :archive {:storage {}
+             :projection #uuid "a975be9f-6ab6-4df1-8036-57a5be9ecb13"
+             :policy nil
+             :effect nil}})

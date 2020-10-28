@@ -2,66 +2,107 @@
   (:require [amr.app.events :as app]
             [amr.app.game.events :as event]
             [amr.app.game.subs :as sub]
+            [amr.app.header :refer [balance]]
             [amr.util :as util]
             [clojure.string :as str]
             [re-frame.core :as rf]
             [reagent.core :as r]
             [reitit.frontend.easy :refer [href]]))
 
-;;; UI ;;;
+;;; INTRO
 
-(defn status-bars [entities]
-  (letfn [(status-bar [title id val]
-            [:div.status-bar.col {}
-             [:label {:for id} title]
-             [:progress {:id id :max 10 :value val}
-              (str val "%")]])]
-    [:div.status-bars.card.padded
-     (for [[id val] entities]
-       ^{:key id} [status-bar (name id) id val])]))
+(defn intro []
+  [:section.intro 
+   [:h1 "Introduction"]
+   [:div.text 
+    [:p "Antimicrobial resistance (AMR) is caused by bacteria changing over time and no longer responding to medicines. As a result, the medicines become ineffective and infections persist in the body, increasing the risk of disease spread, severe illness and death."]
+    [:p "Antimicrobials — including antibiotics — are medicines used to prevent and treat infections in homo sapiens, animals and plants. Bacteria that develop antimicrobial resistance are referred to as Superbugs."]]])
 
-;;; CARDS ;;;
+(def years
+  [["2020" "Bacteria are becoming more and more immune to antibiotics. Despite there being numerous studies and initiatives to find alternatives, researchers do not seem very hopeful."]
+   ["2024" "AMR is a globally widespread problem. This is due to the overuse of antibiotics in food production and for treating non-fatal diseases. This has not only a direct impact on Homo Sapiens, but also on other entities, namely Aqua, Fauna and Flora."]
+   ["2026" "Societies around the globe have adapted to the situation, where every-day matters such as food and health have drastically changed. However, another important aspects of society that had to readapt to this situation are policies and economics."]
+   ["2030" "The Parliament of Species is established to tackle AMR and its repercussions at a global level: the entities of Aqua, Fauna, Flora and Homo Sapiens have to create policies that positively impact their wellbeing by managing the threat of AMR."]])
 
-;;; GENERAL
+(defn timeline []
+  [:section.timeline.col.centered
+   [:h1 "the History of the Future"]
+   (for [[year text] years]
+     ^{:key year}
+     [:div.year.col.centered {:id (str "year-" year)}
+      [:h3 year]
+      [:p.text text]])
+   [:div.bg-hl>div.play>p ;; TODO rework into a app-wide btn
+    {:on-click #(do (rf/dispatch [::event/screen :screen/select-entity])
+                    (rf/dispatch [::app/scroll-to-top]))}
+    "Select entity"]])
 
-(defn banner [title]
-  [:div.col.banner
-   [:section.padded.col
-    [:h1 title]]])
+(def entites
+  [{:key :entity/aqua
+    :represents "Aqua represents all oceans, rivers and lakes."
+    :relation "Aqua can be affected by the antibiotics given to aquatic animals and antibiotic pollution in the rivers and sewage. "}
 
-(defn text [{:keys [title texts]}]
-  [:div.col.card.text
-   [:section.padded.col
-    [:h1 title]
-    (for [text texts]
-      ^{:key text} [:p text])]])
+   {:key :entity/flora
+    :represents "Flora represents all plant kind and agriculture."
+    :relation "Flora can be affected by the antibiotics used in crops and by the contamination from animal waste that contains antibiotics."}
 
-(defn ul [label items]
-  [:<>  
-   [:h2.list-heading label]
-   [:ul {:class label}
-    (for [item items]
-      ^{:key item} [:li.item item])]])
+   {:key :entity/fauna
+    :represents "Fauna represents all animal kind and husbandry."
+    :relation "Fauna can be affected by the antibiotics given to farm animals in the food industry and by the superbugs that infect animals."}
 
-;;; SPECIFIC
+   {:key :entity/homo-sapiens
+    :represents "Homo-sapiens represents all humankind past and present and society."
+    :relation "Homo-sapiens can be affected as antibiotics become less effective in healthcare due to the overuse, underuse and misuse of medicines. The lack of public knowledge and unified global approach to AMR can affect Homo-sapiens both locally and globally."}])
 
-(defn timeline [years]
-  (let [state (r/atom "2020")]
-    (fn []
-      [:div.card.col.timeline
-       [:section.padded
-        [:input.timeline
-         {:type "range" :list "years"
-          :value @state :min 2020 :max 2024 :step 1
-          :on-change #(reset! state (.. % -target -value))}]
-        [:datalist#years
-         [:option {:label "2020"} 2020]
-         [:option {:label "2021"} 2021]
-         [:option {:label "2022"} 2022]
-         [:option {:label "2023"} 2023]
-         [:option {:label "2024"} 2024]]
-        [:h1.year @state]
-        [:p (years @state)]]])))
+;;; SESSION MANAGEMENT
+
+(defn resume-session [current-session]
+  [:section.resume.col.centered
+   [:p "Do you want to resume your active session?"]
+   [:div.landing-play 
+    {:on-click #(rf/dispatch [::event/resume current-session])
+     :style {:margin-top "10rem"}}
+    "Resume session"]])
+
+(defn empty-library []
+  [:section.col.centered.empty-library
+   [:h1 "Create global policies with other entities"]
+   [:div {:style {:display "grid" :grid-template-columns "1fr 1fr" :grid-gap "20rem"}}
+    [:div 
+     [:p "Your role as a representative of The Parliament of Species is to maintain the balance between the four entities while managing the antimicrobial resistance at a low level. In order to maintain the balance, representatives collaborate to create new global policies in response to the repercussions of antimicrobial resistance that positively impact all of the entities."]
+     [balance {:class "small" :labels? false}]]
+    [:div 
+     [:p "The wellbeing of the entities effects the level of antimicrobial resistance. When a policy positively affects an entity the resistance decreases, however when if it negatively affects an entity the resistance increases. If the level of resistance increases past the global threshold, The Parliament of Species is reset."]
+     [balance #:entity{:aqua 2 :flora 2 :fauna 2 :homo-sapiens 2 :resistance 22} {:class "small" :labels? false}]]]
+   [:div.entry 
+    {:on-click #(do (rf/dispatch [::app/scroll-to-top])
+                    (rf/dispatch [::event/reset-session])
+                    (rf/dispatch [::event/screen :screen/intro]))}
+    "Policymake!"]])
+
+(defn session [{:keys [session written-policy written-effect] :as s}]
+  [:div.session-libray.padded.col
+   [:p.error s]
+   [:p (str (:session/date session))]
+   [:p (:session/entity session)]])
+
+(defn session-library []
+  (let [sessions @(rf/subscribe [::sub/sessions])
+        active-session @(rf/subscribe [::sub/current-session])]
+    [:<>  
+     (when active-session
+       [resume-session active-session])
+     [empty-library]
+     #_(when-not (empty? sessions)
+         [:div.col.centered.sessions
+          [:h1 "Previous sessions"]
+          [:div.grid
+           (for [[id s] sessions] ;; TODO sort-by date
+             ^{:key id} 
+             [session s])]
+          [:div.entry
+           {:on-click #(rf/dispatch [::event/delete-sessions])}
+           "Delete sessions"]])]))
 
 (defn entity [{:keys [key represents relation]} {:keys [clickable?]}]
   (let [session #:session{:id (random-uuid) :date (js/Date.) :entity key}]
@@ -70,67 +111,103 @@
                               :on-click #(when clickable?
                                            (rf/dispatch [::event/create-session session])
                                            (rf/dispatch [::event/submit-session session])
-                                           (rf/dispatch [::event/request-stack-for (name key)])
+                                           (rf/dispatch [::event/new-pair session key])
                                            (rf/dispatch [::app/scroll-to-top])
+                                           (rf/dispatch [::event/save-screen :screen/write-effect])
                                            (rf/dispatch [::event/screen :screen/write-effect]))}
      [:div.card.col 
-      [:div.card-header
-       [:label "Entity"]]
-      [:section.padded.row 
-       [:img.entity-portrait {:src (str "/img/entities/" (name key) ".png")}]
+      [:div.card-header {:class (name key)}
+       [:label {:style {:color "var(--bg-card)"}} (name key)]]
+      [:section.padded.row {:style {:background "var(--bg-card)"}}
+       [:img {:src (str "/svg/entity/" (name key) ".svg")}]
        [:div.col
-        ;; [:h1 (name key)]
-        [ul "represents" represents]
-        [ul "relation" relation]]]]]))
+        [:p.text represents]
+        [:p.text relation]]]]]))
 
-(defn current-entity [entites]
-  (let [current-entity (:session/entity @(rf/subscribe [::sub/from-session :session]))]
-    [entity (first (filter #(= current-entity (:key %)) entites)) {:clickable? false}]))
+(defn select-entity []
+  [:section.select-entity.col.centered
+   [:h1 "Select your entity"]
+   [:p "Choose an entity to represent in the Parliament of Species."]
+   [:div.entity-selection
+    (for [e entites]
+      ^{:key (:key e)} [entity e {:clickable? true}])]])
+
+;; EFFECT
+
+(defn current-entity []
+  (let [current-entity (:session/entity @(rf/subscribe [::sub/from-session :session]))
+        {:keys [key]} (first (filter #(= current-entity (:key %)) entites))]
+    [:section.current-entity {:class (str (name key) "-bg")}
+     "You are " [:span {:style {:text-transform "capitalize"}} (name key)] "."]))
+
+(defn intro-effect []
+  [:section.intro 
+   [:h1 "React to a Policy"]
+   [:div.text 
+    [:p "How do you think this policy would affect your entity?"]]])
+
+(defn intro-policy []
+  [:section.intro 
+   [:h1 "Write a new Policy"]
+   [:div.text 
+    [:p "Make a new policy in response to the projection that would positively impact both your entity and the others. You can improve the previous policy or create a new one."]]])
 
 (defn projection
-  ([]
-   (projection {}))
-  ([opts]
-   (let [p @(rf/subscribe [::sub/from-session :projection])] 
-     (projection p opts)))
-  ([{:projection/keys [id text name] :as projection} {:keys [clickable? screen tearable?]}]
-   [:div.card-border.projection
-    {:id id
-     :class (str (when clickable? "clickable ") (if tearable? "tearable" "rounded")) 
-     :on-click #(when clickable?
-                  (rf/dispatch [::event/select-projection projection])
-                  (rf/dispatch [::event/screen screen]))}
-    [:div.card.col {:class (when tearable? "tearable-body")}
-     [:div.card-header
-      [:label "Projection"]]
-     [:section.padded
-      [:h1 name]
-      [:p text]]]]))
+  ([] (projection {}))
+  ([{:keys [tearable?]}]
+   (let [{:projection/keys [id text name]} @(rf/subscribe [::sub/current-projection])] 
+     [:section.projection.col.centered
+      {:id id
+       :class (str (when tearable? "tearable"))}
+      [:div.card-header>label "Projection — " name]
+      [:div.padded.grid {:class (when tearable? "tearable-body")}
+       [:img {:src "/svg/glyphs/projection.svg"}]
+       [:div {:style {:grid-column "span 2"}}
+        (for [t (str/split-lines text)]
+          ^{:key (first t)}
+          [:p.projection-text t])
+        ]]])))
 
 (defn policy [{:keys [tearable?]}]
-  (let [{:policy/keys [id name text tags entity]} @(rf/subscribe [::sub/from-session :policy])
+  (let [{:policy/keys [id name text session]} @(rf/subscribe [::sub/current-policy])
+        entity (:session/entity session)
         entity-name (when entity (clojure.core/name entity))] 
-    [:div.card-border {:id id :class (when tearable? "tearable")} 
-     [:div.card.col {:class (when tearable? "tearable-body")}
-      [:div.card-header
-       [:label "Policy by " [:strong entity-name]] ;; TODO include in response
-       [:div.tags.row
-        (for [tag tags]
-          ^{:key tag} [:span.tag (str "#" (clojure.core/name tag))])]]
-      [:section.padded.row
-       [:div 
-        [:h1 name]
-        [:p text]]
-       (when entity [:img.glyph {:src (str "/svg/glyphs/" entity-name ".svg")}])]]]))
+    [:section.policy {:id id :class (when tearable? "tearable")} 
+     [:div.card-header>label "Policy by " [:strong entity-name]]
+     [:div.bg {:style {:background-image (str "url(/svg/bg/policy/" entity-name ".svg)")
+                       :background-color (str "var(--" entity-name "-bg)")}}
+      [:div.padded.grid {:class (when tearable? "tearable-body")}
+       [:div {:style {:grid-column "span 2"}}
+        [:h2 name]
+        [:p.text text]]]]]))
 
 (defn review-effect []
-  (let [effects @(rf/subscribe [::sub/from-temp :effect])]
-    ))
+  (let [impact @(rf/subscribe [::sub/effect-impact])]
+    [:section.review-effect
+     [:div.card-header>label "Effect of policy"]
+     [:section.padded.col {:style {:background "var(--bg-card)"}}
+      [:h2 "This policy has impact the entities in these ways."]
+      [:div.row.impacts
+       (for [[entity {:impact/keys [positive negative]}] impact]
+         ^{:key entity}
+         [:h5 {:class (str (name entity) "-fg")} ;; TODO add 0/0 for yet to react entites
+          "▲ " (if-let [p positive] p 0) " "
+          "▼ " (if-let [n negative] n 0)])]]]))
+
+(defn thank-you []
+  [:section.intro 
+   [:h1 "Thank you for your contribution!"]
+   [:div.text>p "Your policy will be reviewed by other members of the parliament of species."]
+   [:div.entry {:on-click #(rf/dispatch [::event/screen :screen/sessions])}
+    "Make another policy"]])
 
 ;;; FORMS
 
 (defn write-effect []
-  (let [state (r/atom #:effect{:text "" :impact nil :hover? false})]
+  (let [state (r/atom #:effect{:text "" :impact nil :hover? false})
+        policy  @(rf/subscribe [::sub/from-session :policy])
+        session @(rf/subscribe [::sub/from-session :session])
+        effect  #:effect{:id (random-uuid) :policy policy :session (:session/id session)}]
 
     (letfn [(btn-impact [label k] ^{:key k}
               (let [active? (when (= k (:effect/impact @state)) "button-active")]
@@ -140,82 +217,68 @@
                   :on-click #(swap! state assoc :effect/impact k)
                   :id (when active? "button-active")}]))
 
+            (valid-len? [s len]
+              (> (count s) len))
+
             (valid-input? [{:effect/keys [text impact]}]
-              (and impact (> (count text) 30)))]
+              (and impact (valid-len? text 130)))]
       
       (fn [] 
-        (let [policy  @(rf/subscribe [::sub/from-session :policy])
-              session @(rf/subscribe [::sub/from-session :session])
-              effect  #:effect{:id (random-uuid) :policy (:policy/id policy) :session (:session/id session)}]
-
-          [:div.card.write-effect {:class (when (:effect/hover? @state) "tear")}
-           [:div.card-header.header-entity
-            [:label "Effect submission from"]]
-           [:section.padded
-            [:h1 (str "How does this impact " (name (:session/entity session))) " ?"]
-            [:p "Elaborate on how this affects you."]
-            [:form.col
-             [:div.impact.row
-              [btn-impact "Positively" :impact/positive]
-              [btn-impact "Negatively" :impact/negative]] 
-             [:textarea {:rows 10
-                         :value (:effect/text @state)
-                         :on-change #(swap! state assoc :effect/text (.. % -target -value))}]
-             [:input#submit
-              {:type "button"
-               :value "submit"
-               :on-mouse-over (fn [] (swap! state assoc :effect/hover? true))
-               :on-mouse-out  (fn [] (swap! state assoc :effect/hover? false))
-               :disabled (not (valid-input? @state))
-               :on-click #(do (rf/dispatch [::event/submit-effect (-> @state (dissoc :effect/hover?) (merge effect))])
-                              (rf/dispatch [::app/scroll-to-top])
-                              (rf/dispatch [::event/screen :write-poilcy]))}]]]])))))
-
-(defn select-projection []
-  (let [current-projection @(rf/subscribe [::sub/from-session :projection])
-        projections (->> @(rf/subscribe [::sub/from-temp :projection])
-                         (remove #(= % current-projection)))]
-    [:<> 
-     (for [p projections]
-       ^{:key (:projection/id p)}
-       [projection p {:clickable? true :screen :screen/write-policy}])]))
+        [:section.write {:class (when (:effect/hover? @state) "tear")}
+         [:div.card-header>label "Effect submission form"]
+         [:div.padded.col {:style {:background "var(--bg-card)"}}
+          [:h2 (str "How does this impact " (name (:session/entity session))) "?"]
+          [:p "How do you think this policy would affect your entity? Write the possible effects below."]
+          [:form.col
+           [:div.impact.row
+            [btn-impact "Positively" :impact/positive]
+            [btn-impact "Negatively" :impact/negative]] 
+           [:textarea {:rows 10
+                       :value (:effect/text @state)
+                       :on-change #(swap! state assoc :effect/text (.. % -target -value))}]
+           [:label {:style {:color (if (valid-len? (:effect/text @state) 130) "var(--ok)" "var(--hl)")}}
+            "Your reaction to the policy, at least 130 characters long."]
+           [:input#submit
+            {:type "button"
+             :value "submit"
+             :on-mouse-over (fn [] (swap! state assoc :effect/hover? true))
+             :on-mouse-out  (fn [] (swap! state assoc :effect/hover? false))
+             :disabled (not (valid-input? @state))
+             :on-click #(do (rf/dispatch [::event/submit-effect (-> @state (dissoc :effect/hover?) (merge effect))])
+                            (rf/dispatch [::event/save-screen :screen/write-policy])
+                            (rf/dispatch [::event/screen :screen/write-policy]))}]]]]))))
 
 ;; TODO get the derived key from somewhere idk
 (defn write-policy [{:keys [derived]}]
   (let [state (r/atom #:policy{:text "" :name "" :hover? false})
         {session-id :session/id} @(rf/subscribe [::sub/from-session :session])
-        {projection-id :projection/id} @(rf/subscribe [::sub/from-session :projection])
+        projection-id @(rf/subscribe [::sub/from-session :projection])
         policy #:policy{:projection projection-id :session session-id :id (random-uuid) :derived derived}]
 
-    (letfn [(valid-input? [{:policy/keys [text name tags]}]
-              (and (> (count name) 10)
-                   (> (count text) 50)
-                   #_(seq tags)))] 
+    (letfn [(valid-len? [s len]
+              (> (count s) len))
+
+            (valid-input? [{:policy/keys [text name]}]
+              (and (valid-len? name 10)
+                   (valid-len? text 130)))] 
 
       (fn [] 
-        [:div.card.write-policy {:class (when (:policy/hover? @state) "tear")}
-         [:div.card-header.header-entity
-          [:label "Policy submission from"]]
-         [:section.padded
-          [:h1 "New policy"]
-          [:p "Write a new policy to addresses the bad thing that just happened."]
+        [:section.write {:class (when (:policy/hover? @state) "tear")}
+         [:div.card-header>label "Policy submission form"]
+         [:div.col.padded {:style {:background "var(--bg-card)"}}
+          [:h2 "Write a new policy"]
+          [:p.text "Make a new policy in responce to the projection that would positively impact both your entity and the others. You can improve the previous policy or create a new one."]
           [:form.col
-           [:div.row 
-            [:div.col {:style {:width "100%"}}
-             [:label "Policy Name"]
-             [:textarea.name {:rows 1
-                              :value (:policy/name @state)
-                              :on-change #(swap! state assoc :policy/name (.. % -target -value))}]]
-            ;; [:div.col 
-            ;;  [:label "Tags"] ;; TODO should be an [:select [:option]]
-            ;;  [:select#tag-select {:name "tag-select"}]
-            ;;  [:textarea {:rows 1
-            ;;              :value (:policy/tags @state)
-            ;;              :on-change #(swap! state assoc :policy/tags (.. % -target -value))}]]
-            ]
-           [:textarea.text {:rows 10
-                            :value (:policy/text @state)
-                            :on-change #(swap! state assoc :policy/text (.. % -target -value))}]
+           [:textarea.name {:rows 1
+                            :value (:policy/name @state)
+                            :on-change #(swap! state assoc :policy/name (.. % -target -value))}]
+           [:label {:style {:color (if (valid-len? (:policy/name @state) 10) "var(--ok)" "var(--hl)")}}
+            "The name of the policy, at least 10 characters long."]
+           [:textarea {:rows 10
+                       :value (:policy/text @state)
+                       :on-change #(swap! state assoc :policy/text (.. % -target -value))}]
+           [:label {:style {:color (if (valid-len? (:policy/text @state) 130) "var(--ok)" "var(--hl)")}}
+            "The contents of the policy, at least 130 characters long."]
            [:input#submit
             {:type "button"
              :value "Submit"
@@ -224,4 +287,6 @@
              :disabled (not (valid-input? @state))
              :on-click #(do (rf/dispatch [::event/submit-policy (-> @state (dissoc :policy/hover?) (merge policy))])
                             (rf/dispatch [::app/scroll-to-top])
+                            (rf/dispatch [::event/save-screen nil])
+                            (rf/dispatch [::event/reset-session])
                             (rf/dispatch [::event/screen :screen/end]))}]]]]))))
