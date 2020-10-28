@@ -3,14 +3,13 @@
             [amr.app.archive.core :refer [archive]]
             [amr.app.archive.events :as archive]
             [amr.app.events :as event]
-            [amr.app.game.core :refer [game]]
-            [amr.app.game.events :as game]
+            [amr.app.game.core :as game]
             [amr.app.landing :refer [landing]]
             [re-frame.core :as rf]
             [reitit.coercion.spec :as reitit.spec]
+            [reitit.core :as reitit]
             [reitit.frontend :as reitit.frontend]
-            [reitit.frontend.easy :as reitit.easy]
-            [reitit.core :as reitit]))
+            [reitit.frontend.easy :as reitit.easy]))
 
 ;;; ROUTER ;;;
 
@@ -23,23 +22,56 @@
 
    ["policymaking"
     {:name :route/policymaking
-     :view game
+     :view game/session-library
      :title "Policymaking"
      :link-text "Policymaking"
-     :controllers [{:start #(rf/dispatch [::game/screen :screen/sessions])}]}]
+     :in-header? true}]
+
+   ;; TODO nest these under /policymaking
+   ["intro"
+    {:name :route.policymaking/intro
+     :view game/intro
+     :title "Introduction to Parliament"
+     :link-text "Intro"}]
+
+   ["select-entity"
+    {:name :route.policymaking/select-entity
+     :view game/select-entity
+     :title "Select your entity"
+     :link-text "Select entity"}]
+
+   ["write-effect"
+    {:name :route.policymaking/write-effect
+     :view game/write-effect
+     :title "React to a policy"
+     :link-text "Write effect"}]
+
+   ["write-policy"
+    {:name :route.policymaking/write-policy
+     :view game/write-policy
+     :title "Write a policy"
+     :link-text "Write policy"}]
+
+   ["end"
+    {:name :route.policymaking/end
+     :view game/end
+     :title "Thank you!"
+     :link-text "End"}]
 
    ["archive"
     {:name :route/archive
      :view archive
      :title "Archive of Futures"
      :link-text "Archive"
+     :in-header? true
      :controllers [{:start #(rf/dispatch [::archive/request-archive])}]}]
 
    ["about"
     {:name :route/about
      :view about
      :title "About"
-     :link-text "About"}]])
+     :link-text "About"
+     :in-header? true}]])
 
 (def router
   (reitit.frontend/router

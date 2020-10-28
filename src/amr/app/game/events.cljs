@@ -1,18 +1,14 @@
 (ns amr.app.game.events
   (:require [ajax.core :as ajax]
             [amr.util :as util]
-            [re-frame.core :refer [reg-event-db reg-event-fx]]))
+            [re-frame.core :refer [reg-event-db reg-event-fx]]
+            [amr.app.events :as app]))
 
 (reg-event-db
- ::screen
- (fn [db [_ screen]]
-   (assoc-in db [:game :screen] screen)))
-
-(reg-event-db
- ::save-screen
- (fn [db [_ screen]]
+ ::save-route
+ (fn [db [_ route]]
    (let [session (get-in db [:game :current-session])]
-     (assoc-in db [:sessions session :screen] screen))))
+     (assoc-in db [:sessions session :route] route))))
 
 (reg-event-db
  ::create-session
@@ -36,8 +32,10 @@
 (defn- random-projection [db]
   (->> (get-in db [:archive :storage]) keys rand-nth))
 
+;; BUG still does not work?
 (defn- random-policy [db projection entity]
   (->> (get-in db [:archive :storage projection :projection/policies])
+       (remove (fn [_ v] (= entity (get-in v [:policy/session :session/entity]))))
        keys
        rand-nth))
 
@@ -46,8 +44,6 @@
  (fn [db [_ {session :session/id} entity]]
    (let [projection (random-projection db)
          policy (random-policy db projection entity)]
-     (println policy)
-     (println projection)
      (-> db 
          (assoc-in [:sessions session :projection] projection)
          (assoc-in [:sessions session :policy] policy)))))
@@ -57,13 +53,12 @@
  (fn [db _]
    (assoc-in db [:sessions] {})))
 
-(reg-event-db
+(reg-event-fx
  ::resume
- (fn [db [_ session]]
-   (let [screen (get-in db [:sessions session :screen])]
-     (-> db 
-         (assoc-in [:game :current-session] session)
-         (assoc-in [:game :screen] screen)))))
+ (fn [{:keys [db]} [_ session]]
+   (let [route (get-in db [:sessions session :route])]
+     {:db (assoc-in db [:game :current-session] session)
+      :dispatch [::app/navigate route]})))
 
 ;;; POST
 
@@ -81,11 +76,11 @@
 (reg-event-fx
  ::submit-effect
  (fn [{:keys [db]} [_ effect]]
-   (let [session (get-in db [:game :current-session])
-         {:keys [projection policy session]} (get-in db [:sessions session])
+   (let [session-id (get-in db [:game :current-session])
+         {:keys [projection policy session]} (get-in db [:sessions session-id])
          afx (assoc effect :effect/session session)]
-     {:db (-> db ;; TODO make sure this works (it should)
-              (assoc-in [:sessions session :written-effect] afx)
+     {:db (-> db
+              (assoc-in [:sessions session-id :effect] afx)
               (update-in [:archive :storage projection :projection/policies policy :policy/effects] conj afx))
       :http-xhrio {:method :post
                    :uri (util/->url "/api/submit/effect")

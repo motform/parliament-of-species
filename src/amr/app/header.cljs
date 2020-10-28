@@ -14,7 +14,7 @@
     (for [route-name (reitit/route-names router)
           :let [route (reitit/match-by-name router route-name)
                 text (get-in route [:data :link-text])]]
-      (when-not (= route-name :route/home) 
+      (when (get-in route [:data :in-header?]) 
         [:li {:key route-name}
          [:a {:href (href route-name)
               :class (when (= route-name (get-in current-route [:data :name])) "active")}

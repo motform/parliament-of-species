@@ -9,6 +9,7 @@
             [reagent.core :as r]
             [reitit.frontend.easy :refer [href]]))
 
+(declare current-entity)
 ;;; INTRO
 
 (defn intro []
@@ -32,9 +33,9 @@
      [:div.year.col.centered {:id (str "year-" year)}
       [:h3 year]
       [:p.text text]])
-   [:div.bg-hl>div.play>p ;; TODO rework into a app-wide btn
-    {:on-click #(do (rf/dispatch [::event/screen :screen/select-entity])
-                    (rf/dispatch [::app/scroll-to-top]))}
+   [:div.bg-hl.col.centered>a.landing-play ;; TODO rework into a app-wide btn
+    {:href (href :route.policymaking/select-entity)
+     :on-click #(do (rf/dispatch [::app/scroll-to-top]))}
     "Select entity"]])
 
 (def entites
@@ -56,11 +57,20 @@
 
 ;;; SESSION MANAGEMENT
 
-(defn resume-session [current-session]
+(defn no-session []
+  [:section.resume.col.centered {:style {:min-height "100rem"}}
+   [:p "You don't have an active session, do you want to start one?"]
+   [:a.landing-play
+    {:href (href :route.policymaking/intro)
+     :on-click #(do (rf/dispatch [::app/scroll-to-top])
+                    (rf/dispatch [::event/reset-session]))}
+    "Write a new policy!"]])
+
+(defn resume-session [{{:session/keys [id]} :session}]
   [:section.resume.col.centered
    [:p "Do you want to resume your active session?"]
    [:div.landing-play 
-    {:on-click #(rf/dispatch [::event/resume current-session])
+    {:on-click #(rf/dispatch [::event/resume id])
      :style {:margin-top "10rem"}}
     "Resume session"]])
 
@@ -74,10 +84,10 @@
     [:div 
      [:p "The wellbeing of the entities effects the level of antimicrobial resistance. When a policy positively affects an entity the resistance decreases, however when if it negatively affects an entity the resistance increases. If the level of resistance increases past the global threshold, The Parliament of Species is reset."]
      [balance #:entity{:aqua 2 :flora 2 :fauna 2 :homo-sapiens 2 :resistance 22} {:class "small" :labels? false}]]]
-   [:div.entry 
-    {:on-click #(do (rf/dispatch [::app/scroll-to-top])
-                    (rf/dispatch [::event/reset-session])
-                    (rf/dispatch [::event/screen :screen/intro]))}
+   [:a.entry
+    {:href (href :route.policymaking/intro)
+     :on-click #(do (rf/dispatch [::app/scroll-to-top])
+                    (rf/dispatch [::event/reset-session]))}
     "Policymake!"]])
 
 (defn session [{:keys [session written-policy written-effect] :as s}]
@@ -88,10 +98,10 @@
 
 (defn session-library []
   (let [sessions @(rf/subscribe [::sub/sessions])
-        active-session @(rf/subscribe [::sub/current-session])]
+        current-session @(rf/subscribe [::sub/current-session])]
     [:<>  
-     (when active-session
-       [resume-session active-session])
+     (when current-session
+       [resume-session current-session])
      [empty-library]
      #_(when-not (empty? sessions)
          [:div.col.centered.sessions
@@ -113,8 +123,8 @@
                                            (rf/dispatch [::event/submit-session session])
                                            (rf/dispatch [::event/new-pair session key])
                                            (rf/dispatch [::app/scroll-to-top])
-                                           (rf/dispatch [::event/save-screen :screen/write-effect])
-                                           (rf/dispatch [::event/screen :screen/write-effect]))}
+                                           (rf/dispatch [::event/save-route :route.policymaking/write-effect])
+                                           (rf/dispatch [::app/navigate :route.policymaking/write-effect]))}
      [:div.card.col 
       [:div.card-header {:class (name key)}
        [:label {:style {:color "var(--bg-card)"}} (name key)]]
@@ -124,13 +134,17 @@
         [:p.text represents]
         [:p.text relation]]]]]))
 
-(defn select-entity []
-  [:section.select-entity.col.centered
-   [:h1 "Select your entity"]
-   [:p "Choose an entity to represent in the Parliament of Species."]
-   [:div.entity-selection
-    (for [e entites]
-      ^{:key (:key e)} [entity e {:clickable? true}])]])
+(defn select-entity [session]
+  (if (:effect session)
+    [:<>
+     [current-entity]
+     [resume-session session]]
+    [:section.select-entity.col.centered 
+     [:h1 "Select your entity"]
+     [:p "Choose an entity to represent in the Parliament of Species."]
+     [:div.entity-selection
+      (for [e entites]
+        ^{:key (:key e)} [entity e {:clickable? true}])]]))
 
 ;; EFFECT
 
@@ -195,10 +209,10 @@
           "▼ " (if-let [n negative] n 0)])]]]))
 
 (defn thank-you []
-  [:section.intro 
+  [:section.intro.col.centered
    [:h1 "Thank you for your contribution!"]
    [:div.text>p "Your policy will be reviewed by other members of the parliament of species."]
-   [:div.entry {:on-click #(rf/dispatch [::event/screen :screen/sessions])}
+   [:a.entry {:href (href :route.policymaking/select-entity)}
     "Make another policy"]])
 
 ;;; FORMS
@@ -207,6 +221,7 @@
   (let [state (r/atom #:effect{:text "" :impact nil :hover? false})
         policy  @(rf/subscribe [::sub/from-session :policy])
         session @(rf/subscribe [::sub/from-session :session])
+        already-written? @(rf/subscribe [::sub/from-session :effect])
         effect  #:effect{:id (random-uuid) :policy policy :session (:session/id session)}]
 
     (letfn [(btn-impact [label k] ^{:key k}
@@ -227,26 +242,33 @@
         [:section.write {:class (when (:effect/hover? @state) "tear")}
          [:div.card-header>label "Effect submission form"]
          [:div.padded.col {:style {:background "var(--bg-card)"}}
-          [:h2 (str "How does this impact " (name (:session/entity session))) "?"]
-          [:p "How do you think this policy would affect your entity? Write the possible effects below."]
-          [:form.col
-           [:div.impact.row
-            [btn-impact "Positively" :impact/positive]
-            [btn-impact "Negatively" :impact/negative]] 
-           [:textarea {:rows 10
-                       :value (:effect/text @state)
-                       :on-change #(swap! state assoc :effect/text (.. % -target -value))}]
-           [:label {:style {:color (if (valid-len? (:effect/text @state) 130) "var(--ok)" "var(--hl)")}}
-            "Your reaction to the policy, at least 130 characters long."]
-           [:input#submit
-            {:type "button"
-             :value "submit"
-             :on-mouse-over (fn [] (swap! state assoc :effect/hover? true))
-             :on-mouse-out  (fn [] (swap! state assoc :effect/hover? false))
-             :disabled (not (valid-input? @state))
-             :on-click #(do (rf/dispatch [::event/submit-effect (-> @state (dissoc :effect/hover?) (merge effect))])
-                            (rf/dispatch [::event/save-screen :screen/write-policy])
-                            (rf/dispatch [::event/screen :screen/write-policy]))}]]]]))))
+          (if already-written?
+            [:div.padded.col.centered
+             [:p "You have already reacted to this policy."]
+             [:a.entry
+              {:href (href :route.policymaking/write-policy)}
+              "Proceed to the next step"]]
+            [:<> 
+             [:h2 (str "How does this impact " (name (:session/entity session))) "?"]
+             [:p "How do you think this policy would affect your entity? Write the possible effects below."]
+             [:form.col
+              [:div.impact.row
+               [btn-impact "Positively" :impact/positive]
+               [btn-impact "Negatively" :impact/negative]] 
+              [:textarea {:rows 10
+                          :value (:effect/text @state)
+                          :on-change #(swap! state assoc :effect/text (.. % -target -value))}]
+              [:label {:style {:color (if (valid-len? (:effect/text @state) 130) "var(--ok)" "var(--hl)")}}
+               "Your reaction to the policy, at least 130 characters long."]
+              [:input#submit
+               {:type "button"
+                :value "submit"
+                :on-mouse-over (fn [] (swap! state assoc :effect/hover? true))
+                :on-mouse-out  (fn [] (swap! state assoc :effect/hover? false))
+                :disabled (not (valid-input? @state))
+                :on-click #(do (rf/dispatch [::event/submit-effect (-> @state (dissoc :effect/hover?) (merge effect))])
+                               (rf/dispatch [::app/navigate :route.policymaking/write-policy])
+                               (rf/dispatch [::event/save-route :route.policymaking/write-policy]))}]]])]]))))
 
 ;; TODO get the derived key from somewhere idk
 (defn write-policy [{:keys [derived]}]
@@ -267,7 +289,7 @@
          [:div.card-header>label "Policy submission form"]
          [:div.col.padded {:style {:background "var(--bg-card)"}}
           [:h2 "Write a new policy"]
-          [:p.text "Make a new policy in responce to the projection that would positively impact both your entity and the others. You can improve the previous policy or create a new one."]
+          [:p.text "Make a new policy in response to the projection that would positively impact both your entity and the others. You can improve the previous policy or create a new one."]
           [:form.col
            [:textarea.name {:rows 1
                             :value (:policy/name @state)
@@ -286,7 +308,7 @@
              :on-mouse-out  (fn [] (swap! state assoc :policy/hover? false))
              :disabled (not (valid-input? @state))
              :on-click #(do (rf/dispatch [::event/submit-policy (-> @state (dissoc :policy/hover?) (merge policy))])
+                            (rf/dispatch [::app/navigate :route.policymaking/end])
                             (rf/dispatch [::app/scroll-to-top])
-                            (rf/dispatch [::event/save-screen nil])
-                            (rf/dispatch [::event/reset-session])
-                            (rf/dispatch [::event/screen :screen/end]))}]]]]))))
+                            (rf/dispatch [::event/save-route nil])
+                            (rf/dispatch [::event/reset-session]))}]]]]))))

@@ -46,8 +46,7 @@
           :author (random-uuid)} ;; TODO move
    :meta {:author (random-uuid)}
    :sessions {}
-   :game {:screen :screen/sessions
-          :current-session nil}
+   :game {:current-session nil}
    :archive {:storage {}
              :projection #uuid "a975be9f-6ab6-4df1-8036-57a5be9ecb13"
              :policy nil
