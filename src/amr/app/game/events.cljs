@@ -37,12 +37,14 @@
 
 (defn- random-policy [db projection entity]
   (let [policies (get-in db [:archive :storage projection :projection/policies])]
-    (reduce
-     (fn [m [k v]]
-       (if (= entity (get-in policies [k :policy/session :session/entity]))
-         m
-         (assoc m k v)))
-     {} policies)))
+    (-> (reduce
+         (fn [m [k v]]
+           (if (= entity (get-in policies [k :policy/session :session/entity]))
+             m
+             (assoc m k v)))
+         {} policies)
+        keys
+        rand-nth)))
 
 (reg-event-db
  ::new-pair

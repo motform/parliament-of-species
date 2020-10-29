@@ -1,10 +1,27 @@
 (ns amr.app.about.core
-  (:require [re-frame.core :as rf]))
+  (:require [amr.app.game.components :as game]
+            [reitit.frontend.easy :refer [href]]
+            [re-frame.core :as rf]))
 
 (defn about []
-  [:main.about.padded.col
-   [:h1 "the Parliament of Species"]
-   [:p "This is a gamified citizen tool with the aim to create an archive of possible policies based on projections about the future of AMR."]
-   [:p "It is a tool accessible to anyone that has access to the internet and wants to contribute to the open science (European paper) archive of what policies could or should be implemented to sustain balance between humans and non-human species."]
-   [:p "The outcome of this tool is a platform where citizens co-create policies by building on each other's speculations,  reflections and knowledge."]])
-
+  [:<> 
+   [:main.about.padded.col.centered
+    [:h1 "the Parliament of Species"]
+    [:p "The Parliament of Species is established in 2030 to tackle AMR and its repercussions at a global level. The entities of Aqua, Fauna, Flora and Homo Sapiens have to create policies that positively impact their wellbeing by managing the threat of AMR."]]
+   [:section.about-entities  
+    (for [{:keys [key represents relation]} game/entites]
+      ^{:key key}
+      [:div.entity.bg.col.centered
+       {:style {:background-image (str "url(/svg/bg/policy/" (name key) ".svg)")
+                :background-color (str "var(--" (name key) "-bg)")
+                :padding "5rem 0"}}
+       [:div.narrow.row
+        [:img {:src (str "/svg/entity/" (name key) ".svg")}]
+        [:div.col
+         [:p.text represents]
+         [:p.text relation]]]])]
+   [game/timeline {:static? true}]
+   [:section.col.centered  
+    [:a.entry
+     {:href (href :route/policymaking)}
+     "Write a policy"]]])

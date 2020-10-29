@@ -81,24 +81,42 @@
     {:projection projection
      :policy policy}))
 
+(defn balance
+  "Returns the balance of the world in form of map entity-integer pairs.
+  The total sum balance of the world should not exceed n."
+  ([] (balance 30))
+  ([limit]
+   {:post [(= limit (->> % (map second) (reduce +)))]}
+   (let [base-state (-> (zipmap [:entity/aqua :entity/flora :entity/fauna :entity/homo-sapiens] (repeat 5))
+                        (assoc :entity/resistance 10))]
+     (->> {:query '[:find ?entity ?impact
+                    :with ?effect
+                    :where
+                    [?effect :effect/impact ?impact]
+                    [?effect :effect/session ?session]
+                    [?session :session/entity ?entity]]
+           :args [(d/db conn)]}
+          d/q
+          (map (fn [[k v]] [k (#:impact{:negative [-1 1] :positive [1 -1]} v)]))
+          (reduce
+           (fn [m [k [self amr]]]
+             (-> m (update k #(+ % self)) (update :entity/resistance #(+ % amr))))
+           base-state)))))
+
 (defn impact
   "Returns a the total impact of a `policy`."
   [policy]
   (let [base-effects (zipmap [:entity/aqua :entity/flora :entity/fauna :entity/homo-sapiens]
                              (repeat #:impact{:positive 0, :negative 0}))]
-    (->> {:query '[:find ?entity-ident ?impact-ident
+    (->> {:query '[:find ?entity ?impact
                    :in $ ?policy-id
                    :with ?effect
                    :where
                    [?policy :policy/id ?policy-id]
                    [?effect :effect/policy ?policy]
-
                    [?effect :effect/impact ?impact]
-                   [?impact :db/ident ?impact-ident]
-
                    [?effect :effect/session ?session]
-                   [?session :session/entity ?entity]
-                   [?entity :db/ident ?entity-ident]]
+                   [?session :session/entity ?entity]]
           :args [(d/db conn) policy]}
          d/q
          frequencies

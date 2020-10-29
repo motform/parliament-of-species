@@ -1,5 +1,7 @@
 (ns amr.app.events
-  (:require [cljs.reader :as reader]
+  (:require [ajax.core :as ajax]
+            [amr.util :as util]
+            [cljs.reader :as reader]
             [re-frame.core :as rf :refer [reg-event-db reg-event-fx reg-fx reg-cofx inject-cofx reg-global-interceptor ->interceptor]]
             [reitit.frontend.controllers :as reitit.contollers]
             [reitit.frontend.easy :as reitit.easy]))
@@ -74,6 +76,21 @@
      (set-title! new-match) ;; WARN This now does two things, which I dislike
      (. js/window scrollTo 0 0)
      (assoc-in db [:app :route] (assoc new-match :contollers controllers)))))
+
+(reg-event-fx
+ ::request-balance
+ (fn [{:keys [db]} _]
+   {:db (assoc-in db [:app :pending-request] true)
+    :http-xhrio {:method :get
+                 :uri (util/->url "/api/balance")
+                 :response-format (ajax/transit-response-format {:keywords? true})
+                 :on-success [::handle-balance]
+                 :on-failure [:http/failure]}}))
+
+(reg-event-db
+ ::handle-balance
+ (fn [db [_ balance]]
+   (assoc-in db [:app :balance] balance)))
 
 ;;; HTTP
 

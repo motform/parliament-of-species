@@ -20,17 +20,13 @@
                         :on-click #(rf/dispatch [::event/select ns id])}
                    name])]))
 
-(defn projection [{:projection/keys [text]}]
+(defn projection [{:projection/keys [text id]}]
   [:div.selected-projection.grid
-   [:img {:src "/svg/glyphs/projection.svg"}]
+   [:img {:src (str "/svg/glyphs/projection/" id ".svg")}]
    [:div {:style {:grid-column "span 2"}}
     (for [t (str/split-lines text)]
       ^{:key (first t)}
-      [:p.projection-text t])
-    ]
-   #_[:div.stats
-      [:p (count policies) " policies"]
-      [:p "And some more stats"]]])
+      [:p.projection-text t])]])
 
 (defn projections [selected-projection]
   (let [projections @(rf/subscribe [::sub/projections])]
@@ -43,8 +39,8 @@
    (for [[entity {:impact/keys [negative positive]}] (util/calculate-impact effects)]
      ^{:key entity}
      [:h5 {:class (str (name entity) "-fg")}
-      "▲ " (if-let [n negative] n 0) " "
-      "▼ " (if-let [p positive] p 0)])])
+      "▲ " (if-let [p positive] p 0) " "
+      "▼ " (if-let [n negative] n 0)])])
 
 (defn policy [{:policy/keys [name id text effects session]} selected]
   (let [entity (:session/entity session)]

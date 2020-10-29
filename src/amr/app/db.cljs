@@ -35,13 +35,9 @@
               [:policy map?]
               [:projection map?]]]])
 
-(def session
-  [:map
-   ])
-
 (def default-db
   {:app  {:route nil
-          :entities #:entity{:aqua 5 :flora 5 :fauna 5 :homo-sapiens 5 :resistance 10}
+          :balance #:entity{:aqua 5 :flora 5 :fauna 5 :homo-sapiens 5 :resistance 10}
           :pending-request? false
           :author (random-uuid)} ;; TODO move
    :meta {:author (random-uuid)}

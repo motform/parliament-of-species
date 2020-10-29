@@ -20,6 +20,7 @@
               :class (when (= route-name (get-in current-route [:data :name])) "active")}
           text]]))]])
 
+;; TODO make naming of entity/balance consistent
 (defn balance
   ([]
    (balance nil {:labels? true}))
@@ -29,8 +30,11 @@
    (let [hover? (r/atom false)]
 
      (letfn [(entity [[entity level]]
-               ^{:key entity} [:div.balance-entity.col.centered
+               ^{:key entity} [:a.balance-entity.col.centered
                                {:class (name entity)
+                                ;; TODO enable when routing works properly
+                                ;; :href (href :route/about)
+                                ;; :target "_blank"
                                 :style {:grid-column (str "span " level)}}
                                (when labels?
                                  [:label
@@ -38,7 +42,7 @@
                                   (name entity)])])]
        
        (fn []
-         (let [entites (or entites @(rf/subscribe [::sub/entities]))]
+         (let [entites (or entites @(rf/subscribe [::sub/balance]))]
            [:div
             {:on-mouse-over (fn [] (reset! hover? true))
              :on-mouse-out  (fn [] (reset! hover? false))}

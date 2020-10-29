@@ -12,6 +12,6 @@
    (get-in db [:app :pending-request?])))
 
 (reg-sub
- ::entities
+ ::balance
  (fn [db _]
-   (get-in db [:app :entities])))
+   (get-in db [:app :balance])))

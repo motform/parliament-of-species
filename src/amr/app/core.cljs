@@ -33,5 +33,6 @@
 (defn ^:export init []
   (rf/dispatch-sync [::event/initialize-db db/default-db])
   (rf/dispatch-sync [::archive/request-archive])
+  (rf/dispatch-sync [::event/request-balance])
   (dev-setup)
   (mount))

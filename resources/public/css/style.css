@@ -622,7 +622,9 @@ nav {
 
 .balance-entity {
     color: var(--bg);
-    font-size: 3rem;
+    font-size: 2.5rem;
+    white-space: nowrap;
+    cursor: pointer;
 }
 
 .small {
@@ -631,11 +633,12 @@ nav {
     font: 700 2rem/2rem var(--display-font);
 }
 
-.flora        { background: var(--flora-bg);        color: var(--flora-bg);        }
-.fauna        { background: var(--fauna-bg);        color: var(--fauna-bg);        }
-.aqua         { background: var(--aqua-bg);         color: var(--aqua-bg);         }
-.homo-sapiens { background: var(--homo-sapiens-bg); color: var(--homo-sapiens-bg); }
-.resistance   { background: var(--amr-bg);          color: var(--amr-bg);          }
+/* tables for fun and profit */
+.flora           { background: var(--flora-bg);        color: var(--flora-bg);        }
+.fauna           { background: var(--fauna-bg);        color: var(--fauna-bg);        }
+.aqua            { background: var(--aqua-bg);         color: var(--aqua-bg);         }
+.homo-sapiens    { background: var(--homo-sapiens-bg); color: var(--homo-sapiens-bg); }
+.resistance      { background: var(--amr-bg);          color: var(--amr-bg);          }
 
 .flora-fg        { color: var(--flora-bg);        }
 .fauna-fg        { color: var(--fauna-bg);        }
@@ -995,4 +998,8 @@ form label {
 
 .about p {
     font: 300 4rem/6rem var(--body-font);
+}
+
+.about-entities {
+    margin-top: 20rem;
 }

@@ -25,7 +25,7 @@
    ["2026" "Societies around the globe have adapted to the situation, where every-day matters such as food and health have drastically changed. However, another important aspects of society that had to readapt to this situation are policies and economics."]
    ["2030" "The Parliament of Species is established to tackle AMR and its repercussions at a global level: the entities of Aqua, Fauna, Flora and Homo Sapiens have to create policies that positively impact their wellbeing by managing the threat of AMR."]])
 
-(defn timeline []
+(defn timeline [opts]
   [:section.timeline.col.centered
    [:h1 "the History of the Future"]
    (for [[year text] years]
@@ -33,10 +33,11 @@
      [:div.year.col.centered {:id (str "year-" year)}
       [:h3 year]
       [:p.text text]])
-   [:div.bg-hl.col.centered>a.landing-play ;; TODO rework into a app-wide btn
-    {:href (href :route.policymaking/select-entity)
-     :on-click #(do (rf/dispatch [::app/scroll-to-top]))}
-    "Select entity"]])
+   (when-not (:static? opts)
+     [:div.bg-hl.col.centered>a.landing-play ;; TODO rework into a app-wide btn
+      {:href (href :route.policymaking/select-entity)
+       :on-click #(do (rf/dispatch [::app/scroll-to-top]))}
+      "Select entity"])])
 
 (def entites
   [{:key :entity/aqua
@@ -175,12 +176,11 @@
        :class (str (when tearable? "tearable"))}
       [:div.card-header>label "Projection — " name]
       [:div.padded.grid {:class (when tearable? "tearable-body")}
-       [:img {:src "/svg/glyphs/projection.svg"}]
+       [:img {:src (str "/svg/glyphs/projection/" id ".svg")}]
        [:div {:style {:grid-column "span 2"}}
         (for [t (str/split-lines text)]
           ^{:key (first t)}
-          [:p.projection-text t])
-        ]]])))
+          [:p.projection-text t])]]])))
 
 (defn policy [{:keys [tearable?]}]
   (let [{:policy/keys [id name text session]} @(rf/subscribe [::sub/current-policy])

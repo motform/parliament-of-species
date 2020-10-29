@@ -14,7 +14,8 @@
 ;;; ROUTER ;;;
 
 (def routes
-  ["/"
+  ["/" {:controllers [{:start #(rf/dispatch [::event/request-balance])}]}
+
    [""
     {:name :route/home
      :view landing

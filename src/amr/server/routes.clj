@@ -14,6 +14,13 @@
             {:status 200
              :body (db/random domain)})}]
 
+   ["/balance"
+    {:name :api/balance
+     :doc "Returns the balance of the world"
+     :get (fn [_]
+            {:status 200
+             :body (db/balance)})}]
+
    ["/in/{domain}/{id}"
     {:name :api.in.domain/id
      :doc "Returns the entity from `domain` that corresponds to that `id`."
