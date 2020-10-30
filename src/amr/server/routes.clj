@@ -75,13 +75,12 @@
              :body (db/stack-for-entity (util/->entity entity))})}]
 
    ["/submit"
-    ;; NOTE there could be a db-fn that infers an :author entity from the first submitted session
     ["/session"
      {:name :api.submit/session
       :doc "Submits the session into the `db`."
       :parameters {:body model/session}
       :post (fn [{body :body-params}]
-              (db/submit-session (dissoc body :session/author)) ;; TODO change when updated schema
+              (db/submit-session body)
               {:status 201
                :body {:resource (str "/api/session/id/" (:session/id body))}})}]
 
