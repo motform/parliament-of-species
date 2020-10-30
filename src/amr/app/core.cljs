@@ -16,7 +16,7 @@
   (let [current-route @(rf/subscribe [::sub/route])]
     [:<>
      [header router current-route]
-     [balance]
+     [balance {:labels? true :sticky? true}]
      (when current-route [(get-in current-route [:data :view])])
      [footer]]))
 

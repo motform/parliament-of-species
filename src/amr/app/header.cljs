@@ -1,5 +1,7 @@
 (ns amr.app.header
   (:require [amr.app.subs :as sub]
+            [amr.app.game.subs :as game.sub]
+            [amr.util :as util]
             [re-frame.core :as rf]
             [reagent.core :as r]
             [reitit.core :as reitit]
@@ -22,29 +24,28 @@
 
 ;; TODO make naming of entity/balance consistent
 (defn balance
-  ([]
-   (balance nil {:labels? true}))
-  ([opts]
-   (balance nil opts))
-  ([entites {:keys [class labels?]}]
-   (let [hover? (r/atom false)]
+  ([]     (balance nil {:labels? true}))
+  ([opts] (balance nil opts))
+  ([entites {:keys [class labels? sticky?]}]
+   (let [hover? (r/atom false)
+         entites (or entites @(rf/subscribe [::sub/balance]))
+         current-entity (:session/entity @(rf/subscribe [::game.sub/from-session :session]))]
 
      (letfn [(entity [[entity level]]
-               ^{:key entity} [:a.balance-entity.col.centered
-                               {:class (name entity)
-                                ;; TODO enable when routing works properly
-                                ;; :href (href :route/about)
-                                ;; :target "_blank"
-                                :style {:grid-column (str "span " level)}}
-                               (when labels?
-                                 [:label
-                                  {:class (when @hover? "hovering")}
-                                  (name entity)])])]
+               ^{:key entity}
+               [:a.balance-entity.col.centered
+                {:class (name entity)
+                 ;; TODO enable when routing works properly
+                 ;; :href (href :route/about)
+                 ;; :target "_blank"
+                 :style {:grid-column (str "span " level)}}
+                (when labels?
+                  (let [current-entity? (= entity current-entity)] 
+                    [:label {:class (when (or @hover? current-entity?) "hovering")}
+                     (when current-entity? "You represent ") (util/prn-entity entity)]))])]
        
        (fn []
-         (let [entites (or entites @(rf/subscribe [::sub/balance]))]
-           [:div
-            {:on-mouse-over (fn [] (reset! hover? true))
-             :on-mouse-out  (fn [] (reset! hover? false))}
-            [:div.balance {:class class}
-             (doall (map entity entites))]]))))))
+         [:div.balance {:class (str class (when sticky? " sticky"))
+                        :on-mouse-over (fn [] (reset! hover? true))
+                        :on-mouse-out  (fn [] (reset! hover? false))}
+          (doall (map entity entites))])))))

@@ -9,7 +9,7 @@
    [:div]
    [:div]
    [:div]
-   [:div
+   [:div.col
     [:p "If you have any thoughts or questions, " [:a {:href "mailto:admin@parliamentofspecies.com"} "email us!"]]
-    [:p "The project distributed as free and open source, available " [:a {:href "https://github.com/motform/parliament-of-species"} " here."]]
-    [:p "© 2020"]]])
+    [:p "The project distributed as free and open source, available " [:a {:target "_blank" :href "https://github.com/motform/parliament-of-species"} " here."]]
+    [:p {:style {:margin-top "auto"}} "© 2020"]]])

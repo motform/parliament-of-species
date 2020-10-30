@@ -172,10 +172,12 @@ input {
     padding: 5rem;
 }
 
+.wide {
+    width: 100%;
+}
+
 .clickable:hover {
     cursor: pointer;
-    box-shadow: 10px 10px var(--bg-dark);
-    transform: rotate(-1deg);
 }
 
 label {
@@ -357,12 +359,12 @@ li a:hover {
 footer {
     display: grid;
     grid-template-columns: repeat(6, 1fr);
-    margin-top: 30rem;
     grid-gap: 10rem;
 
     font: 300 3rem/4rem var(--body-font);
     background: var(--bg-dark);
     padding: 10rem;
+    margin-top: 30rem;
 }
 
 /*****
@@ -494,15 +496,8 @@ nav {
 
 /* SELECT ENTITY */
 
-.entity-selection {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    margin: 10rem;
-    grid-gap: 10rem;
-}
-
 .entity {
-    background: var(--card-bg);
+    width: 100%;
 }
 
 .entity img {
@@ -517,15 +512,6 @@ nav {
 .event-reaction {
     display: flex;
     flex-direction: column;
-}
-
-/* CURRENT ENTITY  */
-
-.current-entity {
-    color: var(--bg);
-    width: 100%;
-    padding: 5rem;
-    margin-bottom: 10rem;
 }
 
 /* Projection */
@@ -606,9 +592,9 @@ nav {
     margin-left: 2rem;
 }
 
-/****************
-  Specific Cards
-*****************/
+/**********************
+  Balance of the World
+***********************/
 
 /* Entity */
 
@@ -616,8 +602,21 @@ nav {
     display: grid;
     grid-template-columns: repeat(30, 1fr);
     height: 7rem;
-    width: 100%;
     background: var(--card-bg);
+    width: 100%;
+}
+
+.sticky {
+    position: sticky;
+    top: 0;
+}
+
+.current-entity {
+    color: var(--bg);
+    width: 100%;
+    padding: 5rem;
+    grid-column: span 30;
+    height: 15rem;
 }
 
 .balance-entity {

@@ -47,13 +47,18 @@
   [m f]
   (into {} (for [[k v] m] [k (f v)])))
 
+(defn remove-keys [pred m]
+  (apply dissoc m (filter pred (keys m))))
+
+(defn prn-entity [entity]
+  (-> entity name (str/replace #"-" " ") str/capitalize))
+
 (defn ->entity [entity]
   (keyword "entity" entity))
 
 (defn ->lookup-ref [v ref-k]
   [ref-k v])
 
-;; TODO add cljs version
 (defn ->uuid
   ([s] #?(:clj (when s (UUID/fromString s))
           :cljs (when s (uuid s))))

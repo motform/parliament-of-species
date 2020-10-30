@@ -12,7 +12,7 @@
   (let [route-title (get-in route [:data :title])]
     (set! (.-title js/document)
           (cond->> "Parliament of Species"
-            route-title (str route-title " | " )))))
+            route-title (str route-title " | ")))))
 
 ;;; INTERCEPTORS
 

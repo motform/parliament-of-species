@@ -32,9 +32,6 @@
 (defn- random-projection [db]
   (->> (get-in db [:archive :storage]) keys rand-nth))
 
-(defn remove-keys [pred m]
-  (apply dissoc m (filter pred (keys m))))
-
 (defn- random-policy [db projection entity]
   (let [policies (get-in db [:archive :storage projection :projection/policies])]
     (-> (reduce

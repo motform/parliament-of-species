@@ -19,11 +19,9 @@
 
 (defn write-effect []
   (let [session @(rf/subscribe [::sub/current-session])]
-    (println session)
     (if-not (:session session)
       [c/no-session]
       [:main.game.col.centered
-       [c/current-entity]
        [:div.narrow.col.centered
         [c/intro-effect]
         [c/projection]
@@ -35,7 +33,6 @@
     (if-not (:session session) 
       [c/no-session]
       [:main.game.col.centered
-       [c/current-entity]
        [:div.narrow.col.centered
         [c/intro-policy]
         [c/projection]

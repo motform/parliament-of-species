@@ -9,7 +9,6 @@
             [reagent.core :as r]
             [reitit.frontend.easy :refer [href]]))
 
-(declare current-entity)
 ;;; INTRO
 
 (defn intro []
@@ -115,45 +114,40 @@
            {:on-click #(rf/dispatch [::event/delete-sessions])}
            "Delete sessions"]])]))
 
-(defn entity [{:keys [key represents relation]} {:keys [clickable?]}]
+(defn entity [{:keys [key represents relation]} state]
   (let [session #:session{:id (random-uuid) :date (js/Date.) :entity key}]
-    [:div.card-border.entity {:class (when clickable? "clickable")
-                              :id (name key)
-                              :on-click #(when clickable?
-                                           (rf/dispatch [::event/create-session session])
-                                           (rf/dispatch [::event/submit-session session])
-                                           (rf/dispatch [::event/new-pair session key])
-                                           (rf/dispatch [::app/scroll-to-top])
-                                           (rf/dispatch [::event/save-route :route.policymaking/write-effect])
-                                           (rf/dispatch [::app/navigate :route.policymaking/write-effect]))}
-     [:div.card.col 
-      [:div.card-header {:class (name key)}
-       [:label {:style {:color "var(--bg-card)"}} (name key)]]
-      [:section.padded.row {:style {:background "var(--bg-card)"}}
-       [:img {:src (str "/svg/entity/" (name key) ".svg")}]
-       [:div.col
-        [:p.text represents]
-        [:p.text relation]]]]]))
+    [:div.entity.bg.col.centered.padded.clickable
+     {:style (when (#{key :no-hover} @state)
+               {:background-image (str "url(/svg/bg/policy/" (name key) ".svg)")
+                :background-color (str "var(--" (name key) "-bg)")})
+      :on-mouse-over #(reset! state key)
+      :on-mouse-out  #(reset! state :no-hover)
+      :on-click #(do (rf/dispatch [::event/create-session session])
+                     (rf/dispatch [::event/submit-session session])
+                     (rf/dispatch [::event/new-pair session key])
+                     (rf/dispatch [::app/scroll-to-top])
+                     (rf/dispatch [::event/save-route :route.policymaking/write-effect])
+                     (rf/dispatch [::app/navigate :route.policymaking/write-effect]))}
+     [:div.narrow.row
+      [:img {:src (str "/svg/entity/" (name key) ".svg")}]
+      [:div.col
+       [:p.text represents]
+       [:p.text relation]]]]))
 
 (defn select-entity [session]
-  (if (:effect session)
-    [:<>
-     [current-entity]
-     [resume-session session]]
-    [:section.select-entity.col.centered 
-     [:h1 "Select your entity"]
-     [:p "Choose an entity to represent in the Parliament of Species."]
-     [:div.entity-selection
-      (for [e entites]
-        ^{:key (:key e)} [entity e {:clickable? true}])]]))
+  (let [state (r/atom :no-hover)]
+    (fn []
+      (if (:effect session)
+        [resume-session session]
+        [:section.col.centered.wide
+         [:h1 "Select your entity"]
+         [:p {:style {:margin-bottom "20rem"}} "Choose an entity to represent in the Parliament of Species."]
+         [:div.col.centered.wide
+          (for [{:keys [key] :as e} entites]
+            ^{:key key}
+            [entity e state])]]))))
 
 ;; EFFECT
-
-(defn current-entity []
-  (let [current-entity (:session/entity @(rf/subscribe [::sub/from-session :session]))
-        {:keys [key]} (first (filter #(= current-entity (:key %)) entites))]
-    [:section.current-entity {:class (str (name key) "-bg")}
-     "You are " [:span {:style {:text-transform "capitalize"}} (name key)] "."]))
 
 (defn intro-effect []
   [:section.intro 
@@ -187,7 +181,7 @@
         entity (:session/entity session)
         entity-name (when entity (clojure.core/name entity))] 
     [:section.policy {:id id :class (when tearable? "tearable")} 
-     [:div.card-header>label "Policy by " [:strong entity-name]]
+     [:div.card-header>label "Policy by " (util/prn-entity entity)]
      [:div.bg {:style {:background-image (str "url(/svg/bg/policy/" entity-name ".svg)")
                        :background-color (str "var(--" entity-name "-bg)")}}
       [:div.padded.grid {:class (when tearable? "tearable-body")}

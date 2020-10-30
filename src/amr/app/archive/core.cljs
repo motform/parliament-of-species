@@ -47,7 +47,7 @@
     [:div.archive-policy.col {:class (when (= id selected) "selected-policy")
                               :on-click #(rf/dispatch [::event/select :policy id])}
      [:h3 name]
-     [:h4 [:em {:class (str (clojure.core/name entity) "-fg")} entity]]
+     [:h4 [:em {:class (str (clojure.core/name entity) "-fg")} (util/prn-entity entity)]]
      [:p text]
      [:h5 (if effects [impact effects] "No effects.")]]))
 
@@ -64,7 +64,7 @@
   (let [entity (:session/entity session)]
     [:div.col
      [:label (name impact)]
-     [:p.signature {:class (str (name entity) "-fg")} (name entity)]
+     [:p.signature {:class (str (name entity) "-fg")} (util/prn-entity entity)]
      [:p text]]))
 
 (defn effects [projection policy]
@@ -85,9 +85,8 @@
 (defn archive []
   (let [selected-projection @(rf/subscribe [::sub/selected :projection])
         selected-policy @(rf/subscribe [::sub/selected :policy])]
-    [:<> 
-     [:main.archive.col.centered
-      [archive-hero]
-      [projections selected-projection]
-      [policies selected-projection selected-policy]
-      [effects selected-projection selected-policy]]]))
+    [:main.archive.col.centered
+     [archive-hero]
+     [projections selected-projection]
+     [policies selected-projection selected-policy]
+     [effects selected-projection selected-policy]]))
