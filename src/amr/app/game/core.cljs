@@ -22,23 +22,21 @@
     (if-not (:session session)
       [c/no-session]
       [:main.game.col.centered
-       [:div.narrow.col.centered
-        [c/intro-effect]
-        [c/projection]
-        [c/policy {:tearable? true}]
-        [c/write-effect]]])))
+       [c/intro-effect]
+       [c/projection]
+       [c/policy {:tearable? true}]
+       [c/write-effect]])))
 
 (defn write-policy []
   (let [session @(rf/subscribe [::sub/current-session])]
     (if-not (:session session) 
       [c/no-session]
       [:main.game.col.centered
-       [:div.narrow.col.centered
-        [c/intro-policy]
-        [c/projection]
-        [c/policy]
-        [c/review-effect]
-        [c/write-policy]]])))
+       [c/intro-policy]
+       [c/projection]
+       [c/policy]
+       [c/review-effect]
+       [c/write-policy]])))
 
 (defn end []
   [:main.game.col.centered

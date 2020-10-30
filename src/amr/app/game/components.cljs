@@ -161,41 +161,37 @@
    [:div.text 
     [:p "Make a new policy in response to the projection that would positively impact both your entity and the others. You can improve the previous policy or create a new one."]]])
 
-(defn projection
-  ([] (projection {}))
-  ([{:keys [tearable?]}]
-   (let [{:projection/keys [id text name]} @(rf/subscribe [::sub/current-projection])] 
-     [:section.projection.col.centered
-      {:id id
-       :class (str (when tearable? "tearable"))}
-      [:div.card-header>label "Projection — " name]
-      [:div.padded.grid {:class (when tearable? "tearable-body")}
-       [:img {:src (str "/svg/glyphs/projection/" id ".svg")}]
-       [:div {:style {:grid-column "span 2"}}
-        (for [t (str/split-lines text)]
-          ^{:key (first t)}
-          [:p.projection-text t])]]])))
+(defn projection []
+  (let [{:projection/keys [id text name]} @(rf/subscribe [::sub/current-projection])] 
+    [:section.projection.col.centered
+     [:div.label "Projection — " name]
+     [:div.padded-high.grid.narrow
+      [:img {:src (str "/svg/glyphs/projection/" id ".svg")}]
+      [:div {:style {:grid-column "span 2"}}
+       (for [t (str/split-lines text)]
+         ^{:key (first t)}
+         [:p.projection-text t])]]]))
 
 (defn policy [{:keys [tearable?]}]
   (let [{:policy/keys [id name text session]} @(rf/subscribe [::sub/current-policy])
         entity (:session/entity session)
         entity-name (when entity (clojure.core/name entity))] 
-    [:section.policy {:id id :class (when tearable? "tearable")} 
-     [:div.card-header>label "Policy by " (util/prn-entity entity)]
-     [:div.bg {:style {:background-image (str "url(/svg/bg/policy/" entity-name ".svg)")
-                       :background-color (str "var(--" entity-name "-bg)")}}
-      [:div.padded.grid {:class (when tearable? "tearable-body")}
-       [:div {:style {:grid-column "span 2"}}
-        [:h2 name]
-        [:p.text text]]]]]))
+    [:section.policy
+     [:div.bg.col.centered
+      {:style {:background-image (str "url(/svg/bg/policy/" entity-name ".svg)")
+               :background-color (str "var(--" entity-name "-bg)")}}
+      [:div.label "Policy by " (util/prn-entity entity)]
+      [:div.narrow.padded-high
+       [:h2 name]
+       [:p.text text]]]]))
 
 (defn review-effect []
   (let [impact @(rf/subscribe [::sub/effect-impact])]
-    [:section.review-effect
-     [:div.card-header>label "Effect of policy"]
-     [:section.padded.col {:style {:background "var(--bg-card)"}}
+    [:section.review-effect.col.centered.wide
+     [:div.label "Effect of policy"]
+     [:div.col.centered.narrow.padded
       [:h2 "This policy has impact the entities in these ways."]
-      [:div.row.impacts
+      [:div.row.impacts.padded-high.wide
        (for [[entity {:impact/keys [positive negative]}] impact]
          ^{:key entity}
          [:h5 {:class (str (name entity) "-fg")} ;; TODO add 0/0 for yet to react entites
@@ -233,19 +229,19 @@
               (and impact (valid-len? text 130)))]
       
       (fn [] 
-        [:section.write {:class (when (:effect/hover? @state) "tear")}
-         [:div.card-header>label "Effect submission form"]
-         [:div.padded.col {:style {:background "var(--bg-card)"}}
+        [:section.write.col.centered 
+         [:div.label "Effect submission form"]
+         [:div.padded.col.centered.narrow.wide
           (if already-written?
-            [:div.padded.col.centered
+            [:div.padded.col.centered.wide
              [:p "You have already reacted to this policy."]
              [:a.entry
               {:href (href :route.policymaking/write-policy)}
               "Proceed to the next step"]]
             [:<> 
-             [:h2 (str "How does this impact " (name (:session/entity session))) "?"]
+             [:h2 "How does this impact " (util/prn-entity (:session/entity session)) "?"]
              [:p "How do you think this policy would affect your entity? Write the possible effects below."]
-             [:form.col
+             [:form.col.wide
               [:div.impact.row
                [btn-impact "Positively" :impact/positive]
                [btn-impact "Negatively" :impact/negative]] 
@@ -279,12 +275,12 @@
                    (valid-len? text 130)))] 
 
       (fn [] 
-        [:section.write {:class (when (:policy/hover? @state) "tear")}
-         [:div.card-header>label "Policy submission form"]
-         [:div.col.padded {:style {:background "var(--bg-card)"}}
+        [:section.write.col.centered
+         [:div.label "Policy submission form"]
+         [:div.col.centered.text.wide.padded-high
           [:h2 "Write a new policy"]
           [:p.text "Make a new policy in response to the projection that would positively impact both your entity and the others. You can improve the previous policy or create a new one."]
-          [:form.col
+          [:form.col.wide
            [:textarea.name {:rows 1
                             :value (:policy/name @state)
                             :on-change #(swap! state assoc :policy/name (.. % -target -value))}]

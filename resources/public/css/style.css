@@ -172,6 +172,10 @@ input {
     padding: 5rem;
 }
 
+.padded-high {
+    padding: 10rem 5rem 15rem 5rem;
+}
+
 .wide {
     width: 100%;
 }
@@ -517,13 +521,11 @@ nav {
 /* Projection */
 
 .projection {
-    border: 1px solid var(--fg);
-    background: var(--bg-card);
     width: 100%;
 }
 
 .projection h1 {
-    margin: 0 0 5rem 0;
+    margin-bottom: 5rem;
     text-align: left;
 }
 
@@ -535,13 +537,10 @@ nav {
 
 .policy {
     width: 100%;
-    border: 1px solid var(--fg);
-    border-top: 0;
 }
 
-.policy h1 {
-    margin-top: 5rem;
-    text-align: left;
+.policy h2 {
+    margin-bottom: 5rem;
 }
 
 .card-border {
@@ -556,7 +555,6 @@ nav {
 }
 
 .bg {
-    min-height: 60rem;
     background-repeat: no-repeat;
     background-position: 90% 75%;
     background-size: 25%;
@@ -566,14 +564,12 @@ nav {
     border-radius: 10px;
 }
 
-.card-header {
-    padding: 4rem 0;
+.label {
+    padding: 5rem 0;
     text-align: center;
     font: 500 3rem/3rem var(--label-font);
     letter-spacing: 2px;
-    background: var(--bg-dark);
-    border: 1px solid var(--fg);
-    border-width: 0 0 1px 0;
+    text-transform: uppercase;
     width: 100%;
 }
 
@@ -668,9 +664,7 @@ nav {
 /* Review-effect */
 
 .review-effect {
-    border: 1px solid var(--fg);
-    border-top: 0;
-    width: 100%;
+    background: var(--bg-card);
 }
 
 .impacts {
@@ -680,15 +674,12 @@ nav {
 /* Write-effect */
 
 .write {
-    border: 1px solid var(--fg);
-    border-top: 0;
-    transition: all 0.25s;
     width: 100%;
 }
 
-.write h1 {
-    margin-top: 0;
+.write h2 {
     text-align: left;
+    margin-bottom: 5rem;
 }
 
 .write form {
@@ -700,7 +691,7 @@ nav {
 }
 
 input[type=button] {
-    background: var(--bg-card);
+    background: var(--bg);
     color: var(--fg);
     font: 4rem/4rem var(--monospace-font);
     text-transform: uppercase;
@@ -709,7 +700,7 @@ input[type=button] {
     border-radius: 0;
     border: 0;
     transition: all 0.25s;
-    border: 2px solid var(--bg-card);
+    border: 2px solid var(--bg);
     border-width: 0 0 2px 0;
 }
 
@@ -733,7 +724,7 @@ textarea {
 }
 
 .name {
-    background: var(--bg-card);
+    background: var(--bg);
     border-width: 0 0 1px 0;
     padding-left: 0;
 }
@@ -751,7 +742,7 @@ input[type=button]:hover {
 }
 
 input[type=button]:disabled:hover {
-    border-color: var(--bg-card);
+    border-color: var(--bg);
 }
 
 input[type=button]:disabled {
@@ -892,6 +883,10 @@ form label {
 .selected {
     background-color: var(--bg-card);
     transform: translate(0, 5px);
+}
+
+.projection {
+    background: var(--bg-dark);
 }
 
 .projection-text {
