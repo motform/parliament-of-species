@@ -13,6 +13,5 @@ pom.xml
 resources/csv
 resources/edn/config.edn
 resources/public/fonts/
-resources/public/img/
 resources/public/js/
 resources/public/svg/
