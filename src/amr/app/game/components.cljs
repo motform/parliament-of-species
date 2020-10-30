@@ -128,9 +128,9 @@
                      (rf/dispatch [::app/scroll-to-top])
                      (rf/dispatch [::event/save-route :route.policymaking/write-effect])
                      (rf/dispatch [::app/navigate :route.policymaking/write-effect]))}
-     [:div.narrow.row
+     [:div.narrow.row {:style {:margin "0 auto"}}
       [:img {:src (str "/svg/entity/" (name key) ".svg")}]
-      [:div.col
+      [:div.col.narrow {:style {:justify-content "center"}}
        [:p.text represents]
        [:p.text relation]]]]))
 
@@ -141,7 +141,8 @@
         [resume-session session]
         [:section.col.centered.wide
          [:h1 "Select your entity"]
-         [:p {:style {:margin-bottom "20rem"}} "Choose an entity to represent in the Parliament of Species."]
+         [:p {:style {:margin-bottom "20rem"}}
+          "Choose an entity to represent in the Parliament of Species."]
          [:div.col.centered.wide
           (for [{:keys [key] :as e} entites]
             ^{:key key}

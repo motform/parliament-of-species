@@ -8,9 +8,9 @@
    {:style {:background-image (str "url(/svg/bg/policy/" (name key) ".svg)")
             :background-color (str "var(--" (name key) "-bg)")
             :padding "5rem 0"}}
-   [:div.narrow.row
+   [:div.narrow.row {:style {:margin "0 auto"}}
     [:img {:src (str "/svg/entity/" (name key) ".svg")}]
-    [:div.col
+    [:div.col.narrow {:style {:justify-content "center"}}
      [:p.text represents]
      [:p.text relation]]]])
 
