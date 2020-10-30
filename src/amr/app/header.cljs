@@ -27,11 +27,9 @@
   ([]     (balance nil {:labels? true}))
   ([opts] (balance nil opts))
   ([entites {:keys [class labels? sticky?]}]
-   (let [hover? (r/atom false)
-         entites (or entites @(rf/subscribe [::sub/balance]))
-         current-entity (:session/entity @(rf/subscribe [::game.sub/from-session :session]))]
+   (let [hover? (r/atom false)]
 
-     (letfn [(entity [[entity level]]
+     (letfn [(entity [[entity level] current-entity]
                ^{:key entity}
                [:a.balance-entity.col.centered
                 {:class (name entity)
@@ -45,7 +43,9 @@
                      (when current-entity? "You represent ") (util/prn-entity entity)]))])]
        
        (fn []
-         [:div.balance {:class (str class (when sticky? " sticky"))
-                        :on-mouse-over (fn [] (reset! hover? true))
-                        :on-mouse-out  (fn [] (reset! hover? false))}
-          (doall (map entity entites))])))))
+         (let [entites (or entites @(rf/subscribe [::sub/balance]))
+               current-entity (:session/entity @(rf/subscribe [::game.sub/from-session :session]))] 
+           [:div.balance {:class (str class (when sticky? " sticky"))
+                          :on-mouse-over (fn [] (reset! hover? true))
+                          :on-mouse-out  (fn [] (reset! hover? false))}
+            (doall (map #(entity % current-entity) entites))]))))))
