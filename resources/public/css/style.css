@@ -894,13 +894,13 @@ form label {
 }
 
 .policy-cards {
-    overflow: scroll;
-    height: 200rem;
-    padding-right: 5rem;
+    /* overflow: scroll; */
+    /* height: 200rem; */
+    /* padding-right: 5rem; */
 }
 
 .policy-card {
-    margin-bottom: 15rem;
+    margin-bottom: 10rem;
 }
 
 .policy-card:last-of-type {
@@ -914,12 +914,12 @@ form label {
 .archive-policy {
     grid-column: span 2;
     margin-top: 13rem;
+    background: var(--bg-card);
 }
 
-.effects {
-    padding: 10rem 10rem;
-    padding-top: 0;
-    background: var(--bg-card);
+.archive-policy-header {
+    padding: 10rem;
+    grid-gap: 0;
 }
 
 .arrow {
@@ -927,9 +927,13 @@ form label {
     margin-right: 2rem;
 }
 
+.effects {
+    background-color: var(--bg-text);
+    padding: 0 5rem;
+}
+
 .effects label {
     margin-bottom: 2rem;
-    background-color: var(--bg);
 }
 
 .discarded {
@@ -958,4 +962,31 @@ form label {
 
 .about-entities {
     margin-top: 20rem;
+}
+
+/****************
+  Mobile excuse
+****************/
+
+.excuse {
+    display: none;
+    padding: 5rem;
+    background: var(--bg);
+    font: 8rem/9rem var(--display-font);
+}
+
+@media (max-width: 900px) {
+    * {
+        visibility: hidden;
+    }
+
+    .excuse {
+        display: block;
+        visibility: visible;
+    }
+
+    .excuse p {
+        visibility: visible;
+    }
+
 }
