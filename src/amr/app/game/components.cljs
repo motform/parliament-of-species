@@ -192,7 +192,7 @@
      [:div.label "Effect of policy"]
      [:div.col.centered.narrow.padded
       [:h2 "This policy has impact the entities in these ways."]
-      [:div.row.impacts.padded-high.wide
+      [:div.row.spaced.padded-high.wide
        (for [[entity {:impact/keys [positive negative]}] impact]
          ^{:key entity}
          [:h5 {:class (str (name entity) "-fg")} ;; TODO add 0/0 for yet to react entites
@@ -227,10 +227,10 @@
               (> (count s) len))
 
             (valid-input? [{:effect/keys [text impact]}]
-              (and impact (valid-len? text 130)))]
+              (and impact (valid-len? text 50)))]
       
       (fn [] 
-        [:section.write.col.centered 
+        [:section.write.col.centered.wide
          [:div.label "Effect submission form"]
          [:div.padded.col.centered.narrow.wide
           (if already-written?
@@ -242,15 +242,15 @@
             [:<> 
              [:h2 "How does this impact " (util/prn-entity (:session/entity session)) "?"]
              [:p "How do you think this policy would affect your entity? Write the possible effects below."]
-             [:form.col.wide
-              [:div.impact.row
+             [:form.col.wide.text
+              [:div.row.spaced
                [btn-impact "Positively" :impact/positive]
                [btn-impact "Negatively" :impact/negative]] 
               [:textarea {:rows 10
                           :value (:effect/text @state)
                           :on-change #(swap! state assoc :effect/text (.. % -target -value))}]
-              [:label {:style {:color (if (valid-len? (:effect/text @state) 130) "var(--ok)" "var(--hl)")}}
-               "Your reaction to the policy, at least 130 characters long."]
+              [:label {:style {:color (if (valid-len? (:effect/text @state) 50) "var(--ok)" "var(--hl)")}}
+               "The contents of the policy, you have written " (count (:effect/text @state)) " of a minimum 50 characters."]
               [:input#submit
                {:type "button"
                 :value "submit"
@@ -273,15 +273,15 @@
 
             (valid-input? [{:policy/keys [text name]}]
               (and (valid-len? name 10)
-                   (valid-len? text 130)))] 
+                   (valid-len? text 100)))] 
 
       (fn [] 
-        [:section.write.col.centered
+        [:section.write.col.centered.wide
          [:div.label "Policy submission form"]
          [:div.col.centered.text.wide.padded-high
           [:h2 "Write a new policy"]
           [:p.text "Make a new policy in response to the projection that would positively impact both your entity and the others. You can improve the previous policy or create a new one."]
-          [:form.col.wide
+          [:form.col.wide.text
            [:textarea.name {:rows 1
                             :value (:policy/name @state)
                             :on-change #(swap! state assoc :policy/name (.. % -target -value))}]
@@ -290,8 +290,8 @@
            [:textarea {:rows 10
                        :value (:policy/text @state)
                        :on-change #(swap! state assoc :policy/text (.. % -target -value))}]
-           [:label {:style {:color (if (valid-len? (:policy/text @state) 130) "var(--ok)" "var(--hl)")}}
-            "The contents of the policy, at least 130 characters long."]
+           [:label {:style {:color (if (valid-len? (:policy/text @state) 100) "var(--ok)" "var(--hl)")}}
+            "The contents of the policy, you have written " (count (:policy/text @state)) " of a minimum 100 characters."]
            [:input#submit
             {:type "button"
              :value "Submit"
