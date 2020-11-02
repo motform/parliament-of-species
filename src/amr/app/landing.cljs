@@ -19,8 +19,11 @@
         [:h1 "In 2030, " [:em "Superbugs"] " are rapidly spreading across the globe threatening the ability to treat common infections."]
         [:p [:em "Superbugs:"] " drug-resistant pathogens that have acquired new resistance mechanisms that cause infections that are not treatable with antibiotics (WHO)."]
         [:p "The " [:em "Parliament of Species"] " has been created to tackle antibiotic resistance and its repercussions at a global level. The entities of" [entity "aqua" 1 selected-entity] "," [entity "flora" -2 selected-entity] "," [entity "fauna" -1 selected-entity] "&" [entity "homo-sapiens" 2 selected-entity] " have united to mange the threat of antimicrobial resistance by creating global policies that positively impact their wellbeing."]
-        [:p "In order to coexist, the entities must find a balance between their wellbeing and while managing the level of antimicrobial resistance."]]])))
+        [:p "In order to coexist, the entities must find a balance between their wellbeing and while managing the level of antimicrobial resistance."]]
+       [:a.landing-visit {:href (href :route/policymaking)}
+        "Participate in the Parliament"]])))
 
+;; NOTE not in use
 (defn about []
   [:section.col.landing-about
    [:h1 "Create global policies with other entities"]
@@ -44,6 +47,7 @@
                      :style {:margin-top "-30rem"}}
     "Create a new policy"]])
 
+;; NOTE not in use
 (defn archive []
   [:section.col.landing-archive
    [:h1 "Explore the Archive of Species"]
@@ -54,5 +58,4 @@
 (defn landing []
   [:main.landing.col 
    [hero]
-   [about]
-   [archive]])
+   ])

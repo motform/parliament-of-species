@@ -59,20 +59,20 @@
 
 (defn no-session []
   [:section.resume.col.centered {:style {:min-height "100rem"}}
-   [:p "You don't have an active session, do you want to start one?"]
+   [:p "You don't have an active participation, do you want to start one?"]
    [:a.landing-play
     {:href (href :route.policymaking/intro)
      :on-click #(do (rf/dispatch [::app/scroll-to-top])
                     (rf/dispatch [::event/reset-session]))}
-    "Write a new policy!"]])
+    "Participate!"]])
 
 (defn resume-session [{{:session/keys [id]} :session}]
   [:section.resume.col.centered
-   [:p "Do you want to resume your active session?"]
+   [:p "Do you want to resume your participation?"]
    [:div.landing-play 
     {:on-click #(rf/dispatch [::event/resume id])
      :style {:margin-top "10rem"}}
-    "Resume session"]])
+    "Resume Participation"]])
 
 (defn empty-library []
   [:section.col.centered.empty-library
@@ -88,7 +88,7 @@
     {:href (href :route.policymaking/intro)
      :on-click #(do (rf/dispatch [::app/scroll-to-top])
                     (rf/dispatch [::event/reset-session]))}
-    "Policymake!"]])
+    "Participate in the Parliament of Species"]])
 
 (defn session [{:keys [session written-policy written-effect] :as s}]
   [:div.session-libray.padded.col
@@ -140,7 +140,7 @@
       (if (:effect session)
         [resume-session session]
         [:section.col.centered.wide
-         [:h1 "Select your entity"]
+         [:h1 "Select your Entity"]
          [:p {:style {:margin-bottom "20rem"}}
           "Choose an entity to represent in the Parliament of Species."]
          [:div.col.centered.wide
@@ -152,15 +152,15 @@
 
 (defn intro-effect []
   [:section.intro 
-   [:h1 "React to a Policy"]
+   [:h1 "Assess this Policy Proposal"]
    [:div.text 
-    [:p "How do you think this policy would affect your entity?"]]])
+    [:p "How do you think this Policy Proposal would affect your Entity?"]]])
 
 (defn intro-policy []
   [:section.intro 
-   [:h1 "Write a new Policy"]
+   [:h1 "Write a new Policy Proposal"]
    [:div.text 
-    [:p "Make a new policy in response to the projection that would positively impact both your entity and the others. You can improve the previous policy or create a new one."]]])
+    [:p "Make a new Policy Proposal in response to the Projection that would positively impact both your entity and the others. You can improve the previous Policy Proposal by deriving it or create a brand new one."]]])
 
 (defn projection []
   (let [{:projection/keys [id text name]} @(rf/subscribe [::sub/current-projection])] 
@@ -173,7 +173,7 @@
          ^{:key (first t)}
          [:p.projection-text t])]]]))
 
-(defn policy [{:keys [tearable?]}]
+(defn policy []
   (let [{:policy/keys [id name text session]} @(rf/subscribe [::sub/current-policy])
         entity (:session/entity session)
         entity-name (when entity (clojure.core/name entity))] 
@@ -181,7 +181,7 @@
      [:div.bg.col.centered
       {:style {:background-image (str "url(/svg/bg/policy/" entity-name ".svg)")
                :background-color (str "var(--" entity-name "-bg)")}}
-      [:div.label "Policy by " (util/prn-entity entity)]
+      [:div.label "Policy Proposal by " (util/prn-entity entity)]
       [:div.narrow.padded-high
        [:h2 name]
        [:p.text text]]]]))
@@ -189,9 +189,9 @@
 (defn review-effect []
   (let [impact @(rf/subscribe [::sub/effect-impact])]
     [:section.review-effect.col.centered.wide
-     [:div.label "Effect of policy"]
+     [:div.label "Policy assessments"]
      [:div.col.centered.narrow.padded
-      [:h2 "This policy has impact the entities in these ways."]
+      [:h2 "The Entities have assessed the Policy Proposal in the following ways"]
       [:div.row.spaced.padded-high.wide
        (for [[entity {:impact/keys [positive negative]}] impact]
          ^{:key entity}
@@ -202,9 +202,11 @@
 (defn thank-you []
   [:section.intro.col.centered
    [:h1 "Thank you for your contribution!"]
-   [:div.text>p "Your policy will be reviewed by other members of the parliament of species."]
+   [:div.text
+    [:p "Your policy will be assessed by other members of the Parliament of Species. Check out the Archive to see how it is doing."]
+    [:p "If you want to keep working towards a balanced future, feel free to participate again."]]
    [:a.entry {:href (href :route.policymaking/select-entity)}
-    "Make another policy"]])
+    "Participate again!"]])
 
 ;;; FORMS
 
@@ -231,17 +233,17 @@
       
       (fn [] 
         [:section.write.col.centered.wide
-         [:div.label "Effect submission form"]
+         [:div.label "Policy assessment"]
          [:div.padded.col.centered.narrow.wide
           (if already-written?
             [:div.padded.col.centered.wide
-             [:p "You have already reacted to this policy."]
+             [:p "You have already assessed to this policy proposal."]
              [:a.entry
               {:href (href :route.policymaking/write-policy)}
               "Proceed to the next step"]]
             [:<> 
              [:h2 "How does this impact " (util/prn-entity (:session/entity session)) "?"]
-             [:p "How do you think this policy would affect your entity? Write the possible effects below."]
+             [:p "How do you think this Policy Proposal would affect your entity? Write your assessments in the area below."]
              [:form.col.wide.text
               [:div.row.spaced
                [btn-impact "Positively" :impact/positive]
@@ -250,7 +252,7 @@
                           :value (:effect/text @state)
                           :on-change #(swap! state assoc :effect/text (.. % -target -value))}]
               [:label {:style {:color (if (valid-len? (:effect/text @state) 50) "var(--ok)" "var(--hl)")}}
-               "The contents of the policy, you have written " (count (:effect/text @state)) " of a minimum 50 characters."]
+               "The contents of the Assessment, you have written " (count (:effect/text @state)) " of a minimum 50 characters."]
               [:input#submit
                {:type "button"
                 :value "submit"
@@ -277,21 +279,21 @@
 
       (fn [] 
         [:section.write.col.centered.wide
-         [:div.label "Policy submission form"]
+         [:div.label "Policy Proposal"]
          [:div.col.centered.text.wide.padded-high
-          [:h2 "Write a new policy"]
-          [:p.text "Make a new policy in response to the projection that would positively impact both your entity and the others. You can improve the previous policy or create a new one."]
+          [:h2 "Write a new Policy Proposal"]
+          [:p.text "Make a new Policy Proposal in response to the projection that would positively impact both your entity and the others. You can improve the previous Policy Proposal by deriving it or create a brand new one."]
           [:form.col.wide.text
            [:textarea.name {:rows 1
                             :value (:policy/name @state)
                             :on-change #(swap! state assoc :policy/name (.. % -target -value))}]
            [:label {:style {:color (if (valid-len? (:policy/name @state) 10) "var(--ok)" "var(--hl)")}}
-            "The name of the policy, at least 10 characters long."]
+            "The name of the Policy Proposal, at least 10 characters long."]
            [:textarea {:rows 10
                        :value (:policy/text @state)
                        :on-change #(swap! state assoc :policy/text (.. % -target -value))}]
            [:label {:style {:color (if (valid-len? (:policy/text @state) 100) "var(--ok)" "var(--hl)")}}
-            "The contents of the policy, you have written " (count (:policy/text @state)) " of a minimum 100 characters."]
+            "The contents of the Policy Proposal, you have written " (count (:policy/text @state)) " of a minimum 100 characters."]
            [:input#submit
             {:type "button"
              :value "Submit"

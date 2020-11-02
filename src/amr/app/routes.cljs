@@ -24,8 +24,8 @@
    ["policymaking"
     {:name :route/policymaking
      :view game/session-library
-     :title "Policymaking"
-     :link-text "Policymaking"
+     :title "Participate"
+     :link-text "Participate"
      :in-header? true}]
 
    ;; TODO nest these under /policymaking
