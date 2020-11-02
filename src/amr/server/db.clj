@@ -88,7 +88,7 @@
   ([limit]
    {:post [(= limit (->> % (map second) (reduce +)))]}
    (let [base-state (-> (zipmap [:entity/aqua :entity/flora :entity/fauna :entity/homo-sapiens] (repeat 5))
-                        (assoc :entity/resistance 10))]
+                        (assoc :entity/bacteria 10))]
      (->> {:query '[:find ?entity ?impact
                     :with ?effect
                     :where
@@ -100,7 +100,7 @@
           (map (fn [[k v]] [k (#:impact{:negative [-1 1] :positive [1 -1]} v)]))
           (reduce
            (fn [m [k [self amr]]]
-             (-> m (update k #(+ % self)) (update :entity/resistance #(+ % amr))))
+             (-> m (update k #(+ % self)) (update :entity/bacteria #(+ % amr))))
            base-state)))))
 
 (defn impact
@@ -133,10 +133,10 @@
            :effect/text :effect/id :effect/impact
            {[:effect/_policy :as :policy/effects] "..."}
 
-           [:session/entity]
+           :session/entity :session/date
            {[:policy/session] "..."}
 
-           :policy/id :policy/name :policy/text
+           :policy/id :policy/name :policy/text :policy/derived
            {[:policy/_projection :as :projection/policies] "..."}
 
            :projection/id :projection/text :projection/name]
@@ -249,8 +249,8 @@
               [entity (if (= :impact/negative impact) [-1 1] [1 -1])]))
        (reduce
         (fn [m [entity [e b]]]
-          (-> m (update entity + e) (update :entity/resistance + b)))
-        #:entity{:fauna 0 :flora 0 :resistance 0 :aqua 0 :homo-sapiens 0}))
+          (-> m (update entity + e) (update :entity/bacteria + b)))
+        #:entity{:fauna 0 :flora 0 :bacteria 0 :aqua 0 :homo-sapiens 0}))
 
   ;; Get the combined impacts of the effects
   (->> impact-q

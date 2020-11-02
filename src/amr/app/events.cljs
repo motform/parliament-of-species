@@ -68,13 +68,14 @@
  (fn [_ _]
    {::scroll-to-top! nil}))
 
+;; WARN This does two things (route and scroll), which I dislike
 (reg-event-db
  ::navigated
  (fn [db [_ new-match]]
    (let [old-match (-> db :app :current-route)
          controllers (reitit.contollers/apply-controllers (:contollers old-match) new-match)]
-     (set-title! new-match) ;; WARN This now does two things, which I dislike
-     (. js/window scrollTo 0 0)
+     (set-title! new-match) 
+     (when-not goog.DEBUG (. js/window scrollTo 0 0)) ; don't scroll on hot-reloads
      (assoc-in db [:app :route] (assoc new-match :contollers controllers)))))
 
 (reg-event-fx

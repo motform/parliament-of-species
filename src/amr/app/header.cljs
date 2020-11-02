@@ -45,7 +45,8 @@
        (fn []
          (let [entites (or entites @(rf/subscribe [::sub/balance]))
                current-entity (:session/entity @(rf/subscribe [::game.sub/from-session :session]))] 
-           [:div.balance {:class (str class (when sticky? " sticky"))
-                          :on-mouse-over (fn [] (reset! hover? true))
-                          :on-mouse-out  (fn [] (reset! hover? false))}
+           [:section.balance
+            {:class (str class (when sticky? " sticky"))
+             :on-mouse-over (fn [] (reset! hover? true))
+             :on-mouse-out  (fn [] (reset! hover? false))}
             (doall (map #(entity % current-entity) entites))]))))))

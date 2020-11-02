@@ -39,8 +39,9 @@
     [:div
      [:p "The wellbeing of the entities effects the level of antimicrobial resistance. When a new policy has been created, a different entity receives the policy to assess whether this has a positive or negative impact on their wellbeing. When an entity responds positively, the level of antimicrobial resistance decreases, when it responds negatively it increases."]
      [:p "If the level of resistance increases past the global threshold, The Parliament of Species is reset and the polices that caused the largest negative impact on all of the entities are abolished."]
-     [balance #:entity{:aqua 2 :flora 2 :fauna 2 :homo-sapiens 2 :resistance 22} {:class "small" :labels? false}]]]
-   [:a.landing-play {:href (href :route/policymaking)}
+     [balance #:entity{:aqua 2 :flora 2 :fauna 2 :homo-sapiens 2 :bacteria 22} {:class "small" :labels? false}]]]
+   [:a.landing-play {:href (href :route/policymaking)
+                     :style {:margin-top "-30rem"}}
     "Create a new policy"]])
 
 (defn archive []

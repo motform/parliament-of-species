@@ -70,10 +70,6 @@
            :uri "/api/stack"
            :query-params {"entity" "aqua"}})
 
-  (server {:request-method :get
-           :headers {"Accept" "application/transit+json"}
-           :uri "/api/balance"})
-
   ;; NOTE actually posts to the db
   #_(server {:request-method :post
              :headers {"Accept" "application/transit+json"}
@@ -84,4 +80,3 @@
                            :impact :impact/positive, :text "", :tag []}})
 
   )
-
