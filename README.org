@@ -1,5 +1,15 @@
+* The Parliament of Species 
 The Parliament of Species is a gamified citizen tool that aims to create an archive of possible policies based on scientific projections about the future of AMR. It enables citizens to co-create policies by building upon each other’s speculations, reflections and knowledge.
 
 This is a student project form the course Design and Social Innovation, a part of the Interaction Design Masters Programme at Malmö University.
 
 For more information, visit the [[https://parliamentofspecies.com/][live page]].
+
+* Notes
+This repository contains all the code for the application, but lacks a few key things due to licensing:
+  - Fonts 
+  - Datomic installation configuration 
+  - Image assets
+  - Base data to seed Projections and Policies
+
+If you want to run the application yourself, you have to supply at least a Datomic instance and some base Projections. The format of these are specified in the config and config namespaces, as well as in the Datomic schema. 
