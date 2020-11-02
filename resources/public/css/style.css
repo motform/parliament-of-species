@@ -11,6 +11,7 @@
     --bg-dark: #dab994;
     --bg-card: #f8e8ca;
     --bg-text: whitesmoke;
+    --bg-footer: #e7d2ba;
     --fg: black;
     --hl: #e67b5c;
     --ok: #1ebf41;
@@ -116,6 +117,10 @@ p {
 
 p:last-child {
     margin-bottom: 0;
+}
+
+strong {
+    font-weight: 400;
 }
 
 progress {
@@ -226,7 +231,6 @@ label {
 
 .landing span {
     color: var(--bg);
-    text-transform: capitalize;
     margin: 0 1rem;
     padding: 0 1rem;
     display: inline-block;
@@ -370,8 +374,12 @@ footer {
     grid-gap: 10rem;
 
     font: 300 3rem/4rem var(--body-font);
-    background: var(--bg-dark);
+    background: var(--bg-footer);
     padding: 10rem;
+}
+
+footer a {
+    text-decoration:  underline;
 }
 
 /*****
@@ -444,10 +452,10 @@ nav {
 
 .timeline {
     width: 100%;
+    background: var(--bg-dark);
 }
 
 .timeline > * {
-    background: var(--bg-dark);
     padding: 5rem 0 10rem 0;
     width: 100%;
 }
@@ -458,24 +466,43 @@ nav {
 }
 
 .timeline h3 {
-    margin-bottom: 5rem;
     font: 300 10rem/10rem var(--display-font);
-    text-align: center;
 }
 
-.timeline a {
-    color: var(--bg);
+.timeline > p {
+    marigin: 0;
+}
+.timeline-play {
+    margin: 5rem 0 5rem 0;
+    border: 1px solid var(--fg);
+    padding: 5rem;
+    border-radius: 2rem;
+    text-transform: uppercase;
 }
 
 .timeline a:hover {
-    color: var(--hl);
+    color: var(--bg);
 }
 
-#year-2030 {
-    background: var(--hl);
-    color: var(--bg);
-    padding-top: 15rem;
+.timeline-play:hover {
+    background: var(--fg);
 }
+
+.year {
+    background-repeat: no-repeat;
+    background-position: center;
+}
+
+.year p {
+    max-width: 450px;
+}
+
+.year-1    { padding-left: 50%;                        }
+.year-1 p  { align-self: flex-start;                   }
+.year-1 h3 { align-self: flex-start; text-align: left; }
+.year-2    { padding-right: 54%;                       }
+.year-2 p  { align-self: flex-end; text-align: right;  }
+.year-2 h3 { align-self: flex-end; text-align: right;  }
 
 .bg-hl {
     background: var(--hl);
@@ -484,21 +511,32 @@ nav {
     padding-bottom: 15rem;
 }
 
-.play {
-    border: 1px solid var(--bg);
-    padding: 5rem 3rem;
-    border-radius: 2rem;
-    margin: 0 auto;
-    width: 200px;
-    color: var(--bg);
-    text-align: center;
-    text-transform: uppercase;
+/* HOW-TO */
+
+.how-to img {
+    width: 900px;
+    margin-bottom: 10rem;
 }
 
-.play:hover {
-    cursor: pointer;
-    color: var(--hl);
-    background: var(--bg);
+.steps {
+    padding: 10rem 0;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    grid-column-gap: 10rem;
+}
+
+.steps img {
+    height: 28rem;
+}
+
+.steps img:first-of-type{
+    margin-left: -2.5rem;
+}
+
+
+
+.steps h2 {
+    margin-bottom: 2.5rem;
 }
 
 /* SELECT ENTITY */
@@ -538,12 +576,13 @@ nav {
 
 /* Policy */
 
-.policy {
-    width: 100%;
+.policy h2 {
+    margin: -5rem 0 5rem 0;
 }
 
-.policy h2 {
-    margin-bottom: 5rem;
+.policy img {
+    height: 60rem;
+    margin: -15rem 0 -5rem 15rem;
 }
 
 .card-border {
@@ -618,7 +657,6 @@ nav {
 }
 
 .current-entity {
-    color: var(--bg);
     width: 100%;
     padding: 5rem;
     grid-column: span 30;
@@ -626,10 +664,27 @@ nav {
 }
 
 .balance-entity {
-    color: var(--bg);
     font-size: 2.5rem;
+    font-weight: 400;
+    letter-spacing: 1px;
     white-space: nowrap;
-    cursor: pointer;
+}
+
+.balance-entity label {
+    z-index: -999;
+    background: inherit;
+    color: var(--bg-card);
+    padding: 0 3rem;
+}
+
+.hidden {
+    visibility: hidden;
+}
+
+.hovering {
+    visibility: visible;
+    transform: translate(0, 8rem);
+    font-size: 2.5;
 }
 
 .small {
@@ -654,10 +709,6 @@ nav {
 .fauna-bg        { background: var(--fauna-bg);        }
 .aqua-bg         { background: var(--aqua-bg);         }
 .homo-sapiens-bg { background: var(--homo-sapiens-bg); }
-
-.hovering {
-    color: var(--bg-card);
-}
 
 /* Entity */
 
@@ -722,13 +773,11 @@ input[type=button] {
 
 textarea {
     background: var(--bg-text);
-    color: var(--fg);
     border: 1px solid var(--fg);
     padding: 3rem;
-    font-family: var(--monospace-font);
+    font: 4rem/6rem var(--monospace-font);
     margin: 4rem 2rem;
     resize: none;
-    font-size: 4rem;
     outline: none;
     display: block;
     width: inherit;
@@ -952,8 +1001,7 @@ form label {
 }
 
 .about h1 {
-    margin: 15rem 0 5rem 0;
-    font-style: italic;
+    margin: 10rem 0 5rem 0;
 }
 
 .about p {

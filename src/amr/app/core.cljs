@@ -17,7 +17,7 @@
     [:<>
      [:div.excuse
       [:p "The Parliament of Species requires a screen size of a tablet or larger to participate."]
-      [:p "Come back again soon to partake with our mobile device!"]]
+      [:p "Come back again soon to partake with your mobile device!"]]
      [header router current-route]
      [balance {:labels? true :sticky? true}]
      (when current-route [(get-in current-route [:data :view])])

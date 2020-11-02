@@ -15,7 +15,7 @@
 (defn about []
   [:<> 
    [:main.about.padded.col.centered
-    [:h1 "the Parliament of Species"]
+    [:h1 "The Entities"]
     [:p "The Parliament of Species is established in 2030 to tackle AMR and its repercussions at a global level. The entities of Aqua, Fauna, Flora and Homo Sapiens have to create policies that positively impact their wellbeing by managing the threat of AMR."]]
    [:section.about-entities  
     (for [{:keys [key] :as e} game/entites]

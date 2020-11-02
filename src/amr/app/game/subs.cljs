@@ -43,6 +43,13 @@
      (util/calculate-impact (get-in db [:archive :storage projection :projection/policies policy :policy/effects])))))
 
 (reg-sub
+ ::effects
+ (fn [db _]
+   (let [session (get-in db [:game :current-session])
+         {:keys [projection policy]} (get-in db [:sessions session])]
+     (get-in db [:archive :storage projection :projection/policies policy :policy/effects]))))
+
+(reg-sub
  ::sessions
  (fn [db _]
    (:sessions db)))

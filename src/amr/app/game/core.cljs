@@ -3,14 +3,13 @@
             [amr.app.game.subs :as sub]
             [re-frame.core :as rf]))
 
-(defn session-library []
+(defn timeline []
   [:main.game.col.centered
-   [c/session-library]])
+   [c/intro-timeline]])
 
-(defn intro []
+(defn how-to []
   [:main.game.col.centered
-   [c/intro]
-   [c/timeline]])
+   [c/how-to]])
 
 (defn select-entity []
   (let [session @(rf/subscribe [::sub/current-session])]

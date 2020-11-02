@@ -39,8 +39,11 @@
                  :style {:grid-column (str "span " level)}}
                 (when labels?
                   (let [current-entity? (= entity current-entity)] 
-                    [:label {:class (when (or @hover? current-entity?) "hovering")}
-                     (when current-entity? "You represent ") (util/prn-entity entity)]))])]
+                    [:label {:class (if (or @hover? current-entity?) "hovering" "hidden")}
+                     (when current-entity? "You represent ")
+                     (if (= :entity/bacteria entity)
+                       "Resistant Bacteria"
+                       (util/prn-entity entity))]))])]
        
        (fn []
          (let [entites (or entites @(rf/subscribe [::sub/balance]))

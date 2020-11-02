@@ -14,7 +14,7 @@
       [:map
        [:sever-type :peer-server]
        [:access-key string?]
-       [:secert string?]
+       [:secret string?]
        [:endpoint string?]
        [:validate-hostnames boolean?]]]]]])
 

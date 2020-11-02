@@ -21,19 +21,19 @@
      :view landing
      :link-text "Home"}]
 
-   ["policymaking"
+   ["timeline"
     {:name :route/policymaking
-     :view game/session-library
-     :title "Participate"
+     :view game/timeline
+     :title "History of the Future"
      :link-text "Participate"
      :in-header? true}]
 
    ;; TODO nest these under /policymaking
-   ["intro"
-    {:name :route.policymaking/intro
-     :view game/intro
-     :title "Introduction to Parliament"
-     :link-text "Intro"}]
+   ["how-to"
+    {:name :route.policymaking/how-to
+     :view game/how-to
+     :title "How to Participate"
+     :link-text "How-to"}]
 
    ["select-entity"
     {:name :route.policymaking/select-entity
@@ -41,13 +41,13 @@
      :title "Select your entity"
      :link-text "Select entity"}]
 
-   ["write-effect"
+   ["asses-policy-proposal"
     {:name :route.policymaking/write-effect
      :view game/write-effect
      :title "React to a policy"
      :link-text "Write effect"}]
 
-   ["write-policy"
+   ["write-policy-proposal"
     {:name :route.policymaking/write-policy
      :view game/write-policy
      :title "Write a policy"

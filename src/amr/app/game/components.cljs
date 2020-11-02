@@ -1,5 +1,6 @@
 (ns amr.app.game.components
-  (:require [amr.app.events :as app]
+  (:require [amr.app.archive.core :as archive]
+            [amr.app.events :as app]
             [amr.app.game.events :as event]
             [amr.app.game.subs :as sub]
             [amr.app.header :refer [balance]]
@@ -9,53 +10,44 @@
             [reagent.core :as r]
             [reitit.frontend.easy :refer [href]]))
 
-;;; INTRO
-
-(defn intro []
-  [:section.intro 
-   [:h1 "Introduction"]
-   [:div.text 
-    [:p "Antimicrobial resistance (AMR) is caused by bacteria changing over time and no longer responding to medicines. As a result, the medicines become ineffective and infections persist in the body, increasing the risk of disease spread, severe illness and death."]
-    [:p "Antimicrobials — including antibiotics — are medicines used to prevent and treat infections in homo sapiens, animals and plants. Bacteria that develop antimicrobial resistance are referred to as Superbugs."]]])
-
 (def years
-  [["2020" "Bacteria are becoming more and more immune to antibiotics. Despite there being numerous studies and initiatives to find alternatives, researchers do not seem very hopeful."]
-   ["2024" "AMR is a globally widespread problem. This is due to the overuse of antibiotics in food production and for treating non-fatal diseases. This has not only a direct impact on Homo Sapiens, but also on other entities, namely Aqua, Fauna and Flora."]
-   ["2026" "Societies around the globe have adapted to the situation, where every-day matters such as food and health have drastically changed. However, another important aspects of society that had to readapt to this situation are policies and economics."]
-   ["2030" "The Parliament of Species is established to tackle AMR and its repercussions at a global level: the entities of Aqua, Fauna, Flora and Homo Sapiens have to create policies that positively impact their wellbeing by managing the threat of AMR."]])
+  [["2020" 1 "Bacteria are becoming more and more immune to antibiotics. Despite numerous studies and initiatives to find alternatives, researchers do not seem very hopeful."]
+   ["2024" 2 "Antibiotic-resistant bacteria is a globally widespread problem. This is due to the overuse of antibiotics in food production and for treating non-fatal diseases. This has directly affected all four Entities: Homo sapiens, Fauna, Flora and Aqua."]
+   ["2026" 1 "The Entities tried to adapt to the situation, where every-day matters such as food and health have drastically changed. However, their individual efforts proved ineffective, and it became clear that working in a united manner was the only option to survive."]
+   ["2030" 2 "The Parliament of Species is established to tackle antibiotic-resistance and its impact at a global level. The Entities of Aqua, Fauna, Flora and Homo Sapiens have to create policies that positively impact their wellbeing by managing the threat of antibiotic-resistant bacteria."]])
 
-(defn timeline [opts]
-  [:section.timeline.col.centered
-   [:h1 "the History of the Future"]
-   (for [[year text] years]
-     ^{:key year}
-     [:div.year.col.centered {:id (str "year-" year)}
-      [:h3 year]
-      [:p.text text]])
-   (when-not (:static? opts)
-     [:div.bg-hl.col.centered>a.landing-play ;; TODO rework into a app-wide btn
-      {:href (href :route.policymaking/select-entity)
-       :on-click #(do (rf/dispatch [::app/scroll-to-top]))}
-      "Select entity"])])
+(defn timeline []
+  [:<>
+   
+   [:section.timeline.col.centered
+    [:h1 "The History of the Future"]
+    [:p.text "In participate, you need to learn about this world. Specifically, how antibiotic-resistant bacteria got became a global issue and why the Parliament was formed."]
+    (for [[year bg text] years]
+      ^{:key year}
+      [:div.year.col.centered
+       {:id (str "year-" year)
+        :class (str "year-" bg)
+        :style {:background-image (str "url(/svg/glyphs/timeline/part-" bg ".svg)")}}
+       [:h3 year]
+       [:p.text text]])
+    [:div.col.centered>a.timeline-play ;; TODO rework into a app-wide btn
+     {:href (href :route.policymaking/how-to)
+      :on-click #(do (rf/dispatch [::app/scroll-to-top]))}
+     "Continue"]]])
 
 (def entites
   [{:key :entity/aqua
     :represents "Aqua represents all oceans, rivers and lakes."
-    :relation "Aqua can be affected by the antibiotics given to aquatic animals and antibiotic pollution in the rivers and sewage. "}
-
-   {:key :entity/flora
-    :represents "Flora represents all plant kind and agriculture."
-    :relation "Flora can be affected by the antibiotics used in crops and by the contamination from animal waste that contains antibiotics."}
-
+    :relation "Aqua is impacted by antibiotic resistance as antibiotics are given to aquatic animals. The high production of antibiotics also results in pollution of rivers, oceans and sewage."}
    {:key :entity/fauna
     :represents "Fauna represents all animal kind and husbandry."
-    :relation "Fauna can be affected by the antibiotics given to farm animals in the food industry and by the superbugs that infect animals."}
-
+    :relation "Fauna is impacted by antibiotic resistance as antibiotics are given to farm animals in the food industry. Animals are also infected with resistant bacteria that are not treatable with antibiotics."}
+   {:key :entity/flora
+    :represents "Flora represents all plant kind and agriculture."
+    :relation "Flora is impacted by antibiotic resistance as antibiotics are used in crops. As farm animals are given antibiotics, their waste contaminates fields and crops."}
    {:key :entity/homo-sapiens
-    :represents "Homo-sapiens represents all humankind past and present and society."
-    :relation "Homo-sapiens can be affected as antibiotics become less effective in healthcare due to the overuse, underuse and misuse of medicines. The lack of public knowledge and unified global approach to AMR can affect Homo-sapiens both locally and globally."}])
-
-;;; SESSION MANAGEMENT
+    :represents "Homo sapiens represents all humankind: past, present and societies."
+    :relation "Homo sapiens is impacted as antibiotics become less effective in healthcare due to the overuse, underuse and misuse of medicines. The lack of public knowledge and unified global approach to antibiotic-resistant bacteria can affect Homo sapiens both locally and globally."}])
 
 (defn no-session []
   [:section.resume.col.centered {:style {:min-height "100rem"}}
@@ -68,51 +60,56 @@
 
 (defn resume-session [{{:session/keys [id]} :session}]
   [:section.resume.col.centered
-   [:p "Do you want to resume your participation?"]
+   [:p "You are already in a Parliamentary Session." [:br]
+    "Do you want to resume your participation?"]
    [:div.landing-play 
     {:on-click #(rf/dispatch [::event/resume id])
      :style {:margin-top "10rem"}}
     "Resume Participation"]])
 
-(defn empty-library []
-  [:section.col.centered.empty-library
-   [:h1 "Create global policies with other entities"]
-   [:div {:style {:display "grid" :grid-template-columns "1fr 1fr" :grid-gap "20rem"}}
-    [:div 
-     [:p "Your role as a representative of The Parliament of Species is to maintain the balance between the four entities while managing the antimicrobial resistance at a low level. In order to maintain the balance, representatives collaborate to create new global policies in response to the repercussions of antimicrobial resistance that positively impact all of the entities."]
-     [balance {:class "small" :labels? false}]]
-    [:div 
-     [:p "The wellbeing of the entities effects the level of antimicrobial resistance. When a policy positively affects an entity the resistance decreases, however when if it negatively affects an entity the resistance increases. If the level of resistance increases past the global threshold, The Parliament of Species is reset."]
-     [balance #:entity{:aqua 2 :flora 2 :fauna 2 :homo-sapiens 2 :bacteria 22} {:class "small" :labels? false}]]]
-   [:a.entry
-    {:href (href :route.policymaking/intro)
-     :on-click #(do (rf/dispatch [::app/scroll-to-top])
-                    (rf/dispatch [::event/reset-session]))}
-    "Participate in the Parliament of Species"]])
-
-(defn session [{:keys [session written-policy written-effect] :as s}]
-  [:div.session-libray.padded.col
-   [:p.error s]
-   [:p (str (:session/date session))]
-   [:p (:session/entity session)]])
-
-(defn session-library []
-  (let [sessions @(rf/subscribe [::sub/sessions])
-        current-session @(rf/subscribe [::sub/current-session])]
+(defn intro-timeline []
+  (let [current-session @(rf/subscribe [::sub/current-session])]
     [:<>  
      (when current-session
        [resume-session current-session])
-     [empty-library]
-     #_(when-not (empty? sessions)
-         [:div.col.centered.sessions
-          [:h1 "Previous sessions"]
-          [:div.grid
-           (for [[id s] sessions] ;; TODO sort-by date
-             ^{:key id} 
-             [session s])]
-          [:div.entry
-           {:on-click #(rf/dispatch [::event/delete-sessions])}
-           "Delete sessions"]])]))
+     [timeline]]))
+
+(defn how-to []
+  (let [current-session @(rf/subscribe [::sub/current-session])]
+    [:<> 
+     (when current-session
+       [resume-session current-session])
+     [:section.how-to.col.centered.wide
+      [:h1.text "How to Participate in the Parliament of Species"]
+      [:p.text {:style {:margin-bottom "15rem"}}
+       "Antibiotic-resistant bacteria is a reality that affects the four entities in different ways. All four are all interconnected, and each of their actions and well-being affect one another. The entities rely on each other to thrive, and are working on co-creating global policies in order to maintain a balance in their well being."]
+      [:img {:src "img/bar.gif"}]
+      [:div.bg-hl.col.centered>div.steps.wide.narrow
+       [:div.step
+        [:h2 "1. Choose an Entity"] 
+        [:p "To join the Parliament of Species, select one of the four Entities. You will imagine a future through this entity’s perspective."]
+        [:div.row.spaced {:style {:margin-bottom "8rem"}}
+         [:img {:src "/svg/entity/flora.svg"}]
+         [:img {:src "/svg/entity/fauna.svg"}]]
+        [:div.row.spaced
+         [:img {:src "/svg/entity/aqua.svg"}]
+         [:img {:src "/svg/entity/homo-sapiens.svg"}]]]
+       [:div.step
+        [:h2 "2. Policy Assessment"]
+        [:p "First, you will see a Projection about the future related to antibiotic-resistant bacteria."]
+        [:p "Then, you will see a Policy Proposal from a different Entity. At this stage you will assess this proposal on behalf of your Entity."]
+        [:p "Your Policy Assessment will be added to the Archive and will have an effect on the Balance of Entities, which is shown on the bar at the top of the screen."]]
+       [:div.step
+        [:h2 "3. Policy Proposal"]
+        [:p "Based on the same Projection, you will create a new Policy Proposal."]
+        [:p "When creating this Proposal consider how it will impact both your entity as well as the others."]]
+       [:div.step
+        [:h2 "4. Archiving"]
+        [:p "Once submitting your proposal it will be added to the Archive and given the other Entities to assess."]]]
+      [:div.resume.col.centered>a.landing-play
+       {:style {:margin-top "-15rem"}
+        :href (href :route.policymaking/select-entity)}
+       "Choose an Entity"]]]))
 
 (defn entity [{:keys [key represents relation]} state]
   (let [session #:session{:id (random-uuid) :date (js/Date.) :entity key}]
@@ -140,27 +137,25 @@
       (if (:effect session)
         [resume-session session]
         [:section.col.centered.wide
-         [:h1 "Select your Entity"]
+         [:h1 "Choose your Entity"]
          [:p {:style {:margin-bottom "20rem"}}
-          "Choose an entity to represent in the Parliament of Species."]
+          "To join the Parliament of Species, select one of the four entities. You will imagine a future through this entity’s perspective."]
          [:div.col.centered.wide
           (for [{:keys [key] :as e} entites]
             ^{:key key}
             [entity e state])]]))))
 
-;; EFFECT
-
 (defn intro-effect []
-  [:section.intro 
-   [:h1 "Assess this Policy Proposal"]
+  [:section.intro.col.centered
+   [:h1 "Policy Assessment"]
    [:div.text 
     [:p "How do you think this Policy Proposal would affect your Entity?"]]])
 
 (defn intro-policy []
   [:section.intro 
-   [:h1 "Write a new Policy Proposal"]
+   [:h1 "Policy Proposal"]
    [:div.text 
-    [:p "Make a new Policy Proposal in response to the Projection that would positively impact both your entity and the others. You can improve the previous Policy Proposal by deriving it or create a brand new one."]]])
+    [:p "Based on the same projection, you will create a new Policy Proposal. When creating this Proposal consider how it will impact both your Entity as well as the others."]]])
 
 (defn projection []
   (let [{:projection/keys [id text name]} @(rf/subscribe [::sub/current-projection])] 
@@ -177,22 +172,28 @@
   (let [{:policy/keys [id name text session]} @(rf/subscribe [::sub/current-policy])
         entity (:session/entity session)
         entity-name (when entity (clojure.core/name entity))] 
-    [:section.policy
-     [:div.bg.col.centered
-      {:style {:background-image (str "url(/svg/bg/policy/" entity-name ".svg)")
-               :background-color (str "var(--" entity-name "-bg)")}}
-      [:div.label "Policy Proposal by " (util/prn-entity entity)]
-      [:div.narrow.padded-high
+    [:section.policy.bg.col.centered.wide
+     {:style {:background-image (str "url(/svg/bg/policy/" entity-name ".svg)")
+              :background-color (str "var(--" entity-name "-bg)")}}
+     [:div.label "Policy Proposal by " (util/prn-entity entity)]
+     [:div.narrow.padded-high.grid
+      [:img {:src (str "/svg/entity/" entity-name ".svg")}]
+      [:div {:style {:grid-column "span 2"}}
        [:h2 name]
        [:p.text text]]]]))
 
 (defn review-effect []
-  (let [impact @(rf/subscribe [::sub/effect-impact])]
+  (let [impact @(rf/subscribe [::sub/effect-impact])
+        effects @(rf/subscribe [::sub/effects])]
     [:section.review-effect.col.centered.wide
      [:div.label "Policy assessments"]
      [:div.col.centered.narrow.padded
-      [:h2 "The Entities have assessed the Policy Proposal in the following ways"]
-      [:div.row.spaced.padded-high.wide
+      [:h2 "The Entities have assessed the Policy Proposal as follows:"]
+      [:div.padded.grid-auto.wide 
+       (for [e effects]
+         ^{:key e}
+         [archive/effect e])]
+      [:div.row.spaced.wide.padded
        (for [[entity {:impact/keys [positive negative]}] impact]
          ^{:key entity}
          [:h5 {:class (str (name entity) "-fg")} ;; TODO add 0/0 for yet to react entites
@@ -206,7 +207,7 @@
     [:p "Your policy will be assessed by other members of the Parliament of Species. Check out the Archive to see how it is doing."]
     [:p "If you want to keep working towards a balanced future, feel free to participate again."]]
    [:a.entry {:href (href :route.policymaking/select-entity)}
-    "Participate again!"]])
+    "Participate again"]])
 
 ;;; FORMS
 
@@ -242,8 +243,8 @@
               {:href (href :route.policymaking/write-policy)}
               "Proceed to the next step"]]
             [:<> 
-             [:h2 "How does this impact " (util/prn-entity (:session/entity session)) "?"]
-             [:p "How do you think this Policy Proposal would affect your entity? Write your assessments in the area below."]
+             [:h2 "Assess this Policy Proposal"]
+             [:p.text "How do you think this Policy Proposal would impact " (util/prn-entity (:session/entity session)) "? Write your assessments in the area below."]
              [:form.col.wide.text
               [:div.row.spaced
                [btn-impact "Positively" :impact/positive]
@@ -252,7 +253,7 @@
                           :value (:effect/text @state)
                           :on-change #(swap! state assoc :effect/text (.. % -target -value))}]
               [:label {:style {:color (if (valid-len? (:effect/text @state) 50) "var(--ok)" "var(--hl)")}}
-               "The contents of the Assessment, you have written " (count (:effect/text @state)) " of a minimum 50 characters."]
+               "The contents of the Assessment. You have written " (count (:effect/text @state)) " of a minimum 50 characters."]
               [:input#submit
                {:type "button"
                 :value "submit"
@@ -282,7 +283,8 @@
          [:div.label "Policy Proposal"]
          [:div.col.centered.text.wide.padded-high
           [:h2 "Write a new Policy Proposal"]
-          [:p.text "Make a new Policy Proposal in response to the projection that would positively impact both your entity and the others. You can improve the previous Policy Proposal by deriving it or create a brand new one."]
+          [:p.text "Make a new Policy Proposal in response to the Projection that would positively impact both your entity and the others."]
+          #_[:p.text "You can improve the previous Policy Proposal by deriving it or create a brand new one."]
           [:form.col.wide.text
            [:textarea.name {:rows 1
                             :value (:policy/name @state)
@@ -293,7 +295,7 @@
                        :value (:policy/text @state)
                        :on-change #(swap! state assoc :policy/text (.. % -target -value))}]
            [:label {:style {:color (if (valid-len? (:policy/text @state) 100) "var(--ok)" "var(--hl)")}}
-            "The contents of the Policy Proposal, you have written " (count (:policy/text @state)) " of a minimum 100 characters."]
+            "The contents of the Policy Proposal. You have written " (count (:policy/text @state)) " of a minimum 100 characters."]
            [:input#submit
             {:type "button"
              :value "Submit"

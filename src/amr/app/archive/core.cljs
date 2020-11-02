@@ -8,7 +8,7 @@
 
 (defn archive-hero []
   [:div.archive-hero 
-   [:h1 "Archive of the Future"]
+   [:h1 "Archive of Futures"]
    [:p "The Archive contains the Policy Proposals created by the representatives categorized by scientific Projections. As the Proposals are Assessed by the other entities, their reviews are added to the archive."]])
 
 (defn selection-bar [selected ns xs]
