@@ -1,7 +1,5 @@
 (ns amr.app.about.core
-  (:require [amr.app.game.components :as game]
-            [reitit.frontend.easy :refer [href]]
-            [re-frame.core :as rf]))
+  (:require [amr.app.game.components :as game]))
 
 (defn entity [{:keys [key represents relation]}]
   [:div.entity.bg.col.centered
@@ -22,9 +20,4 @@
    [:section.about-entities  
     (for [{:keys [key] :as e} game/entites]
       ^{:key key}
-      [entity e])]
-   [game/timeline {:static? true}]
-   [:section.col.centered  
-    [:a.entry
-     {:href (href :route/policymaking)}
-     "Write a policy"]]])
+      [entity e])]])

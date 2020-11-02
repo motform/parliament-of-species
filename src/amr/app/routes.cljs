@@ -67,11 +67,11 @@
      :in-header? true
      :controllers [{:start #(rf/dispatch [::archive/request-archive])}]}]
 
-   ["about"
-    {:name :route/about
+   ["entities"
+    {:name :route/entities
      :view about
-     :title "About"
-     :link-text "About"
+     :title "Entities"
+     :link-text "Entities"
      :in-header? true}]])
 
 (def router
