@@ -51,7 +51,8 @@
   (apply dissoc m (filter pred (keys m))))
 
 (defn prn-entity [entity]
-  (-> entity name (str/replace #"-" " ") str/capitalize))
+  (when entity
+    (-> entity name (str/replace #"-" " ") str/capitalize)))
 
 (defn ->entity [entity]
   (keyword "entity" entity))

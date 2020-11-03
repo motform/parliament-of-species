@@ -17,7 +17,7 @@
  ::current-session
  (fn [db _]
    (let [session (get-in db [:game :current-session])]
-     (get-in db [:sessions session]))))
+     (when session (get-in db [:sessions session])))))
 
 (reg-sub
  ::current-projection

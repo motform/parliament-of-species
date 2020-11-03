@@ -58,14 +58,21 @@
                     (rf/dispatch [::event/reset-session]))}
     "Participate!"]])
 
-(defn resume-session [{{:session/keys [id]} :session}]
+(defn resume-session [{{:session/keys [entity id]} :session}]
   [:section.resume.col.centered
-   [:p "You are already in a Parliamentary Session." [:br]
-    "Do you want to resume your participation?"]
-   [:div.landing-play 
-    {:on-click #(rf/dispatch [::event/resume id])
-     :style {:margin-top "10rem"}}
-    "Resume Participation"]])
+   [:p {:style {:text-align "center"}}
+    "You are already in a Parliamentary Session as " (util/prn-entity entity) "." [:br]
+    "Do you want to resume your participation or start a new session?"]
+   [:div.row.spaced.wide.text
+    [:div.landing-play
+     {:on-click #(rf/dispatch [::event/resume id])
+      :style {:margin-top "10rem"}}
+     "Resume Participation"]
+    [:div.landing-play
+     {:on-click #(do (rf/dispatch [::event/reset-session])
+                     (rf/dispatch [::app/navigate :route.policymaking/how-to]))
+      :style {:margin-top "10rem"}}
+     "Start a new session"]]])
 
 (defn intro-timeline []
   (let [current-session @(rf/subscribe [::sub/current-session])]
@@ -134,16 +141,16 @@
 (defn select-entity [session]
   (let [state (r/atom :no-hover)]
     (fn []
-      (if (:effect session)
-        [resume-session session]
-        [:section.col.centered.wide
-         [:h1 "Choose your Entity"]
-         [:p {:style {:margin-bottom "20rem"}}
-          "To join the Parliament of Species, select one of the four entities. You will imagine a future through this entity’s perspective."]
-         [:div.col.centered.wide
-          (for [{:keys [key] :as e} entites]
-            ^{:key key}
-            [entity e state])]]))))
+      [:<>
+       (when (:effect session) [resume-session session])
+       [:section.col.centered.wide
+        [:h1 "Choose your Entity"]
+        [:p {:style {:margin-bottom "20rem"}}
+         "To join the Parliament of Species, select one of the four entities. You will imagine a future through this entity’s perspective."]
+        [:div.col.centered.wide
+         (for [{:keys [key] :as e} entites]
+           ^{:key key}
+           [entity e state])]]])))
 
 (defn intro-effect []
   [:section.intro.col.centered

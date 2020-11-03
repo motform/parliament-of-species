@@ -215,10 +215,6 @@ label {
     justify-content: center;
 }
 
-.content {
-    max-width: 900px;
-}
-
 .landing h1 {
     font: 15rem/15rem var(--display-font);
     text-align: center;
