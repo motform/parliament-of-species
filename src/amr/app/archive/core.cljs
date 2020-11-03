@@ -104,7 +104,7 @@
 (defn policies []
   (let [state (r/atom {:hover nil :select nil})]
     (fn [selected-projection selected-policy]
-      (let [{:projection/keys [name policies]} @(rf/subscribe [::sub/policies-for selected-projection])]
+      (let [{:projection/keys [policies]} @(rf/subscribe [::sub/policies-for selected-projection])]
         [:section.policies.col.centered.wide
          [:div.grid {:style {:grid-gap "5rem"}}
           [:div.col {:style {:grid-row "span 2"}}
@@ -113,7 +113,7 @@
             (for [p (->> policies vals (sort-by #(count (:policy/effects %))) reverse)]
               ^{:key (:policy/id p)}
               [policy-card p selected-policy state])]]
-          (if (policies selected-policy)
+          (if (get policies selected-policy) ; MUST be an explicit call to `get` as policies might be nil
             [policy (policies selected-policy) selected-projection selected-policy state]
             [:div.label.wide.archive-policy
              "Select a Policy Proposal in the menu to the left to learn more it."])]]))))

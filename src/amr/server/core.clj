@@ -43,7 +43,9 @@
    (ring/routes
     (ring/create-resource-handler {:path "/"})
     (ring/redirect-trailing-slash-handler)
-    (ring/create-default-handler))))
+    (ring/create-default-handler
+     {:not-found ; delegate routing to the front end
+      (fn [_] {:status 200 :body (slurp "resources/public/index.html")})}))))
 
 (defn -main []
   (let [port (or (get-in config [:server :port]) 3000)]
